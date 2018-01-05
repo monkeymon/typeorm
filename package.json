@@ -96,9 +96,9 @@
     "setup:config": "gulp createTravisOrmConfig",
     "package": "gulp package"
   },
-  "main": "./build/compiled/index.js",
+  "main": "./build/compiled/src/index.js",
   "bin": {
-    "typeorm": "./build/compiled/cli.js"
+    "typeorm": "./build/compiled/src/cli.js"
   },
   "collective": {
     "type": "opencollective",
