@@ -23,6 +23,7 @@ import {SqljsEntityManager} from "./entity-manager/SqljsEntityManager";
 export * from "./container";
 export * from "./common/ObjectType";
 export * from "./common/ObjectLiteral";
+export * from "./common/DeepPartial";
 export * from "./error/QueryFailedError";
 export * from "./decorator/columns/Column";
 export * from "./decorator/columns/CreateDateColumn";
@@ -46,7 +47,6 @@ export * from "./decorator/options/JoinColumnOptions";
 export * from "./decorator/options/JoinTableOptions";
 export * from "./decorator/options/RelationOptions";
 export * from "./decorator/options/EntityOptions";
-export * from "./decorator/relations/RelationCount";
 export * from "./decorator/relations/JoinColumn";
 export * from "./decorator/relations/JoinTable";
 export * from "./decorator/relations/ManyToMany";
@@ -174,15 +174,30 @@ export function getConnectionManager(): ConnectionManager {
 
 /**
  * Creates a new connection and registers it in the manager.
+ * Only one connection from ormconfig will be created (name "default" or connection without name).
+ */
+export async function createConnection(): Promise<Connection>;
+
+/**
+ * Creates a new connection from the ormconfig file with a given name.
+ */
+export async function createConnection(name: string): Promise<Connection>;
+
+/**
+ * Creates a new connection and registers it in the manager.
+ */
+export async function createConnection(options: ConnectionOptions): Promise<Connection>;
+
+/**
+ * Creates a new connection and registers it in the manager.
  *
  * If connection options were not specified, then it will try to create connection automatically,
  * based on content of ormconfig (json/js/yml/xml/env) file or environment variables.
  * Only one connection from ormconfig will be created (name "default" or connection without name).
  */
-export async function createConnection(options?: ConnectionOptions): Promise<Connection> {
-    if (!options)
-        options = await getConnectionOptions();
-
+export async function createConnection(optionsOrName?: any): Promise<Connection> {
+    const connectionName = typeof optionsOrName === "string" ? optionsOrName : "default";
+    const options = optionsOrName instanceof Object ? optionsOrName : await getConnectionOptions(connectionName);
     return getConnectionManager().create(options).connect();
 }
 
