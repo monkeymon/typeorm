@@ -1,6 +1,7 @@
 .vscode/
 .idea/
-build/
+build/browser/
+build/package/
 coverage/
 node_modules/
 ormconfig.json
