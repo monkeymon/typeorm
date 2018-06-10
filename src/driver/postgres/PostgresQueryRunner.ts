@@ -152,26 +152,31 @@ export class PostgresQueryRunner extends BaseQueryRunner implements QueryRunner 
             throw new QueryRunnerAlreadyReleasedError();
 
         return new Promise<any[]>(async (ok, fail) => {
-            const databaseConnection = await this.connect();
-            this.driver.connection.logger.logQuery(query, parameters, this);
-            const queryStartTime = +new Date();
+            try {
+                const databaseConnection = await this.connect();
+                this.driver.connection.logger.logQuery(query, parameters, this);
+                const queryStartTime = +new Date();
 
-            databaseConnection.query(query, parameters, (err: any, result: any) => {
+                databaseConnection.query(query, parameters, (err: any, result: any) => {
 
-                // log slow queries if maxQueryExecution time is set
-                const maxQueryExecutionTime = this.driver.connection.options.maxQueryExecutionTime;
-                const queryEndTime = +new Date();
-                const queryExecutionTime = queryEndTime - queryStartTime;
-                if (maxQueryExecutionTime && queryExecutionTime > maxQueryExecutionTime)
-                    this.driver.connection.logger.logQuerySlow(queryExecutionTime, query, parameters, this);
+                    // log slow queries if maxQueryExecution time is set
+                    const maxQueryExecutionTime = this.driver.connection.options.maxQueryExecutionTime;
+                    const queryEndTime = +new Date();
+                    const queryExecutionTime = queryEndTime - queryStartTime;
+                    if (maxQueryExecutionTime && queryExecutionTime > maxQueryExecutionTime)
+                        this.driver.connection.logger.logQuerySlow(queryExecutionTime, query, parameters, this);
 
-                if (err) {
-                    this.driver.connection.logger.logQueryError(err, query, parameters, this);
-                    fail(new QueryFailedError(query, parameters, err));
-                } else {
-                    ok(result.rows);
-                }
-            });
+                    if (err) {
+                        this.driver.connection.logger.logQueryError(err, query, parameters, this);
+                        fail(new QueryFailedError(query, parameters, err));
+                    } else {
+                        ok(result.rows);
+                    }
+                });
+
+            } catch (err) {
+                fail(err);
+            }
         });
     }
 
@@ -196,31 +201,6 @@ export class PostgresQueryRunner extends BaseQueryRunner implements QueryRunner 
                 fail(err);
             }
         });
-    }
-
-    /**
-     * Inserts rows into closure table.
-     *
-     * todo: rethink its place
-     */
-    async insertIntoClosureTable(tableName: string, newEntityId: any, parentId: any, hasLevel: boolean): Promise<number> {
-        let sql = "";
-        if (hasLevel) {
-            sql = `INSERT INTO ${this.escapeTableName(tableName)}("ancestor", "descendant", "level") ` +
-                `SELECT "ancestor", "${newEntityId}", "level" + 1 FROM ${this.escapeTableName(tableName)} WHERE "descendant" = ${parentId} ` +
-                `UNION ALL SELECT "${newEntityId}", "${newEntityId}", 1`;
-        } else {
-            sql = `INSERT INTO ${this.escapeTableName(tableName)}("ancestor", "descendant") ` +
-                `SELECT "ancestor", "${newEntityId}" FROM ${this.escapeTableName(tableName)} WHERE "descendant" = ${parentId} ` +
-                `UNION ALL SELECT "${newEntityId}", "${newEntityId}"`;
-        }
-        await this.query(sql);
-        if (hasLevel) {
-            const results: ObjectLiteral[] = await this.query(`SELECT MAX(level) as level FROM ${this.escapeTableName(tableName)} WHERE descendant = ${parentId}`);
-            return results && results[0] && results[0]["level"] ? parseInt(results[0]["level"]) + 1 : 1;
-        } else {
-            return -1;
-        }
     }
 
     /**
@@ -1465,7 +1445,9 @@ export class PostgresQueryRunner extends BaseQueryRunner implements QueryRunner 
                     name: constraint["constraint_name"],
                     columnNames: indices.map(i => i["column_name"]),
                     isUnique: constraint["is_unique"] === "TRUE",
-                    where: constraint["condition"]
+                    where: constraint["condition"],
+                    isSpatial: false,
+                    isFulltext: false
                 });
             });
 
@@ -1773,6 +1755,8 @@ export class PostgresQueryRunner extends BaseQueryRunner implements QueryRunner 
         }
         if (column.type === "enum") {
             c += " " + this.buildEnumName(table, column, false);
+            if (column.isArray)
+                c += " array";
 
         } else if (!column.isGenerated || column.type === "uuid") {
             c += " " + this.connection.driver.createFullType(column);

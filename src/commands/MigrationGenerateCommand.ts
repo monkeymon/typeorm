@@ -92,7 +92,7 @@ export class MigrationGenerateCommand {
                 console.log(chalk.green(`Migration ${chalk.blue(path)} has been generated successfully.`));
 
             } else {
-                console.log(chalk.yellow(`No changes in database schema were found - cannot generate a migration. To create a new empty migration use "typeorm migrations:create" command`));
+                console.log(chalk.yellow(`No changes in database schema were found - cannot generate a migration. To create a new empty migration use "typeorm migration:create" command`));
             }
             await connection.close();
 
@@ -115,7 +115,7 @@ export class MigrationGenerateCommand {
     protected static getTemplate(name: string, timestamp: number, upSqls: string[], downSqls: string[]): string {
         return `import {MigrationInterface, QueryRunner} from "typeorm";
 
-export class ${camelCase(name)}${timestamp} implements MigrationInterface {
+export class ${camelCase(name, true)}${timestamp} implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<any> {
 ${upSqls.join(`

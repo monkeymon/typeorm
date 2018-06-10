@@ -294,7 +294,7 @@ export class InsertQueryBuilder<Entity> extends QueryBuilder<Entity> {
 
             // if user did not specified such list then return all columns except auto-increment one
             // for Oracle we return auto-increment column as well because Oracle does not support DEFAULT VALUES expression
-            if (column.isGenerated && column.generationStrategy === "increment" && !(this.connection.driver instanceof OracleDriver))
+            if (column.isGenerated && column.generationStrategy === "increment" && !(this.connection.driver instanceof OracleDriver) && !(this.connection.driver instanceof MysqlDriver))
                 return false;
 
             return true;
@@ -345,9 +345,9 @@ export class InsertQueryBuilder<Entity> extends QueryBuilder<Entity> {
                     // if column is relational and value is an object then get real referenced column value from this object
                     // for example column value is { question: { id: 1 } }, value will be equal to { id: 1 }
                     // and we extract "1" from this object
-                    if (column.referencedColumn && value instanceof Object && !(value instanceof Function)) { // todo: check if we still need it since getEntityValue already has similar code
+                    /*if (column.referencedColumn && value instanceof Object && !(value instanceof Function)) { // todo: check if we still need it since getEntityValue already has similar code
                         value = column.referencedColumn.getEntityValue(value);
-                    }
+                    }*/
 
                     // make sure our value is normalized by a driver
                     value = this.connection.driver.preparePersistentValue(value, column);

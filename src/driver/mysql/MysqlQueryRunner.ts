@@ -189,31 +189,6 @@ export class MysqlQueryRunner extends BaseQueryRunner implements QueryRunner {
     }
 
     /**
-     * Inserts rows into the closure table.
-     */
-    async insertIntoClosureTable(tableName: string, newEntityId: any, parentId: any, hasLevel: boolean): Promise<number> {
-        if (hasLevel) {
-            await this.query(
-                `INSERT INTO ${this.escapeTableName(tableName)}(\`ancestor\`, \`descendant\`, \`level\`) ` +
-                `SELECT \`ancestor\`, \`${newEntityId}\`, \`level\` + 1 FROM ${this.escapeTableName(tableName)} WHERE \`descendant\` = ${parentId} ` +
-                `UNION ALL SELECT \`${newEntityId}\`, \`${newEntityId}\`, 1`
-            );
-        } else {
-            await this.query(
-                `INSERT INTO ${this.escapeTableName(tableName)}(\`ancestor\`, \`descendant\`) ` +
-                `SELECT \`ancestor\`, \`${newEntityId}\` FROM ${this.escapeTableName(tableName)} WHERE \`descendant\` = ${parentId} ` +
-                `UNION ALL SELECT \`${newEntityId}\`, \`${newEntityId}\``
-            );
-        }
-        if (hasLevel) {
-            const results: ObjectLiteral[] = await this.query(`SELECT MAX(\`level\`) as \`level\` FROM ${this.escapeTableName(tableName)} WHERE \`descendant\` = ${parentId}`);
-            return results && results[0] && results[0]["level"] ? parseInt(results[0]["level"]) + 1 : 1;
-        } else {
-            return -1;
-        }
-    }
-
-    /**
      * Returns all available database names including system databases.
      */
     async getDatabases(): Promise<string[]> {
@@ -1127,7 +1102,7 @@ export class MysqlQueryRunner extends BaseQueryRunner implements QueryRunner {
         
         const columnsSql = `SELECT * FROM \`INFORMATION_SCHEMA\`.\`COLUMNS\` WHERE ` + tablesCondition;
 
-        const primaryKeySql = `SELECT * FROM \`INFORMATION_SCHEMA\`.\`KEY_COLUMN_USAGE\` WHERE \`CONSTRAINT_NAME\` = "PRIMARY" AND (${tablesCondition})`;
+        const primaryKeySql = `SELECT * FROM \`INFORMATION_SCHEMA\`.\`KEY_COLUMN_USAGE\` WHERE \`CONSTRAINT_NAME\` = 'PRIMARY' AND (${tablesCondition})`;
 
         const collationsSql = `SELECT \`SCHEMA_NAME\`, \`DEFAULT_CHARACTER_SET_NAME\` as \`CHARSET\`, \`DEFAULT_COLLATION_NAME\` AS \`COLLATION\` FROM \`INFORMATION_SCHEMA\`.\`SCHEMATA\``;
 

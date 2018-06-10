@@ -21,6 +21,7 @@ import {TreeType} from "./types/TreeTypes";
 import {TreeMetadataArgs} from "../metadata-args/TreeMetadataArgs";
 import {UniqueMetadata} from "./UniqueMetadata";
 import {CheckMetadata} from "./CheckMetadata";
+import {QueryRunner} from "..";
 
 /**
  * Contains all entity metadata.
@@ -108,13 +109,13 @@ export class EntityMetadata {
 
     /**
      * Entity table path. Contains database name, schema name and table name.
-     * E.g. "myDB"."mySchema"."myTable"
+     * E.g. myDB.mySchema.myTable
      */
     tablePath: string;
 
     /**
      * Entity schema path. Contains database name and schema name.
-     * E.g. "myDB"."mySchema"
+     * E.g. myDB.mySchema
      */
     schemaPath?: string;
 
@@ -485,14 +486,18 @@ export class EntityMetadata {
     /**
      * Creates a new entity.
      */
-    create(): any {
+    create(queryRunner?: QueryRunner): any {
         // if target is set to a function (e.g. class) that can be created then create it
-        if (this.target instanceof Function)
-            return new (<any> this.target)();
+        let ret: any;
+        if (this.target instanceof Function) {
+            ret = new (<any> this.target)();
+            this.lazyRelations.forEach(relation => this.connection.relationLoader.enableLazyLoad(relation, ret, queryRunner));
+            return ret;
+        }
 
         // otherwise simply return a new empty object
         const newObject = {};
-        this.lazyRelations.forEach(relation => this.connection.relationLoader.enableLazyLoad(relation, newObject));
+        this.lazyRelations.forEach(relation => this.connection.relationLoader.enableLazyLoad(relation, newObject, queryRunner));
         return newObject;
     }
 
@@ -769,12 +774,17 @@ export class EntityMetadata {
      * Registers a new column in the entity and recomputes all depend properties.
      */
     registerColumn(column: ColumnMetadata) {
+        if (this.ownColumns.indexOf(column) !== -1)
+            return;
+
         this.ownColumns.push(column);
         this.columns = this.embeddeds.reduce((columns, embedded) => columns.concat(embedded.columnsFromTree), this.ownColumns);
         this.primaryColumns = this.columns.filter(column => column.isPrimary);
         this.hasMultiplePrimaryKeys = this.primaryColumns.length > 1;
         this.hasUUIDGeneratedColumns = this.columns.filter(column => column.isGenerated || column.generationStrategy === "uuid").length > 0;
         this.propertiesMap = this.createPropertiesMap();
+        if (this.childEntityMetadatas)
+            this.childEntityMetadatas.forEach(entityMetadata => entityMetadata.registerColumn(column));
     }
 
     /**
