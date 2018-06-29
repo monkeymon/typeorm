@@ -31,13 +31,13 @@ var Post = /** @class */ (function () {
     ], Post.prototype, "text", void 0);
     __decorate([
         index_1.ManyToOne(function (type) { return Author_1.Author; }, {
-            cascadeInsert: true
+            cascade: ["insert"]
         }),
         __metadata("design:type", Author_1.Author)
     ], Post.prototype, "author", void 0);
     __decorate([
         ManyToMany_1.ManyToMany(function (type) { return Category_1.Category; }, {
-            cascadeInsert: true
+            cascade: ["insert"]
         }),
         JoinTable_1.JoinTable(),
         __metadata("design:type", Array)

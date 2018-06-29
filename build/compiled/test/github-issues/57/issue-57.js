@@ -48,8 +48,6 @@ describe("github issues > #57 cascade insert not working with OneToOne relations
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        schemaCreate: true,
-                        dropSchema: true,
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -57,53 +55,7 @@ describe("github issues > #57 cascade insert not working with OneToOne relations
     }); });
     beforeEach(function () { return test_utils_1.reloadTestingDatabases(connections); });
     after(function () { return test_utils_1.closeTestingConnections(connections); });
-    it("should persist successfully from owner side", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
-        var token, user, tokens, users;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    token = new AccessToken_1.AccessToken();
-                    user = new User_1.User();
-                    user.email = "mwelnick@test.com";
-                    user.access_token = token; // this is necessary to cascades to work because we are saving user, not token
-                    token.user = user; // this is not necessary at all
-                    // save
-                    return [4 /*yield*/, connection.getRepository(User_1.User).save(user)];
-                case 1:
-                    // save
-                    _a.sent();
-                    return [4 /*yield*/, connection.getRepository(AccessToken_1.AccessToken)
-                            .createQueryBuilder("token")
-                            .innerJoinAndSelect("token.user", "user")
-                            .getMany()];
-                case 2:
-                    tokens = _a.sent();
-                    return [4 /*yield*/, connection.getRepository(User_1.User)
-                            .createQueryBuilder("user")
-                            .innerJoinAndSelect("user.access_token", "token")
-                            .getMany()];
-                case 3:
-                    users = _a.sent();
-                    chai_1.expect(users).not.to.be.empty;
-                    users.should.be.eql([{
-                            primaryKey: 1,
-                            email: "mwelnick@test.com",
-                            access_token: {
-                                primaryKey: 1
-                            }
-                        }]);
-                    chai_1.expect(tokens).not.to.be.empty;
-                    tokens.should.be.eql([{
-                            primaryKey: 1,
-                            user: {
-                                primaryKey: 1,
-                                email: "mwelnick@test.com",
-                            }
-                        }]);
-                    return [2 /*return*/];
-            }
-        });
-    }); })); });
+    // this test is no absolutely complete because cascade is now only allowed from one side of the relation
     it("should persist successfully from inverse side", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
         var token, user, tokens, users;
         return __generator(this, function (_a) {

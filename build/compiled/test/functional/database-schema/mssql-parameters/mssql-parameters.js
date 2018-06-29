@@ -48,8 +48,6 @@ describe("database schema > mssql-parameters", function () {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
                         enabledDrivers: ["mssql"],
-                        schemaCreate: true,
-                        dropSchema: true,
                     })];
                 case 1:
                     connections = _a.sent();
@@ -73,7 +71,7 @@ describe("database schema > mssql-parameters", function () {
                     return [4 /*yield*/, postRepository.save(post1)];
                 case 1:
                     _a.sent();
-                    return [4 /*yield*/, postRepository.findOneById(1)];
+                    return [4 /*yield*/, postRepository.findOne(1)];
                 case 2:
                     loadedPost1 = (_a.sent());
                     loadedPost1.id.should.be.equal(post1.id);
@@ -85,7 +83,7 @@ describe("database schema > mssql-parameters", function () {
                     return [4 /*yield*/, postRepository.save(loadedPost1)];
                 case 3:
                     _a.sent();
-                    return [4 /*yield*/, postRepository.findOneById(1)];
+                    return [4 /*yield*/, postRepository.findOne(1)];
                 case 4:
                     loadedPost1 = (_a.sent());
                     loadedPost1.name.should.be.equal("Updated Post #1");
@@ -93,7 +91,7 @@ describe("database schema > mssql-parameters", function () {
                     return [4 /*yield*/, postRepository.remove(loadedPost1)];
                 case 5:
                     _a.sent();
-                    return [4 /*yield*/, postRepository.findOneById(1)];
+                    return [4 /*yield*/, postRepository.findOne(1)];
                 case 6:
                     loadedPost1 = (_a.sent());
                     chai_1.expect(loadedPost1).to.not.exist;
@@ -109,7 +107,7 @@ describe("database schema > mssql-parameters", function () {
                             .execute()];
                 case 7:
                     _a.sent();
-                    return [4 /*yield*/, postRepository.findOneById(2)];
+                    return [4 /*yield*/, postRepository.findOne(2)];
                 case 8:
                     loadedPost2 = (_a.sent());
                     loadedPost2.id.should.be.equal(post2.id);
@@ -123,7 +121,7 @@ describe("database schema > mssql-parameters", function () {
                             .execute()];
                 case 9:
                     _a.sent();
-                    return [4 /*yield*/, postRepository.findOneById(2)];
+                    return [4 /*yield*/, postRepository.findOne(2)];
                 case 10:
                     loadedPost2 = (_a.sent());
                     loadedPost2.name.should.be.equal("Updated Post #2");
@@ -134,7 +132,7 @@ describe("database schema > mssql-parameters", function () {
                             .execute()];
                 case 11:
                     _a.sent();
-                    return [4 /*yield*/, postRepository.findOneById(2)];
+                    return [4 /*yield*/, postRepository.findOne(2)];
                 case 12:
                     loadedPost2 = (_a.sent());
                     chai_1.expect(loadedPost2).to.not.exist;

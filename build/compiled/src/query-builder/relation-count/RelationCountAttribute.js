@@ -53,7 +53,7 @@ var RelationCountAttribute = /** @class */ (function () {
     Object.defineProperty(RelationCountAttribute.prototype, "junctionAlias", {
         get: function () {
             var _a = this.relationName.split("."), parentAlias = _a[0], relationProperty = _a[1];
-            return parentAlias + "_" + relationProperty + "_relation_count";
+            return parentAlias + "_" + relationProperty + "_rc";
         },
         enumerable: true,
         configurable: true

@@ -7,4 +7,5 @@ export declare class PostController {
     save(post: Post, category: Category, entityManager: EntityManager): Promise<void>;
     nonSafeSave(entityManager: EntityManager, post: Post, category: Category): Promise<void>;
     saveWithRepository(post: Post, category: Category, postRepository: Repository<Post>, categoryRepository: CategoryRepository): Promise<Category | undefined>;
+    saveWithNonDefaultIsolation(post: Post, category: Category, entityManager: EntityManager): Promise<void>;
 }

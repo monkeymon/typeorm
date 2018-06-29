@@ -1,49 +1,23 @@
 /// <reference types="node" />
 import { QueryRunner } from "../../query-runner/QueryRunner";
-import { ObjectLiteral } from "../../common/ObjectLiteral";
-import { TableColumn } from "../../schema-builder/schema/TableColumn";
-import { Table } from "../../schema-builder/schema/Table";
-import { TableIndex } from "../../schema-builder/schema/TableIndex";
-import { TableForeignKey } from "../../schema-builder/schema/TableForeignKey";
+import { TableColumn } from "../../schema-builder/table/TableColumn";
+import { Table } from "../../schema-builder/table/Table";
+import { TableIndex } from "../../schema-builder/table/TableIndex";
+import { TableForeignKey } from "../../schema-builder/table/TableForeignKey";
 import { PostgresDriver } from "./PostgresDriver";
-import { Connection } from "../../connection/Connection";
 import { ReadStream } from "../../platform/PlatformTools";
-import { EntityManager } from "../../entity-manager/EntityManager";
-import { InsertResult } from "../InsertResult";
+import { TableUnique } from "../../schema-builder/table/TableUnique";
+import { BaseQueryRunner } from "../../query-runner/BaseQueryRunner";
+import { TableCheck } from "../../schema-builder/table/TableCheck";
+import { IsolationLevel } from "../types/IsolationLevel";
 /**
  * Runs queries on a single postgres database connection.
  */
-export declare class PostgresQueryRunner implements QueryRunner {
+export declare class PostgresQueryRunner extends BaseQueryRunner implements QueryRunner {
     /**
      * Database driver used by connection.
      */
     driver: PostgresDriver;
-    /**
-     * Connection used by this query runner.
-     */
-    connection: Connection;
-    /**
-     * Isolated entity manager working only with current query runner.
-     */
-    manager: EntityManager;
-    /**
-     * Indicates if connection for this query runner is released.
-     * Once its released, query runner cannot run queries anymore.
-     */
-    isReleased: boolean;
-    /**
-     * Indicates if transaction is in progress.
-     */
-    isTransactionActive: boolean;
-    /**
-     * Stores temporarily user data.
-     * Useful for sharing data with subscribers.
-     */
-    data: {};
-    /**
-     * Real database connection from a connection pool used to perform queries.
-     */
-    protected databaseConnection: any;
     /**
      * Promise used to obtain a database connection for a first time.
      */
@@ -52,23 +26,6 @@ export declare class PostgresQueryRunner implements QueryRunner {
      * Special callback provided by a driver used to release a created connection.
      */
     protected releaseCallback: Function;
-    /**
-     * Indicates if special query runner mode in which sql queries won't be executed is enabled.
-     */
-    protected sqlMemoryMode: boolean;
-    /**
-     * Sql-s stored if "sql in memory" mode is enabled.
-     */
-    protected sqlsInMemory: (string | {
-        up: string;
-        down: string;
-    })[];
-    /**
-     * Mode in which query runner executes.
-     * Used for replication.
-     * If replication is not setup its value is ignored.
-     */
-    protected mode: "master" | "slave";
     constructor(driver: PostgresDriver, mode?: "master" | "slave");
     /**
      * Creates/uses database connection from the connection pool to perform further operations.
@@ -83,7 +40,7 @@ export declare class PostgresQueryRunner implements QueryRunner {
     /**
      * Starts transaction.
      */
-    startTransaction(): Promise<void>;
+    startTransaction(isolationLevel?: IsolationLevel): Promise<void>;
     /**
      * Commits transaction.
      * Error will be thrown if transaction was not started.
@@ -103,65 +60,64 @@ export declare class PostgresQueryRunner implements QueryRunner {
      */
     stream(query: string, parameters?: any[], onEnd?: Function, onError?: Function): Promise<ReadStream>;
     /**
-     * Insert a new row with given values into the given table.
-     * Returns value of the generated column if given and generate column exist in the table.
+     * Returns all available database names including system databases.
      */
-    insert(tablePath: string, keyValues: ObjectLiteral): Promise<InsertResult>;
+    getDatabases(): Promise<string[]>;
     /**
-     * Updates rows that match given conditions in the given table.
+     * Returns all available schema names including system schemas.
+     * If database parameter specified, returns schemas of that database.
      */
-    update(tablePath: string, valuesMap: ObjectLiteral, conditions: ObjectLiteral): Promise<void>;
-    /**
-     * Deletes from the given table by a given conditions.
-     */
-    delete(tablePath: string, conditions: ObjectLiteral | string, maybeParameters?: any[]): Promise<void>;
-    /**
-     * Inserts rows into closure table.
-     *
-     * todo: rethink its place
-     */
-    insertIntoClosureTable(tablePath: string, newEntityId: any, parentId: any, hasLevel: boolean): Promise<number>;
-    /**
-     * Loads given table's data from the database.
-     */
-    getTable(tablePath: string): Promise<Table | undefined>;
-    /**
-     * Loads all tables (with given names) from the database and creates a Table from them.
-     */
-    getTables(tablePaths: string[]): Promise<Table[]>;
+    getSchemas(database?: string): Promise<string[]>;
     /**
      * Checks if database with the given name exist.
      */
     hasDatabase(database: string): Promise<boolean>;
     /**
+     * Checks if schema with the given name exist.
+     */
+    hasSchema(schema: string): Promise<boolean>;
+    /**
      * Checks if table with the given name exist in the database.
      */
-    hasTable(tablePath: string): Promise<boolean>;
-    /**
-     * Creates a database if it's not created.
-     * Postgres does not supports database creation inside a transaction block.
-     */
-    createDatabase(database: string): Promise<void[]>;
-    /**
-     * Creates a schema if it's not created.
-     */
-    createSchema(schemas: string[]): Promise<void[]>;
-    /**
-     * Creates a new table from the given table metadata and column metadatas.
-     */
-    createTable(table: Table): Promise<void>;
-    /**
-     * Drops the table.
-     */
-    dropTable(tablePath: string): Promise<void>;
+    hasTable(tableOrName: Table | string): Promise<boolean>;
     /**
      * Checks if column with the given name exist in the given table.
      */
-    hasColumn(tablePath: string, columnName: string): Promise<boolean>;
+    hasColumn(tableOrName: Table | string, columnName: string): Promise<boolean>;
+    /**
+     * Creates a new database.
+     * Postgres does not supports database creation inside a transaction block.
+     */
+    createDatabase(database: string, ifNotExist?: boolean): Promise<void>;
+    /**
+     * Drops database.
+     * Postgres does not supports database drop inside a transaction block.
+     */
+    dropDatabase(database: string, ifExist?: boolean): Promise<void>;
+    /**
+     * Creates a new table schema.
+     */
+    createSchema(schema: string, ifNotExist?: boolean): Promise<void>;
+    /**
+     * Drops table schema.
+     */
+    dropSchema(schemaPath: string, ifExist?: boolean, isCascade?: boolean): Promise<void>;
+    /**
+     * Creates a new table.
+     */
+    createTable(table: Table, ifNotExist?: boolean, createForeignKeys?: boolean, createIndices?: boolean): Promise<void>;
+    /**
+     * Drops the table.
+     */
+    dropTable(target: Table | string, ifExist?: boolean, dropForeignKeys?: boolean, dropIndices?: boolean): Promise<void>;
+    /**
+     * Renames the given table.
+     */
+    renameTable(oldTableOrName: Table | string, newTableName: string): Promise<void>;
     /**
      * Creates a new column from the column in the table.
      */
-    addColumn(tableOrPath: Table | string, column: TableColumn): Promise<void>;
+    addColumn(tableOrName: Table | string, column: TableColumn): Promise<void>;
     /**
      * Creates a new columns from the column in the table.
      */
@@ -177,22 +133,62 @@ export declare class PostgresQueryRunner implements QueryRunner {
     /**
      * Changes a column in the table.
      */
-    changeColumns(table: Table, changedColumns: {
+    changeColumns(tableOrName: Table | string, changedColumns: {
         newColumn: TableColumn;
         oldColumn: TableColumn;
     }[]): Promise<void>;
     /**
      * Drops column in the table.
      */
-    dropColumn(table: Table, column: TableColumn): Promise<void>;
+    dropColumn(tableOrName: Table | string, columnOrName: TableColumn | string): Promise<void>;
     /**
      * Drops the columns in the table.
      */
-    dropColumns(table: Table, columns: TableColumn[]): Promise<void>;
+    dropColumns(tableOrName: Table | string, columns: TableColumn[]): Promise<void>;
     /**
-     * Updates table's primary keys.
+     * Creates a new primary key.
      */
-    updatePrimaryKeys(table: Table): Promise<void>;
+    createPrimaryKey(tableOrName: Table | string, columnNames: string[]): Promise<void>;
+    /**
+     * Updates composite primary keys.
+     */
+    updatePrimaryKeys(tableOrName: Table | string, columns: TableColumn[]): Promise<void>;
+    /**
+     * Drops a primary key.
+     */
+    dropPrimaryKey(tableOrName: Table | string): Promise<void>;
+    /**
+     * Creates new unique constraint.
+     */
+    createUniqueConstraint(tableOrName: Table | string, uniqueConstraint: TableUnique): Promise<void>;
+    /**
+     * Creates new unique constraints.
+     */
+    createUniqueConstraints(tableOrName: Table | string, uniqueConstraints: TableUnique[]): Promise<void>;
+    /**
+     * Drops unique constraint.
+     */
+    dropUniqueConstraint(tableOrName: Table | string, uniqueOrName: TableUnique | string): Promise<void>;
+    /**
+     * Drops unique constraints.
+     */
+    dropUniqueConstraints(tableOrName: Table | string, uniqueConstraints: TableUnique[]): Promise<void>;
+    /**
+     * Creates new check constraint.
+     */
+    createCheckConstraint(tableOrName: Table | string, checkConstraint: TableCheck): Promise<void>;
+    /**
+     * Creates new check constraints.
+     */
+    createCheckConstraints(tableOrName: Table | string, checkConstraints: TableCheck[]): Promise<void>;
+    /**
+     * Drops check constraint.
+     */
+    dropCheckConstraint(tableOrName: Table | string, checkOrName: TableCheck | string): Promise<void>;
+    /**
+     * Drops check constraints.
+     */
+    dropCheckConstraints(tableOrName: Table | string, checkConstraints: TableCheck[]): Promise<void>;
     /**
      * Creates a new foreign key.
      */
@@ -204,7 +200,7 @@ export declare class PostgresQueryRunner implements QueryRunner {
     /**
      * Drops a foreign key from the table.
      */
-    dropForeignKey(tableOrName: Table | string, foreignKey: TableForeignKey): Promise<void>;
+    dropForeignKey(tableOrName: Table | string, foreignKeyOrName: TableForeignKey | string): Promise<void>;
     /**
      * Drops a foreign keys from the table.
      */
@@ -212,62 +208,121 @@ export declare class PostgresQueryRunner implements QueryRunner {
     /**
      * Creates a new index.
      */
-    createIndex(table: Table | string, index: TableIndex): Promise<void>;
+    createIndex(tableOrName: Table | string, index: TableIndex): Promise<void>;
+    /**
+     * Creates a new indices
+     */
+    createIndices(tableOrName: Table | string, indices: TableIndex[]): Promise<void>;
     /**
      * Drops an index from the table.
      */
-    dropIndex(tableSchemeOrPath: Table | string, indexName: string): Promise<void>;
+    dropIndex(tableOrName: Table | string, indexOrName: TableIndex | string): Promise<void>;
     /**
-     * Truncates table.
+     * Drops an indices from the table.
      */
-    truncate(tablePath: string): Promise<void>;
+    dropIndices(tableOrName: Table | string, indices: TableIndex[]): Promise<void>;
+    /**
+     * Clears all table contents.
+     * Note: this operation uses SQL's TRUNCATE query which cannot be reverted in transactions.
+     */
+    clearTable(tableName: string): Promise<void>;
     /**
      * Removes all tables from the currently connected database.
      */
-    clearDatabase(schemas?: string[]): Promise<void>;
+    clearDatabase(): Promise<void>;
     /**
-     * Enables special query runner mode in which sql queries won't be executed,
-     * instead they will be memorized into a special variable inside query runner.
-     * You can get memorized sql using getMemorySql() method.
+     * Loads all tables (with given names) from the database and creates a Table from them.
      */
-    enableSqlMemory(): void;
+    protected loadTables(tableNames: string[]): Promise<Table[]>;
     /**
-     * Disables special query runner mode in which sql queries won't be executed
-     * started by calling enableSqlMemory() method.
-     *
-     * Previously memorized sql will be flushed.
+     * Builds create table sql.
      */
-    disableSqlMemory(): void;
+    protected createTableSql(table: Table, createForeignKeys?: boolean): string;
     /**
-     * Gets sql stored in the memory. Parameters in the sql are already replaced.
+     * Extracts schema name from given Table object or table name string.
      */
-    getMemorySql(): (string | {
-        up: string;
-        down: string;
-    })[];
+    protected extractSchema(target: Table | string): string | undefined;
     /**
-     * Executes sql used special for schema build.
+     * Drops ENUM type from given schemas.
      */
-    protected schemaQuery(upQuery: string, downQuery: string): Promise<void>;
+    protected dropEnumTypes(schemaNames: string): Promise<void>;
     /**
-     * Extracts schema name from given Table object or tablePath string.
+     * Checks if enum with the given name exist in the database.
      */
-    protected extractSchema(tableOrPath: Table | string): string | undefined;
-    protected foreignKeySql(tableOrPath: Table | string, foreignKey: TableForeignKey): {
-        add: string;
-        drop: string;
-    };
+    protected hasEnumType(table: Table, column: TableColumn): Promise<boolean>;
+    /**
+     * Builds create ENUM type sql.
+     */
+    protected createEnumTypeSql(table: Table, column: TableColumn, enumName?: string): string;
+    /**
+     * Builds create ENUM type sql.
+     */
+    protected dropEnumTypeSql(table: Table, column: TableColumn, enumName?: string): string;
+    /**
+     * Builds drop table sql.
+     */
+    protected dropTableSql(tableOrPath: Table | string): string;
+    /**
+     * Builds create index sql.
+     */
+    protected createIndexSql(table: Table, index: TableIndex): string;
+    /**
+     * Builds drop index sql.
+     */
+    protected dropIndexSql(table: Table, indexOrName: TableIndex | string): string;
+    /**
+     * Builds create primary key sql.
+     */
+    protected createPrimaryKeySql(table: Table, columnNames: string[]): string;
+    /**
+     * Builds drop primary key sql.
+     */
+    protected dropPrimaryKeySql(table: Table): string;
+    /**
+     * Builds create unique constraint sql.
+     */
+    protected createUniqueConstraintSql(table: Table, uniqueConstraint: TableUnique): string;
+    /**
+     * Builds drop unique constraint sql.
+     */
+    protected dropUniqueConstraintSql(table: Table, uniqueOrName: TableUnique | string): string;
+    /**
+     * Builds create check constraint sql.
+     */
+    protected createCheckConstraintSql(table: Table, checkConstraint: TableCheck): string;
+    /**
+     * Builds drop check constraint sql.
+     */
+    protected dropCheckConstraintSql(table: Table, checkOrName: TableCheck | string): string;
+    /**
+     * Builds create foreign key sql.
+     */
+    protected createForeignKeySql(table: Table, foreignKey: TableForeignKey): string;
+    /**
+     * Builds drop foreign key sql.
+     */
+    protected dropForeignKeySql(table: Table, foreignKeyOrName: TableForeignKey | string): string;
+    /**
+     * Builds sequence name from given table and column.
+     */
+    protected buildSequenceName(table: Table, columnOrName: TableColumn | string, currentSchema?: string, disableEscape?: true, skipSchema?: boolean): string;
+    /**
+     * Builds ENUM type name from given table and column.
+     */
+    protected buildEnumName(table: Table, columnOrName: TableColumn | string, withSchema?: boolean, disableEscape?: boolean, toOld?: boolean): string;
     /**
      * Escapes given table path.
      */
-    protected escapeTablePath(tableOrPath: Table | string, disableEscape?: boolean): string;
-    protected parseTablePath(tablePath: string): any;
+    protected escapeTableName(target: Table | string, disableEscape?: boolean): string;
     /**
-     * Parametrizes given object of values. Used to create column=value queries.
+     * Returns object with table schema and table name.
      */
-    protected parametrize(objectLiteral: ObjectLiteral, startIndex?: number): string[];
+    protected parseTableName(target: Table | string): {
+        schema: string;
+        tableName: string;
+    };
     /**
      * Builds a query for create column.
      */
-    protected buildCreateColumnSql(column: TableColumn, skipPrimary: boolean): string;
+    protected buildCreateColumnSql(table: Table, column: TableColumn): string;
 }

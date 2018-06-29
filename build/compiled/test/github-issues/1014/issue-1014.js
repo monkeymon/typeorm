@@ -84,7 +84,7 @@ describe("github issues > #1014 Transaction doesn't rollback", function () {
                     return [3 /*break*/, 5];
                 case 5:
                     chai_1.expect(error).to.be.instanceof(Error);
-                    return [4 /*yield*/, connection.manager.findOneById(TestEntity_1.TestEntity, 1)];
+                    return [4 /*yield*/, connection.manager.findOne(TestEntity_1.TestEntity, 1)];
                 case 6:
                     loadedTestEntity = _a.sent();
                     chai_1.expect(loadedTestEntity).not.to.be.empty;

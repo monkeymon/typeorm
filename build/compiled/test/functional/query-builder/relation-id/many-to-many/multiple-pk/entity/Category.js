@@ -13,7 +13,6 @@ var Entity_1 = require("../../../../../../../src/decorator/entity/Entity");
 var Column_1 = require("../../../../../../../src/decorator/columns/Column");
 var ManyToMany_1 = require("../../../../../../../src/decorator/relations/ManyToMany");
 var PrimaryColumn_1 = require("../../../../../../../src/decorator/columns/PrimaryColumn");
-var Index_1 = require("../../../../../../../src/decorator/Index");
 var JoinTable_1 = require("../../../../../../../src/decorator/relations/JoinTable");
 var Post_1 = require("./Post");
 var Image_1 = require("./Image");
@@ -47,8 +46,7 @@ var Category = /** @class */ (function () {
         __metadata("design:type", Array)
     ], Category.prototype, "images", void 0);
     Category = __decorate([
-        Entity_1.Entity(),
-        Index_1.Index(["id", "code"])
+        Entity_1.Entity()
     ], Category);
     return Category;
 }());

@@ -1,5 +1,3 @@
-import { ObjectLiteral } from "../../common/ObjectLiteral";
-import { InsertResult } from "../InsertResult";
 import { AbstractSqliteQueryRunner } from "../sqlite-abstract/AbstractSqliteQueryRunner";
 import { SqliteDriver } from "./SqliteDriver";
 /**
@@ -18,9 +16,4 @@ export declare class SqliteQueryRunner extends AbstractSqliteQueryRunner {
      * Executes a given SQL query.
      */
     query(query: string, parameters?: any[]): Promise<any>;
-    /**
-     * Insert a new row with given values into the given table.
-     * Returns value of the generated column if given and generate column exist in the table.
-     */
-    insert(tableName: string, keyValues: ObjectLiteral): Promise<InsertResult>;
 }

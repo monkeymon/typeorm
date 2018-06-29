@@ -34,14 +34,13 @@ var PostDetails = /** @class */ (function () {
     ], PostDetails.prototype, "post", void 0);
     __decorate([
         index_1.OneToMany(function (type) { return Category_1.Category; }, function (category) { return category.details; }, {
-            cascadeInsert: true
+            cascade: ["insert"]
         }),
         __metadata("design:type", Array)
     ], PostDetails.prototype, "categories", void 0);
     __decorate([
         index_1.ManyToOne(function (type) { return Chapter_1.Chapter; }, function (chapter) { return chapter.postDetails; }, {
-            cascadeInsert: true,
-            cascadeRemove: true
+            cascade: ["insert"]
         }),
         __metadata("design:type", Chapter_1.Chapter)
     ], PostDetails.prototype, "chapter", void 0);

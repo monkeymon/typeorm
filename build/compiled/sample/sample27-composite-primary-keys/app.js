@@ -66,7 +66,7 @@ index_1.createConnection(options).then(function (connection) { return __awaiter(
                 _a.sent();
                 console.log("Post has been saved: ", post);
                 console.log("now loading the post: ");
-                return [4 /*yield*/, postRepository.findOneById({ id: 1, type: "person" })];
+                return [4 /*yield*/, postRepository.findOne({ id: 1, type: "person" })];
             case 2:
                 loadedPost = _a.sent();
                 console.log("loaded post: ", loadedPost);

@@ -28,9 +28,7 @@ var Ticket = /** @class */ (function () {
     ], Ticket.prototype, "name", void 0);
     __decorate([
         OneToOne_1.OneToOne(function (type) { return Request_1.Request; }, {
-            cascadeInsert: true,
-            cascadeUpdate: true,
-            cascadeRemove: true
+            cascade: true
         }),
         JoinColumn_1.JoinColumn(),
         __metadata("design:type", Request_1.Request)

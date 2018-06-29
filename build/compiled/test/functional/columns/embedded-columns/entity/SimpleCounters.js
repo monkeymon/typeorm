@@ -27,7 +27,7 @@ var SimpleCounters = /** @class */ (function () {
         __metadata("design:type", Number)
     ], SimpleCounters.prototype, "favorites", void 0);
     __decorate([
-        Column_1.Column(function (type) { return Information_1.Information; }),
+        Column_1.Column(function (type) { return Information_1.Information; }, { prefix: "info" }),
         __metadata("design:type", Information_1.Information)
     ], SimpleCounters.prototype, "information", void 0);
     return SimpleCounters;

@@ -50,8 +50,6 @@ describe("embedded > embedded-one-to-one", function () {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        schemaCreate: true,
-                        dropSchema: true,
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -337,7 +335,6 @@ describe("embedded > embedded-one-to-one", function () {
                         }));
                         loadedUser.name = "Anna";
                         loadedUser.likedPost = post3;
-                        console.log(loadedUser);
                         return [4 /*yield*/, connection.getRepository(User_1.User).save(loadedUser)];
                     case 8:
                         _a.sent();
@@ -348,6 +345,7 @@ describe("embedded > embedded-one-to-one", function () {
                                 .getOne()];
                     case 9:
                         loadedUser = _a.sent();
+                        console.log(loadedUser);
                         chai_1.expect(loadedUser.should.be.eql({
                             id: 1,
                             name: "Anna",

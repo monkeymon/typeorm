@@ -54,8 +54,6 @@ describe("named-tables-lazy-relations", function () {
                             Post_1.Post,
                             Category_1.Category,
                         ],
-                        schemaCreate: true,
-                        dropSchema: true,
                         enabledDrivers: ["postgres"] // we can properly test lazy-relations only on one platform
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
@@ -95,15 +93,16 @@ describe("named-tables-lazy-relations", function () {
                     return [4 /*yield*/, postRepository.save(savedPost)];
                 case 4:
                     _a.sent();
-                    savedPost.categories.should.eventually.be.eql([savedCategory1, savedCategory2, savedCategory3]);
-                    return [4 /*yield*/, postRepository.findOneById(1)];
+                    return [4 /*yield*/, savedPost.categories.should.eventually.be.eql([savedCategory1, savedCategory2, savedCategory3])];
                 case 5:
+                    _a.sent();
+                    return [4 /*yield*/, postRepository.findOne(1)];
+                case 6:
                     post = (_a.sent());
                     post.title.should.be.equal("Hello post");
                     post.text.should.be.equal("This is post about post");
-                    post.categories.should.be.instanceOf(Promise);
                     return [4 /*yield*/, post.categories];
-                case 6:
+                case 7:
                     categories = _a.sent();
                     categories.length.should.be.equal(3);
                     categories.should.contain(savedCategory1);
@@ -144,26 +143,27 @@ describe("named-tables-lazy-relations", function () {
                     return [4 /*yield*/, postRepository.save(savedPost)];
                 case 4:
                     _a.sent();
-                    savedPost.twoSideCategories.should.eventually.be.eql([savedCategory1, savedCategory2, savedCategory3]);
-                    return [4 /*yield*/, postRepository.findOneById(1)];
+                    return [4 /*yield*/, savedPost.twoSideCategories.should.eventually.be.eql([savedCategory1, savedCategory2, savedCategory3])];
                 case 5:
+                    _a.sent();
+                    return [4 /*yield*/, postRepository.findOne(1)];
+                case 6:
                     post = (_a.sent());
                     post.title.should.be.equal("Hello post");
                     post.text.should.be.equal("This is post about post");
-                    post.twoSideCategories.should.be.instanceOf(Promise);
                     return [4 /*yield*/, post.twoSideCategories];
-                case 6:
+                case 7:
                     categories = _a.sent();
                     categories.length.should.be.equal(3);
                     categories.should.contain(savedCategory1);
                     categories.should.contain(savedCategory2);
                     categories.should.contain(savedCategory3);
-                    return [4 /*yield*/, categoryRepository.findOneById(1)];
-                case 7:
+                    return [4 /*yield*/, categoryRepository.findOne(1)];
+                case 8:
                     category = (_a.sent());
                     category.name.should.be.equal("kids");
                     return [4 /*yield*/, category.twoSidePosts];
-                case 8:
+                case 9:
                     twoSidePosts = _a.sent();
                     likePost = new Post_1.Post();
                     likePost.id = 1;

@@ -24,7 +24,7 @@ var PostWithoutVersionAndUpdateDate = /** @class */ (function () {
         __metadata("design:type", String)
     ], PostWithoutVersionAndUpdateDate.prototype, "title", void 0);
     PostWithoutVersionAndUpdateDate = __decorate([
-        Entity_1.Entity()
+        Entity_1.Entity("post_without_v_ud")
     ], PostWithoutVersionAndUpdateDate);
     return PostWithoutVersionAndUpdateDate;
 }());

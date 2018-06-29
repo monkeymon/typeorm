@@ -41,14 +41,13 @@ var Post_1 = require("./entity/Post");
 var Image_1 = require("./entity/Image");
 var test_utils_1 = require("../../../../utils/test-utils");
 var chai_1 = require("chai");
-describe("query builder > relational query builder > add and remove operations > many to many relation", function () {
+describe("query builder > relational with many > add and remove many to many inverse", function () {
     var connections;
     before(function () { return __awaiter(_this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        dropSchema: true,
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -98,15 +97,15 @@ describe("query builder > relational query builder > add and remove operations >
                             .add(post1)];
                 case 7:
                     _a.sent();
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 1, { relations: ["images"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 1, { relations: ["images"] })];
                 case 8:
                     loadedPost1 = _a.sent();
                     chai_1.expect(loadedPost1.images).to.contain({ id: 1, url: "image #1" });
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 2, { relations: ["images"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 2, { relations: ["images"] })];
                 case 9:
                     loadedPost2 = _a.sent();
                     chai_1.expect(loadedPost2.images).to.be.empty;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 3, { relations: ["images"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 3, { relations: ["images"] })];
                 case 10:
                     loadedPost3 = _a.sent();
                     chai_1.expect(loadedPost3.images).to.be.empty;
@@ -117,15 +116,15 @@ describe("query builder > relational query builder > add and remove operations >
                             .remove(post1)];
                 case 11:
                     _a.sent();
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 1, { relations: ["images"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 1, { relations: ["images"] })];
                 case 12:
                     loadedPost1 = _a.sent();
                     chai_1.expect(loadedPost1.images).to.not.contain({ id: 1, url: "image #1" });
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 2, { relations: ["images"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 2, { relations: ["images"] })];
                 case 13:
                     loadedPost2 = _a.sent();
                     chai_1.expect(loadedPost2.images).to.be.empty;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 3, { relations: ["images"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 3, { relations: ["images"] })];
                 case 14:
                     loadedPost3 = _a.sent();
                     chai_1.expect(loadedPost3.images).to.be.empty;
@@ -175,15 +174,15 @@ describe("query builder > relational query builder > add and remove operations >
                             .add(2)];
                 case 7:
                     _a.sent(); // post id
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 1, { relations: ["images"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 1, { relations: ["images"] })];
                 case 8:
                     loadedPost1 = _a.sent();
                     chai_1.expect(loadedPost1.images).to.be.empty;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 2, { relations: ["images"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 2, { relations: ["images"] })];
                 case 9:
                     loadedPost2 = _a.sent();
                     chai_1.expect(loadedPost2.images).to.contain({ id: 2, url: "image #2" });
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 3, { relations: ["images"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 3, { relations: ["images"] })];
                 case 10:
                     loadedPost3 = _a.sent();
                     chai_1.expect(loadedPost3.images).to.be.empty;
@@ -194,15 +193,15 @@ describe("query builder > relational query builder > add and remove operations >
                             .remove(2)];
                 case 11:
                     _a.sent(); // post id
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 1, { relations: ["images"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 1, { relations: ["images"] })];
                 case 12:
                     loadedPost1 = _a.sent();
                     chai_1.expect(loadedPost1.images).to.be.empty;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 2, { relations: ["images"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 2, { relations: ["images"] })];
                 case 13:
                     loadedPost2 = _a.sent();
                     chai_1.expect(loadedPost2.images).to.not.contain({ id: 2, url: "image #2" });
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 3, { relations: ["images"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 3, { relations: ["images"] })];
                 case 14:
                     loadedPost3 = _a.sent();
                     chai_1.expect(loadedPost3.images).to.be.empty;
@@ -252,15 +251,15 @@ describe("query builder > relational query builder > add and remove operations >
                             .add({ id: 3 })];
                 case 7:
                     _a.sent(); // post id
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 1, { relations: ["images"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 1, { relations: ["images"] })];
                 case 8:
                     loadedPost1 = _a.sent();
                     chai_1.expect(loadedPost1.images).to.be.empty;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 2, { relations: ["images"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 2, { relations: ["images"] })];
                 case 9:
                     loadedPost2 = _a.sent();
                     chai_1.expect(loadedPost2.images).to.be.empty;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 3, { relations: ["images"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 3, { relations: ["images"] })];
                 case 10:
                     loadedPost3 = _a.sent();
                     chai_1.expect(loadedPost3.images).to.contain({ id: 3, url: "image #3" });
@@ -271,15 +270,15 @@ describe("query builder > relational query builder > add and remove operations >
                             .remove({ id: 3 })];
                 case 11:
                     _a.sent(); // post id
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 1, { relations: ["images"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 1, { relations: ["images"] })];
                 case 12:
                     loadedPost1 = _a.sent();
                     chai_1.expect(loadedPost1.images).to.be.empty;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 2, { relations: ["images"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 2, { relations: ["images"] })];
                 case 13:
                     loadedPost2 = _a.sent();
                     chai_1.expect(loadedPost2.images).to.be.empty;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 3, { relations: ["images"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 3, { relations: ["images"] })];
                 case 14:
                     loadedPost3 = _a.sent();
                     chai_1.expect(loadedPost3.images).to.not.contain({ id: 3, url: "image #3" });
@@ -329,15 +328,15 @@ describe("query builder > relational query builder > add and remove operations >
                             .add({ id: 3 })];
                 case 7:
                     _a.sent(); // post
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 1, { relations: ["images"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 1, { relations: ["images"] })];
                 case 8:
                     loadedPost1 = _a.sent();
                     chai_1.expect(loadedPost1.images).to.be.empty;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 2, { relations: ["images"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 2, { relations: ["images"] })];
                 case 9:
                     loadedPost2 = _a.sent();
                     chai_1.expect(loadedPost2.images).to.be.empty;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 3, { relations: ["images"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 3, { relations: ["images"] })];
                 case 10:
                     loadedPost3 = _a.sent();
                     chai_1.expect(loadedPost3.images).to.contain({ id: 1, url: "image #1" });
@@ -349,15 +348,15 @@ describe("query builder > relational query builder > add and remove operations >
                             .remove({ id: 3 })];
                 case 11:
                     _a.sent(); // post
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 1, { relations: ["images"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 1, { relations: ["images"] })];
                 case 12:
                     loadedPost1 = _a.sent();
                     chai_1.expect(loadedPost1.images).to.be.empty;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 2, { relations: ["images"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 2, { relations: ["images"] })];
                 case 13:
                     loadedPost2 = _a.sent();
                     chai_1.expect(loadedPost2.images).to.be.empty;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 3, { relations: ["images"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 3, { relations: ["images"] })];
                 case 14:
                     loadedPost3 = _a.sent();
                     chai_1.expect(loadedPost3.images).to.not.contain({ id: 1, url: "image #1" });
@@ -408,15 +407,15 @@ describe("query builder > relational query builder > add and remove operations >
                             .add([{ id: 1 }, { id: 3 }])];
                 case 7:
                     _a.sent(); // posts
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 1, { relations: ["images"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 1, { relations: ["images"] })];
                 case 8:
                     loadedPost1 = _a.sent();
                     chai_1.expect(loadedPost1.images).to.contain({ id: 3, url: "image #3" });
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 2, { relations: ["images"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 2, { relations: ["images"] })];
                 case 9:
                     loadedPost2 = _a.sent();
                     chai_1.expect(loadedPost2.images).to.be.empty;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 3, { relations: ["images"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 3, { relations: ["images"] })];
                 case 10:
                     loadedPost3 = _a.sent();
                     chai_1.expect(loadedPost3.images).to.contain({ id: 3, url: "image #3" });
@@ -427,15 +426,15 @@ describe("query builder > relational query builder > add and remove operations >
                             .remove([{ id: 1 }, { id: 3 }])];
                 case 11:
                     _a.sent(); // posts
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 1, { relations: ["images"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 1, { relations: ["images"] })];
                 case 12:
                     loadedPost1 = _a.sent();
                     chai_1.expect(loadedPost1.images).to.not.contain({ id: 3, url: "image #3" });
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 2, { relations: ["images"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 2, { relations: ["images"] })];
                 case 13:
                     loadedPost2 = _a.sent();
                     chai_1.expect(loadedPost2.images).to.be.empty;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 3, { relations: ["images"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 3, { relations: ["images"] })];
                 case 14:
                     loadedPost3 = _a.sent();
                     chai_1.expect(loadedPost3.images).to.not.contain({ id: 3, url: "image #3" });

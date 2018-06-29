@@ -47,8 +47,7 @@ describe("github issues > #134 Error TIME is converted to 'HH-mm' instead of 'HH
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        schemaCreate: true,
-                        dropSchema: true,
+                        enabledDrivers: ["mysql", "mariadb", "sqlite", "mssql", "postgres"] // Oracle does not support TIME data type.
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }

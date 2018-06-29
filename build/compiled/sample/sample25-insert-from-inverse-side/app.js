@@ -18,23 +18,23 @@ var options = {
 index_1.createConnection(options).then(function (connection) {
     var postRepository = connection.getRepository(Post_1.Post);
     var authorRepository = connection.getRepository(Author_1.Author);
-    var authorPromise = authorRepository.findOneById(1).then(function (author) {
+    var authorPromise = authorRepository.findOne(1).then(function (author) {
         if (!author) {
             author = new Author_1.Author();
             author.name = "Umed";
             return authorRepository.save(author).then(function (savedAuthor) {
-                return authorRepository.findOneById(1);
+                return authorRepository.findOne(1);
             });
         }
         return author;
     });
-    var postPromise = postRepository.findOneById(1).then(function (post) {
+    var postPromise = postRepository.findOne(1).then(function (post) {
         if (!post) {
             post = new Post_1.Post();
             post.title = "Hello post";
             post.text = "This is post contents";
             return postRepository.save(post).then(function (savedPost) {
-                return postRepository.findOneById(1);
+                return postRepository.findOne(1);
             });
         }
         return post;

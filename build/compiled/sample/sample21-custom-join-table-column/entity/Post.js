@@ -33,7 +33,7 @@ var Post = /** @class */ (function () {
     ], Post.prototype, "text", void 0);
     __decorate([
         ManyToOne_1.ManyToOne(function (type) { return Author_1.Author; }, function (author) { return author.posts; }, {
-            cascadeAll: true
+            cascade: true
         }),
         JoinColumn_1.JoinColumn({
             name: "user"
@@ -42,8 +42,7 @@ var Post = /** @class */ (function () {
     ], Post.prototype, "author", void 0);
     __decorate([
         ManyToMany_1.ManyToMany(function (type) { return Category_1.Category; }, function (category) { return category.posts; }, {
-            cascadeInsert: true,
-            cascadeUpdate: true
+            cascade: true
         }),
         JoinTable_1.JoinTable({
             name: "_post_categories"

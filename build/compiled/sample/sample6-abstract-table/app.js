@@ -47,7 +47,7 @@ index_1.createConnection(options).then(function (connection) {
         .save(post)
         .then(function (post) {
         console.log("Post has been saved");
-        return postRepository.findOneById(post.id);
+        return postRepository.findOne(post.id);
     })
         .then(function (loadedPost) {
         console.log("post is loaded: ", loadedPost);
@@ -55,7 +55,7 @@ index_1.createConnection(options).then(function (connection) {
     })
         .then(function (blog) {
         console.log("Blog has been saved");
-        return blogRepository.findOneById(blog.id);
+        return blogRepository.findOne(blog.id);
     })
         .then(function (loadedBlog) {
         console.log("blog is loaded: ", loadedBlog);

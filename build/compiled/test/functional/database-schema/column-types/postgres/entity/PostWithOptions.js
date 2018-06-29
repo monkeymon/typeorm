@@ -59,6 +59,10 @@ var PostWithOptions = /** @class */ (function () {
         Column_1.Column("time with time zone", { precision: 5 }),
         __metadata("design:type", String)
     ], PostWithOptions.prototype, "timeWithTimeZone", void 0);
+    __decorate([
+        Column_1.Column("int4range", { nullable: true }),
+        __metadata("design:type", String)
+    ], PostWithOptions.prototype, "int4range", void 0);
     PostWithOptions = __decorate([
         Entity_1.Entity()
     ], PostWithOptions);

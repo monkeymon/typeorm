@@ -23,6 +23,8 @@ var Entity_1 = require("../../../../src/decorator/entity/Entity");
 var BaseEntity_1 = require("../../../../src/repository/BaseEntity");
 var PrimaryGeneratedColumn_1 = require("../../../../src/decorator/columns/PrimaryGeneratedColumn");
 var Column_1 = require("../../../../src/decorator/columns/Column");
+var src_1 = require("../../../../src");
+var Category_1 = require("./Category");
 var Post = /** @class */ (function (_super) {
     __extends(Post, _super);
     function Post() {
@@ -37,9 +39,16 @@ var Post = /** @class */ (function (_super) {
         __metadata("design:type", String)
     ], Post.prototype, "title", void 0);
     __decorate([
-        Column_1.Column(),
+        Column_1.Column({
+            default: "This is default text."
+        }),
         __metadata("design:type", String)
     ], Post.prototype, "text", void 0);
+    __decorate([
+        src_1.ManyToMany(function (type) { return Category_1.Category; }),
+        src_1.JoinTable(),
+        __metadata("design:type", Array)
+    ], Post.prototype, "categories", void 0);
     Post = __decorate([
         Entity_1.Entity()
     ], Post);

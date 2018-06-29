@@ -78,11 +78,11 @@ describe("multi-schema-and-database > custom-junction-schema", function () {
                 case 4:
                     _a.sent();
                     chai_1.expect(postTable).not.to.be.empty;
-                    postTable.schema.should.be.equal("yoman");
+                    postTable.name.should.be.equal("yoman.post");
                     chai_1.expect(categoryTable).not.to.be.empty;
-                    categoryTable.schema.should.be.equal("yoman");
+                    categoryTable.name.should.be.equal("yoman.category");
                     chai_1.expect(junctionTable).not.to.be.empty;
-                    junctionTable.schema.should.be.equal("yoman");
+                    junctionTable.name.should.be.equal("yoman." + junctionMetadata.tableName);
                     return [2 /*return*/];
             }
         });

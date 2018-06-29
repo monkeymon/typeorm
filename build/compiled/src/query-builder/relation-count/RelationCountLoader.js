@@ -76,7 +76,7 @@ var RelationCountLoader = /** @class */ (function () {
                                 qb.select(inverseSideTableAlias + "." + inverseSidePropertyName, "parentId")
                                     .addSelect("COUNT(*)", "cnt")
                                     .from(inverseSideTable, inverseSideTableAlias)
-                                    .where(inverseSideTableAlias + "." + inverseSidePropertyName + " IN (:ids)")
+                                    .where(inverseSideTableAlias + "." + inverseSidePropertyName + " IN (:...ids)")
                                     .addGroupBy(inverseSideTableAlias + "." + inverseSidePropertyName)
                                     .setParameter("ids", referenceColumnValues);
                                 // apply condition (custom query builder factory)
@@ -92,7 +92,7 @@ var RelationCountLoader = /** @class */ (function () {
                                 inverseJoinColumnName = void 0;
                                 firstJunctionColumn = void 0;
                                 secondJunctionColumn = void 0;
-                                if (relationCountAttr.relation.isOwning) {
+                                if (relationCountAttr.relation.isOwning) { // todo fix joinColumns[0] and inverseJoinColumns[0].
                                     joinTableColumnName_1 = relationCountAttr.relation.joinColumns[0].referencedColumn.databaseName;
                                     inverseJoinColumnName = relationCountAttr.relation.inverseJoinColumns[0].referencedColumn.databaseName;
                                     firstJunctionColumn = relationCountAttr.relation.junctionEntityMetadata.columns[0];

@@ -44,12 +44,11 @@ describe("persistence > one-to-many", function () {
     // -------------------------------------------------------------------------
     // Setup
     // -------------------------------------------------------------------------
+    var _this = this;
     var connections;
     before(function () {
         return test_utils_1.createTestingConnections({
             entities: [Post_1.Post, Category_1.Category],
-            schemaCreate: true,
-            dropSchema: true,
         }).then(function (all) { return connections = all; });
     });
     after(function () { return test_utils_1.closeTestingConnections(connections); });
@@ -57,233 +56,204 @@ describe("persistence > one-to-many", function () {
     // -------------------------------------------------------------------------
     // Specifications
     // -------------------------------------------------------------------------
-    describe("add exist element to exist object with empty one-to-many relation and save it", function () {
-        var _this = this;
-        it("should contain a new category", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
-            var postRepository, categoryRepository, newCategory, newPost, loadedPost;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        postRepository = connection.getRepository(Post_1.Post);
-                        categoryRepository = connection.getRepository(Category_1.Category);
-                        newCategory = categoryRepository.create();
-                        newCategory.name = "Animals";
-                        return [4 /*yield*/, categoryRepository.save(newCategory)];
-                    case 1:
-                        _a.sent();
-                        newPost = postRepository.create();
-                        newPost.title = "All about animals";
-                        return [4 /*yield*/, postRepository.save(newPost)];
-                    case 2:
-                        _a.sent();
-                        newPost.categories = [newCategory];
-                        return [4 /*yield*/, postRepository.save(newPost)];
-                    case 3:
-                        _a.sent();
-                        return [4 /*yield*/, postRepository.findOneById(1, {
-                                join: {
-                                    alias: "post",
-                                    innerJoinAndSelect: {
-                                        categories: "post.categories"
-                                    }
+    it("should add exist element to exist object with empty one-to-many relation and save it", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
+        var postRepository, categoryRepository, newCategory, newPost, loadedPost;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    postRepository = connection.getRepository(Post_1.Post);
+                    categoryRepository = connection.getRepository(Category_1.Category);
+                    newCategory = categoryRepository.create();
+                    newCategory.name = "Animals";
+                    return [4 /*yield*/, categoryRepository.save(newCategory)];
+                case 1:
+                    _a.sent();
+                    newPost = postRepository.create();
+                    newPost.title = "All about animals";
+                    return [4 /*yield*/, postRepository.save(newPost)];
+                case 2:
+                    _a.sent();
+                    newPost.categories = [newCategory];
+                    return [4 /*yield*/, postRepository.save(newPost)];
+                case 3:
+                    _a.sent();
+                    return [4 /*yield*/, postRepository.findOne(1, { relations: ["categories"] })];
+                case 4:
+                    loadedPost = _a.sent();
+                    chai_1.expect(loadedPost).not.to.be.empty;
+                    chai_1.expect(loadedPost.categories).not.to.be.empty;
+                    chai_1.expect(loadedPost.categories[0]).not.to.be.empty;
+                    return [2 /*return*/];
+            }
+        });
+    }); })); });
+    it("should add exist element to new object with empty one-to-many relation and save it", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
+        var postRepository, categoryRepository, newCategory, newPost, loadedPost;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    postRepository = connection.getRepository(Post_1.Post);
+                    categoryRepository = connection.getRepository(Category_1.Category);
+                    newCategory = categoryRepository.create();
+                    newCategory.name = "Animals";
+                    return [4 /*yield*/, categoryRepository.save(newCategory)];
+                case 1:
+                    _a.sent();
+                    newPost = postRepository.create();
+                    newPost.title = "All about animals";
+                    newPost.categories = [newCategory];
+                    return [4 /*yield*/, postRepository.save(newPost)];
+                case 2:
+                    _a.sent();
+                    return [4 /*yield*/, postRepository.findOne(1, { relations: ["categories"] })];
+                case 3:
+                    loadedPost = _a.sent();
+                    chai_1.expect(loadedPost).not.to.be.empty;
+                    chai_1.expect(loadedPost.categories).not.to.be.empty;
+                    chai_1.expect(loadedPost.categories[0]).not.to.be.empty;
+                    return [2 /*return*/];
+            }
+        });
+    }); })); });
+    it("should remove exist element from one-to-many relation and save it", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
+        var postRepository, categoryRepository, firstNewCategory, secondNewCategory, newPost, loadedPost;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    postRepository = connection.getRepository(Post_1.Post);
+                    categoryRepository = connection.getRepository(Category_1.Category);
+                    firstNewCategory = categoryRepository.create();
+                    firstNewCategory.name = "Animals";
+                    return [4 /*yield*/, categoryRepository.save(firstNewCategory)];
+                case 1:
+                    _a.sent();
+                    secondNewCategory = categoryRepository.create();
+                    secondNewCategory.name = "Insects";
+                    return [4 /*yield*/, categoryRepository.save(secondNewCategory)];
+                case 2:
+                    _a.sent();
+                    newPost = postRepository.create();
+                    newPost.title = "All about animals";
+                    return [4 /*yield*/, postRepository.save(newPost)];
+                case 3:
+                    _a.sent();
+                    newPost.categories = [firstNewCategory, secondNewCategory];
+                    return [4 /*yield*/, postRepository.save(newPost)];
+                case 4:
+                    _a.sent();
+                    newPost.categories = [firstNewCategory];
+                    return [4 /*yield*/, postRepository.save(newPost)];
+                case 5:
+                    _a.sent();
+                    return [4 /*yield*/, postRepository.findOne(1, {
+                            join: {
+                                alias: "post",
+                                innerJoinAndSelect: {
+                                    categories: "post.categories"
                                 }
-                            })];
-                    case 4:
-                        loadedPost = (_a.sent());
-                        chai_1.expect(loadedPost).not.to.be.empty;
-                        chai_1.expect(loadedPost.categories).not.to.be.empty;
-                        chai_1.expect(loadedPost.categories[0]).not.to.be.empty;
-                        return [2 /*return*/];
-                }
-            });
-        }); })); });
-    });
-    describe("add exist element to new object with empty one-to-many relation and save it", function () {
-        var _this = this;
-        it("should contain a new element", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
-            var postRepository, categoryRepository, newCategory, newPost, loadedPost;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        postRepository = connection.getRepository(Post_1.Post);
-                        categoryRepository = connection.getRepository(Category_1.Category);
-                        newCategory = categoryRepository.create();
-                        newCategory.name = "Animals";
-                        return [4 /*yield*/, categoryRepository.save(newCategory)];
-                    case 1:
-                        _a.sent();
-                        newPost = postRepository.create();
-                        newPost.title = "All about animals";
-                        newPost.categories = [newCategory];
-                        return [4 /*yield*/, postRepository.save(newPost)];
-                    case 2:
-                        _a.sent();
-                        return [4 /*yield*/, postRepository.findOneById(1, {
-                                join: {
-                                    alias: "post",
-                                    innerJoinAndSelect: {
-                                        categories: "post.categories"
-                                    }
+                            }
+                        })];
+                case 6:
+                    loadedPost = _a.sent();
+                    chai_1.expect(loadedPost).not.to.be.empty;
+                    chai_1.expect(loadedPost.categories).not.to.be.empty;
+                    chai_1.expect(loadedPost.categories[0]).not.to.be.empty;
+                    chai_1.expect(loadedPost.categories[1]).to.be.empty;
+                    return [2 /*return*/];
+            }
+        });
+    }); })); });
+    it("should remove all elements from one-to-many relation and save it", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
+        var postRepository, categoryRepository, firstNewCategory, secondNewCategory, newPost, loadedPost;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    postRepository = connection.getRepository(Post_1.Post);
+                    categoryRepository = connection.getRepository(Category_1.Category);
+                    firstNewCategory = categoryRepository.create();
+                    firstNewCategory.name = "Animals";
+                    return [4 /*yield*/, categoryRepository.save(firstNewCategory)];
+                case 1:
+                    _a.sent();
+                    secondNewCategory = categoryRepository.create();
+                    secondNewCategory.name = "Insects";
+                    return [4 /*yield*/, categoryRepository.save(secondNewCategory)];
+                case 2:
+                    _a.sent();
+                    newPost = postRepository.create();
+                    newPost.title = "All about animals";
+                    return [4 /*yield*/, postRepository.save(newPost)];
+                case 3:
+                    _a.sent();
+                    newPost.categories = [firstNewCategory, secondNewCategory];
+                    return [4 /*yield*/, postRepository.save(newPost)];
+                case 4:
+                    _a.sent();
+                    newPost.categories = [];
+                    return [4 /*yield*/, postRepository.save(newPost)];
+                case 5:
+                    _a.sent();
+                    return [4 /*yield*/, postRepository.findOne(1, {
+                            join: {
+                                alias: "post",
+                                leftJoinAndSelect: {
+                                    categories: "post.categories"
                                 }
-                            })];
-                    case 3:
-                        loadedPost = _a.sent();
-                        chai_1.expect(loadedPost).not.to.be.empty;
-                        chai_1.expect(loadedPost.categories).not.to.be.empty;
-                        chai_1.expect(loadedPost.categories[0]).not.to.be.empty;
-                        return [2 /*return*/];
-                }
-            });
-        }); })); });
-    });
-    describe("remove exist element from one-to-many relation and save it", function () {
-        var _this = this;
-        it("should have only one category", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
-            var postRepository, categoryRepository, firstNewCategory, secondNewCategory, newPost, loadedPost;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        postRepository = connection.getRepository(Post_1.Post);
-                        categoryRepository = connection.getRepository(Category_1.Category);
-                        firstNewCategory = categoryRepository.create();
-                        firstNewCategory.name = "Animals";
-                        return [4 /*yield*/, categoryRepository.save(firstNewCategory)];
-                    case 1:
-                        _a.sent();
-                        secondNewCategory = categoryRepository.create();
-                        secondNewCategory.name = "Insects";
-                        return [4 /*yield*/, categoryRepository.save(secondNewCategory)];
-                    case 2:
-                        _a.sent();
-                        newPost = postRepository.create();
-                        newPost.title = "All about animals";
-                        return [4 /*yield*/, postRepository.save(newPost)];
-                    case 3:
-                        _a.sent();
-                        newPost.categories = [firstNewCategory, secondNewCategory];
-                        return [4 /*yield*/, postRepository.save(newPost)];
-                    case 4:
-                        _a.sent();
-                        newPost.categories = [firstNewCategory];
-                        return [4 /*yield*/, postRepository.save(newPost)];
-                    case 5:
-                        _a.sent();
-                        return [4 /*yield*/, postRepository.findOneById(1, {
-                                join: {
-                                    alias: "post",
-                                    innerJoinAndSelect: {
-                                        categories: "post.categories"
-                                    }
+                            }
+                        })];
+                case 6:
+                    loadedPost = _a.sent();
+                    chai_1.expect(loadedPost).not.to.be.empty;
+                    chai_1.expect(loadedPost.categories).to.be.empty;
+                    return [2 /*return*/];
+            }
+        });
+    }); })); });
+    it("set relation to null (elements exist there) from one-to-many relation and save it", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
+        var postRepository, categoryRepository, firstNewCategory, secondNewCategory, newPost, loadedPost;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    postRepository = connection.getRepository(Post_1.Post);
+                    categoryRepository = connection.getRepository(Category_1.Category);
+                    firstNewCategory = categoryRepository.create();
+                    firstNewCategory.name = "Animals";
+                    return [4 /*yield*/, categoryRepository.save(firstNewCategory)];
+                case 1:
+                    _a.sent();
+                    secondNewCategory = categoryRepository.create();
+                    secondNewCategory.name = "Insects";
+                    return [4 /*yield*/, categoryRepository.save(secondNewCategory)];
+                case 2:
+                    _a.sent();
+                    newPost = postRepository.create();
+                    newPost.title = "All about animals";
+                    return [4 /*yield*/, postRepository.save(newPost)];
+                case 3:
+                    _a.sent();
+                    newPost.categories = [firstNewCategory, secondNewCategory];
+                    return [4 /*yield*/, postRepository.save(newPost)];
+                case 4:
+                    _a.sent();
+                    newPost.categories = null;
+                    return [4 /*yield*/, postRepository.save(newPost)];
+                case 5:
+                    _a.sent();
+                    return [4 /*yield*/, postRepository.findOne(1, {
+                            join: {
+                                alias: "post",
+                                leftJoinAndSelect: {
+                                    categories: "post.categories"
                                 }
-                            })];
-                    case 6:
-                        loadedPost = _a.sent();
-                        chai_1.expect(loadedPost).not.to.be.empty;
-                        chai_1.expect(loadedPost.categories).not.to.be.empty;
-                        chai_1.expect(loadedPost.categories[0]).not.to.be.empty;
-                        chai_1.expect(loadedPost.categories[1]).to.be.empty;
-                        return [2 /*return*/];
-                }
-            });
-        }); })); });
-    });
-    describe("remove all elements from one-to-many relation and save it", function () {
-        var _this = this;
-        it("should not have categories since they all are removed", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
-            var postRepository, categoryRepository, firstNewCategory, secondNewCategory, newPost, loadedPost;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        postRepository = connection.getRepository(Post_1.Post);
-                        categoryRepository = connection.getRepository(Category_1.Category);
-                        firstNewCategory = categoryRepository.create();
-                        firstNewCategory.name = "Animals";
-                        return [4 /*yield*/, categoryRepository.save(firstNewCategory)];
-                    case 1:
-                        _a.sent();
-                        secondNewCategory = categoryRepository.create();
-                        secondNewCategory.name = "Insects";
-                        return [4 /*yield*/, categoryRepository.save(secondNewCategory)];
-                    case 2:
-                        _a.sent();
-                        newPost = postRepository.create();
-                        newPost.title = "All about animals";
-                        return [4 /*yield*/, postRepository.save(newPost)];
-                    case 3:
-                        _a.sent();
-                        newPost.categories = [firstNewCategory, secondNewCategory];
-                        return [4 /*yield*/, postRepository.save(newPost)];
-                    case 4:
-                        _a.sent();
-                        newPost.categories = [];
-                        return [4 /*yield*/, postRepository.save(newPost)];
-                    case 5:
-                        _a.sent();
-                        return [4 /*yield*/, postRepository.findOneById(1, {
-                                join: {
-                                    alias: "post",
-                                    leftJoinAndSelect: {
-                                        categories: "post.categories"
-                                    }
-                                }
-                            })];
-                    case 6:
-                        loadedPost = _a.sent();
-                        chai_1.expect(loadedPost).not.to.be.empty;
-                        chai_1.expect(loadedPost.categories).to.be.empty;
-                        return [2 /*return*/];
-                }
-            });
-        }); })); });
-    });
-    describe("set relation to null (elements exist there) from one-to-many relation and save it", function () {
-        var _this = this;
-        it("should not have categories since they all are removed", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
-            var postRepository, categoryRepository, firstNewCategory, secondNewCategory, newPost, loadedPost;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        postRepository = connection.getRepository(Post_1.Post);
-                        categoryRepository = connection.getRepository(Category_1.Category);
-                        firstNewCategory = categoryRepository.create();
-                        firstNewCategory.name = "Animals";
-                        return [4 /*yield*/, categoryRepository.save(firstNewCategory)];
-                    case 1:
-                        _a.sent();
-                        secondNewCategory = categoryRepository.create();
-                        secondNewCategory.name = "Insects";
-                        return [4 /*yield*/, categoryRepository.save(secondNewCategory)];
-                    case 2:
-                        _a.sent();
-                        newPost = postRepository.create();
-                        newPost.title = "All about animals";
-                        return [4 /*yield*/, postRepository.save(newPost)];
-                    case 3:
-                        _a.sent();
-                        newPost.categories = [firstNewCategory, secondNewCategory];
-                        return [4 /*yield*/, postRepository.save(newPost)];
-                    case 4:
-                        _a.sent();
-                        newPost.categories = null; // todo: what to do with undefined?
-                        return [4 /*yield*/, postRepository.save(newPost)];
-                    case 5:
-                        _a.sent();
-                        return [4 /*yield*/, postRepository.findOneById(1, {
-                                join: {
-                                    alias: "post",
-                                    leftJoinAndSelect: {
-                                        categories: "post.categories"
-                                    }
-                                }
-                            })];
-                    case 6:
-                        loadedPost = (_a.sent());
-                        chai_1.expect(loadedPost).not.to.be.empty;
-                        chai_1.expect(loadedPost.categories).to.be.empty;
-                        return [2 /*return*/];
-                }
-            });
-        }); })); });
-    });
+                            }
+                        })];
+                case 6:
+                    loadedPost = (_a.sent());
+                    chai_1.expect(loadedPost).not.to.be.empty;
+                    chai_1.expect(loadedPost.categories).to.be.empty;
+                    return [2 /*return*/];
+            }
+        });
+    }); })); });
 });
 //# sourceMappingURL=persistence-one-to-many.js.map

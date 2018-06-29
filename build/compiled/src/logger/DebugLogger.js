@@ -1,20 +1,20 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var PlatformTools_1 = require("../platform/PlatformTools");
-var debug = PlatformTools_1.PlatformTools.load("debug");
 /**
  * Performs logging of the events in TypeORM via debug library.
  */
 var DebugLogger = /** @class */ (function () {
     function DebugLogger() {
-        this.debugQueryLog = debug("typeorm:query:log");
-        this.debugQueryError = debug("typeorm:query:error");
-        this.debugQuerySlow = debug("typeorm:query:slow");
-        this.debugSchemaBuild = debug("typeorm:schema");
-        this.debugMigration = debug("typeorm:migration");
-        this.debugLog = debug("typeorm:log");
-        this.debugInfo = debug("typeorm:info");
-        this.debugWarn = debug("typeorm:warn");
+        this.debug = PlatformTools_1.PlatformTools.load("debug");
+        this.debugQueryLog = this.debug("typeorm:query:log");
+        this.debugQueryError = this.debug("typeorm:query:error");
+        this.debugQuerySlow = this.debug("typeorm:query:slow");
+        this.debugSchemaBuild = this.debug("typeorm:schema");
+        this.debugMigration = this.debug("typeorm:migration");
+        this.debugLog = this.debug("typeorm:log");
+        this.debugInfo = this.debug("typeorm:info");
+        this.debugWarn = this.debug("typeorm:warn");
     }
     /**
      * Logs query and parameters used in it.

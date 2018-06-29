@@ -48,8 +48,6 @@ describe("embedded > outer-primary-column", function () {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        schemaCreate: true,
-                        dropSchema: true,
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -95,7 +93,7 @@ describe("embedded > outer-primary-column", function () {
                     chai_1.expect(loadedPosts[0].counters.should.be.eql({ code: 1, comments: 1, favorites: 2, likes: 3 }));
                     chai_1.expect(loadedPosts[1].title).to.be.equal("About airplanes");
                     chai_1.expect(loadedPosts[1].counters.should.be.eql({ code: 2, comments: 2, favorites: 3, likes: 4 }));
-                    return [4 /*yield*/, postRepository.findOneById(1)];
+                    return [4 /*yield*/, postRepository.findOne(1)];
                 case 4:
                     loadedPost = (_a.sent());
                     chai_1.expect(loadedPost.title).to.be.equal("About cars");
@@ -104,7 +102,7 @@ describe("embedded > outer-primary-column", function () {
                     return [4 /*yield*/, postRepository.save(loadedPost)];
                 case 5:
                     _a.sent();
-                    return [4 /*yield*/, postRepository.findOneById(1)];
+                    return [4 /*yield*/, postRepository.findOne(1)];
                 case 6:
                     loadedPost2 = (_a.sent());
                     chai_1.expect(loadedPost.title).to.be.equal("About cars");

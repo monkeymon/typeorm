@@ -46,8 +46,6 @@ describe("github issues > #190 too many SQL variables when using setMaxResults i
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        schemaCreate: true,
-                        dropSchema: true,
                         enabledDrivers: ["sqlite"] // this issue only related to sqlite
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];

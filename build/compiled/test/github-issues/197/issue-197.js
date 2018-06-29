@@ -38,16 +38,15 @@ var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
 require("reflect-metadata");
 var test_utils_1 = require("../../utils/test-utils");
-var person_1 = require("./entities/person");
-describe("indices > create schema", function () {
+var person_1 = require("./entity/person");
+describe("github issues > #197 Fails to drop indexes when removing fields", function () {
     var connections;
     before(function () { return __awaiter(_this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
-                        entities: [person_1.Person],
+                        entities: [__dirname + "/entity/*{.js,.ts}"],
                         schemaCreate: false,
-                        dropSchema: true
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -55,24 +54,21 @@ describe("indices > create schema", function () {
     }); });
     beforeEach(function () { return test_utils_1.reloadTestingDatabases(connections); });
     after(function () { return test_utils_1.closeTestingConnections(connections); });
-    describe("build schema", function () {
-        var _this = this;
-        it("it should drop the column and the referenced index", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
-            var entityMetadata, idx;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        entityMetadata = connection.getMetadata(person_1.Person);
-                        idx = entityMetadata.columns.findIndex(function (x) { return x.databaseName === "firstname"; });
-                        entityMetadata.columns.splice(idx, 1);
-                        entityMetadata.indices = []; // clear the referenced index from metadata too            
-                        return [4 /*yield*/, connection.synchronize(false)];
-                    case 1:
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        }); })); });
-    });
+    it("it should drop the column and the referenced index", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
+        var entityMetadata, idx;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    entityMetadata = connection.getMetadata(person_1.Person);
+                    idx = entityMetadata.columns.findIndex(function (x) { return x.databaseName === "firstname"; });
+                    entityMetadata.columns.splice(idx, 1);
+                    entityMetadata.indices = []; // clear the referenced index from metadata too
+                    return [4 /*yield*/, connection.synchronize(false)];
+                case 1:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
+        });
+    }); })); });
 });
 //# sourceMappingURL=issue-197.js.map

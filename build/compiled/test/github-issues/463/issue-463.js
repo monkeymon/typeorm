@@ -47,8 +47,6 @@ describe("github issues > #463 saving empty string array", function () {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
                         enabledDrivers: ["postgres"],
-                        schemaCreate: true,
-                        dropSchema: true,
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -66,7 +64,7 @@ describe("github issues > #463 saving empty string array", function () {
                     return [4 /*yield*/, connection.getRepository(Post_1.Post).save(post)];
                 case 1:
                     _a.sent();
-                    return [4 /*yield*/, connection.getRepository(Post_1.Post).findOneById(1)];
+                    return [4 /*yield*/, connection.getRepository(Post_1.Post).findOne(1)];
                 case 2:
                     loadedPost = _a.sent();
                     loadedPost.names.length.should.be.eql(0);

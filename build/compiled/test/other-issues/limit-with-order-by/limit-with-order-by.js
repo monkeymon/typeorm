@@ -48,8 +48,6 @@ describe("other issues > using limit in conjunction with order by", function () 
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        schemaCreate: true,
-                        dropSchema: true,
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -59,32 +57,36 @@ describe("other issues > using limit in conjunction with order by", function () 
     after(function () { return test_utils_1.closeTestingConnections(connections); });
     it("should persist successfully and return persisted entity", function () { return Promise.all(connections.map(function (connection) {
         return __awaiter(this, void 0, void 0, function () {
-            var promises, i, post, i_1, category, loadedPosts1;
+            var i, post, i_1, category, loadedPosts1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        promises = [];
-                        for (i = 1; i <= 100; i++) {
-                            post = new Post_1.Post();
-                            post.title = "Hello Post #" + i;
-                            post.categories = [];
-                            for (i_1 = 1; i_1 <= 5; i_1++) {
-                                category = new Category_1.Category();
-                                category.name = "category #" + i_1;
-                                post.categories.push(category);
-                            }
-                            promises.push(connection.manager.save(post));
-                        }
-                        return [4 /*yield*/, Promise.all(promises)];
+                        i = 1;
+                        _a.label = 1;
                     case 1:
-                        _a.sent();
-                        return [4 /*yield*/, connection.manager
-                                .createQueryBuilder(Post_1.Post, "post")
-                                .innerJoinAndSelect("post.categories", "categories")
-                                .take(10)
-                                .orderBy("post.id", "DESC")
-                                .getMany()];
+                        if (!(i <= 100)) return [3 /*break*/, 4];
+                        post = new Post_1.Post();
+                        post.title = "Hello Post #" + i;
+                        post.categories = [];
+                        for (i_1 = 1; i_1 <= 5; i_1++) {
+                            category = new Category_1.Category();
+                            category.name = "category #" + i_1;
+                            post.categories.push(category);
+                        }
+                        return [4 /*yield*/, connection.manager.save(post)];
                     case 2:
+                        _a.sent();
+                        _a.label = 3;
+                    case 3:
+                        i++;
+                        return [3 /*break*/, 1];
+                    case 4: return [4 /*yield*/, connection.manager
+                            .createQueryBuilder(Post_1.Post, "post")
+                            .innerJoinAndSelect("post.categories", "categories")
+                            .take(10)
+                            .orderBy("post.id", "DESC")
+                            .getMany()];
+                    case 5:
                         loadedPosts1 = _a.sent();
                         chai_1.expect(loadedPosts1).not.to.be.empty;
                         loadedPosts1.length.should.be.equal(10);

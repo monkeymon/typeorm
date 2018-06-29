@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var index_1 = require("../../index");
+var _1 = require("../../");
 /**
  * This column will store a creation date of the inserted object.
  * Creation date is generated and inserted only once,
@@ -8,21 +8,12 @@ var index_1 = require("../../index");
  */
 function CreateDateColumn(options) {
     return function (object, propertyName) {
-        // const reflectedType = ColumnTypes.typeToString((Reflect as any).getMetadata("design:type", object, propertyName));
-        // if column options are not given then create a new empty options
-        if (!options)
-            options = {};
-        // implicitly set a type, because this column's type cannot be anything else except date
-        // options = Object.assign({ type: Date } as ColumnOptions, options);
-        // create and register a new column metadata
-        var args = {
+        _1.getMetadataArgsStorage().columns.push({
             target: object.constructor,
             propertyName: propertyName,
-            // propertyType: reflectedType,
             mode: "createDate",
-            options: options
-        };
-        index_1.getMetadataArgsStorage().columns.push(args);
+            options: options || {}
+        });
     };
 }
 exports.CreateDateColumn = CreateDateColumn;

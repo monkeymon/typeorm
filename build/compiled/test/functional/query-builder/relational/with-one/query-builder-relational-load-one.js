@@ -48,7 +48,6 @@ describe("query builder > relational query builder > load operation > many-to-on
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        dropSchema: true,
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -94,7 +93,7 @@ describe("query builder > relational query builder > load operation > many-to-on
                     return [4 /*yield*/, connection.manager.save(post3)];
                 case 6:
                     _a.sent();
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 1)];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 1)];
                 case 7:
                     loadedPost1 = _a.sent();
                     return [4 /*yield*/, connection
@@ -106,7 +105,7 @@ describe("query builder > relational query builder > load operation > many-to-on
                     loadedCategory1 = _a.sent();
                     loadedPost1.category = loadedCategory1;
                     chai_1.expect(loadedPost1.category).to.be.eql({ id: 3, name: "category #3" });
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 2)];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 2)];
                 case 9:
                     loadedPost2 = _a.sent();
                     return [4 /*yield*/, connection
@@ -118,7 +117,7 @@ describe("query builder > relational query builder > load operation > many-to-on
                     loadedCategory2 = _a.sent();
                     loadedPost2.category = loadedCategory2;
                     chai_1.expect(loadedPost2.category).to.be.eql({ id: 2, name: "category #2" });
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 3)];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 3)];
                 case 11:
                     loadedPost3 = _a.sent();
                     return [4 /*yield*/, connection
@@ -172,7 +171,7 @@ describe("query builder > relational query builder > load operation > many-to-on
                     return [4 /*yield*/, connection.manager.save(post3)];
                 case 6:
                     _a.sent();
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 1)];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 1)];
                 case 7:
                     loadedPost1 = _a.sent();
                     return [4 /*yield*/, connection
@@ -184,7 +183,7 @@ describe("query builder > relational query builder > load operation > many-to-on
                     loadedCategory1 = _a.sent();
                     loadedPost1.category = loadedCategory1;
                     chai_1.expect(loadedPost1.category).to.be.eql({ id: 3, name: "category #3" });
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 2)];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 2)];
                 case 9:
                     loadedPost2 = _a.sent();
                     return [4 /*yield*/, connection
@@ -196,7 +195,7 @@ describe("query builder > relational query builder > load operation > many-to-on
                     loadedCategory2 = _a.sent();
                     loadedPost2.category = loadedCategory2;
                     chai_1.expect(loadedPost2.category).to.be.eql({ id: 2, name: "category #2" });
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 3)];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 3)];
                 case 11:
                     loadedPost3 = _a.sent();
                     return [4 /*yield*/, connection
@@ -250,7 +249,7 @@ describe("query builder > relational query builder > load operation > many-to-on
                     return [4 /*yield*/, connection.manager.save(post3)];
                 case 6:
                     _a.sent();
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 1)];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 1)];
                 case 7:
                     loadedPost1 = _a.sent();
                     return [4 /*yield*/, connection
@@ -262,7 +261,7 @@ describe("query builder > relational query builder > load operation > many-to-on
                     loadedCategory1 = _a.sent();
                     loadedPost1.category = loadedCategory1;
                     chai_1.expect(loadedPost1.category).to.be.eql({ id: 3, name: "category #3" });
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 2)];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 2)];
                 case 9:
                     loadedPost2 = _a.sent();
                     return [4 /*yield*/, connection
@@ -274,7 +273,7 @@ describe("query builder > relational query builder > load operation > many-to-on
                     loadedCategory2 = _a.sent();
                     loadedPost2.category = loadedCategory2;
                     chai_1.expect(loadedPost2.category).to.be.eql({ id: 2, name: "category #2" });
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 3)];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 3)];
                 case 11:
                     loadedPost3 = _a.sent();
                     return [4 /*yield*/, connection

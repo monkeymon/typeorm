@@ -22,7 +22,7 @@ var PostDetails = /** @class */ (function () {
     ], PostDetails.prototype, "keyword", void 0);
     __decorate([
         OneToOne_1.OneToOne(function (type) { return Post_1.Post; }, function (post) { return post.details; }, {
-            cascadeInsert: true
+            cascade: ["insert"]
         }),
         __metadata("design:type", Post_1.Post)
     ], PostDetails.prototype, "post", void 0);

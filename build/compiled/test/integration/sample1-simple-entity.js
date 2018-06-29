@@ -50,7 +50,6 @@ describe("insertion", function () {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [Post_1.Post],
-                        schemaCreate: true,
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -76,7 +75,7 @@ describe("insertion", function () {
                     savedPost = _a.sent();
                     savedPost.should.be.equal(newPost);
                     chai_1.expect(savedPost.id).not.to.be.empty;
-                    return [4 /*yield*/, postRepository.findOneById(savedPost.id)];
+                    return [4 /*yield*/, postRepository.findOne(savedPost.id)];
                 case 2:
                     insertedPost = _a.sent();
                     insertedPost.should.be.eql({

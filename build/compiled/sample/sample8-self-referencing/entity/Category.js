@@ -32,48 +32,39 @@ var Category = /** @class */ (function () {
     ], Category.prototype, "name", void 0);
     __decorate([
         OneToOne_1.OneToOne(function (type) { return Category_1; }, function (category) { return category.oneInverseCategory; }, {
-            cascadeInsert: true,
-            cascadeUpdate: true,
-            cascadeRemove: true
+            cascade: true
         }),
         JoinColumn_1.JoinColumn(),
         __metadata("design:type", Category)
     ], Category.prototype, "oneCategory", void 0);
     __decorate([
         OneToOne_1.OneToOne(function (type) { return Category_1; }, function (category) { return category.oneCategory; }, {
-            cascadeInsert: true,
-            cascadeUpdate: true,
-            cascadeRemove: true
+            cascade: true
         }),
         __metadata("design:type", Category)
     ], Category.prototype, "oneInverseCategory", void 0);
     __decorate([
         ManyToOne_1.ManyToOne(function (type) { return Category_1; }, function (category) { return category.oneManyCategories; }, {
-            cascadeInsert: true,
-            cascadeUpdate: true,
-            cascadeRemove: true
+            cascade: true
         }),
         __metadata("design:type", Category)
     ], Category.prototype, "oneManyCategory", void 0);
     __decorate([
         OneToMany_1.OneToMany(function (type) { return Category_1; }, function (category) { return category.oneManyCategory; }, {
-            cascadeInsert: true,
-            cascadeUpdate: true
+            cascade: true
         }),
         __metadata("design:type", Array)
     ], Category.prototype, "oneManyCategories", void 0);
     __decorate([
         index_1.ManyToMany(function (type) { return Category_1; }, function (category) { return category.manyInverseCategories; }, {
-            cascadeInsert: true,
-            cascadeUpdate: true
+            cascade: true
         }),
         JoinTable_1.JoinTable(),
         __metadata("design:type", Array)
     ], Category.prototype, "manyCategories", void 0);
     __decorate([
         index_1.ManyToMany(function (type) { return Category_1; }, function (category) { return category.manyCategories; }, {
-            cascadeInsert: true,
-            cascadeUpdate: true
+            cascade: true
         }),
         __metadata("design:type", Array)
     ], Category.prototype, "manyInverseCategories", void 0);

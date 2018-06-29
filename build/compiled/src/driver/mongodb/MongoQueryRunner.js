@@ -35,6 +35,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+var Broadcaster_1 = require("../../subscriber/Broadcaster");
 /**
  * Runs queries on a single MongoDB connection.
  */
@@ -61,6 +62,7 @@ var MongoQueryRunner = /** @class */ (function () {
         this.data = {};
         this.connection = connection;
         this.databaseConnection = databaseConnection;
+        this.broadcaster = new Broadcaster_1.Broadcaster(this);
     }
     // -------------------------------------------------------------------------
     // Public Methods
@@ -486,7 +488,7 @@ var MongoQueryRunner = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.databaseConnection.dropDatabase()];
+                    case 0: return [4 /*yield*/, this.databaseConnection.db(this.connection.driver.database).dropDatabase()];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
@@ -559,67 +561,51 @@ var MongoQueryRunner = /** @class */ (function () {
     /**
      * Insert a new row with given values into the given table.
      * Returns value of inserted object id.
-     */
-    MongoQueryRunner.prototype.insert = function (collectionName, keyValues) {
-        return __awaiter(this, void 0, void 0, function () {
-            var results, generatedMap;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.databaseConnection
-                            .collection(collectionName)
-                            .insertOne(keyValues)];
-                    case 1:
-                        results = _a.sent();
-                        generatedMap = this.connection.getMetadata(collectionName).objectIdColumn.createValueMap(results.insertedId);
-                        return [2 /*return*/, {
-                                result: results,
-                                generatedMap: generatedMap
-                            }];
-                }
-            });
-        });
-    };
+
+    async insert(collectionName: string, keyValues: ObjectLiteral): Promise<any> { // todo: fix any
+        const results = await this.databaseConnection
+            .collection(collectionName)
+            .insertOne(keyValues);
+        const generatedMap = this.connection.getMetadata(collectionName).objectIdColumn!.createValueMap(results.insertedId);
+        return {
+            result: results,
+            generatedMap: generatedMap
+        };
+    }*/
     /**
      * Updates rows that match given conditions in the given table.
-     */
-    MongoQueryRunner.prototype.update = function (collectionName, valuesMap, conditions) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.databaseConnection
-                            .collection(collectionName)
-                            .updateOne(conditions, valuesMap)];
-                    case 1:
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
+
+    async update(collectionName: string, valuesMap: ObjectLiteral, conditions: ObjectLiteral): Promise<any> { // todo: fix any
+        await this.databaseConnection
+            .collection(collectionName)
+            .updateOne(conditions, valuesMap);
+    }*/
     /**
      * Deletes from the given table by a given conditions.
+
+    async delete(collectionName: string, conditions: ObjectLiteral|ObjectLiteral[]|string, maybeParameters?: any[]): Promise<any> { // todo: fix any
+        if (typeof conditions === "string")
+            throw new Error(`String condition is not supported by MongoDB driver.`);
+
+        await this.databaseConnection
+            .collection(collectionName)
+            .deleteOne(conditions);
+    }*/
+    /**
+     * Returns all available database names including system databases.
      */
-    MongoQueryRunner.prototype.delete = function (collectionName, conditions, maybeParameters) {
+    MongoQueryRunner.prototype.getDatabases = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        if (typeof conditions === "string")
-                            throw new Error("String condition is not supported by MongoDB driver.");
-                        return [4 /*yield*/, this.databaseConnection
-                                .collection(collectionName)
-                                .deleteOne(conditions)];
-                    case 1:
-                        _a.sent();
-                        return [2 /*return*/];
-                }
+                throw new Error("Schema update queries are not supported by MongoDB driver.");
             });
         });
     };
     /**
-     * Inserts rows into the closure table.
+     * Returns all available schema names including system schemas.
+     * If database parameter specified, returns schemas of that database.
      */
-    MongoQueryRunner.prototype.insertIntoClosureTable = function (collectionName, newEntityId, parentId, hasLevel) {
+    MongoQueryRunner.prototype.getSchemas = function (database) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 throw new Error("Schema update queries are not supported by MongoDB driver.");
@@ -657,6 +643,16 @@ var MongoQueryRunner = /** @class */ (function () {
         });
     };
     /**
+     * Checks if schema with the given name exist.
+     */
+    MongoQueryRunner.prototype.hasSchema = function (schema) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                throw new Error("Check schema queries are not supported by MongoDB driver.");
+            });
+        });
+    };
+    /**
      * Checks if table with the given name exist in the database.
      */
     MongoQueryRunner.prototype.hasTable = function (collectionName) {
@@ -667,16 +663,54 @@ var MongoQueryRunner = /** @class */ (function () {
         });
     };
     /**
+     * Checks if column with the given name exist in the given table.
+     */
+    MongoQueryRunner.prototype.hasColumn = function (tableOrName, columnName) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                throw new Error("Schema update queries are not supported by MongoDB driver.");
+            });
+        });
+    };
+    /**
      * Creates a database if it's not created.
      */
     MongoQueryRunner.prototype.createDatabase = function (database) {
-        throw new Error("Database create queries are not supported by MongoDB driver.");
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                throw new Error("Database create queries are not supported by MongoDB driver.");
+            });
+        });
     };
     /**
-     * Creates a schema if it's not created.
+     * Drops database.
      */
-    MongoQueryRunner.prototype.createSchema = function (schemas) {
-        throw new Error("Schema create queries are not supported by MongoDB driver.");
+    MongoQueryRunner.prototype.dropDatabase = function (database, ifExist) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                throw new Error("Database drop queries are not supported by MongoDB driver.");
+            });
+        });
+    };
+    /**
+     * Creates a new table schema.
+     */
+    MongoQueryRunner.prototype.createSchema = function (schema, ifNotExist) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                throw new Error("Schema create queries are not supported by MongoDB driver.");
+            });
+        });
+    };
+    /**
+     * Drops table schema.
+     */
+    MongoQueryRunner.prototype.dropSchema = function (schemaPath, ifExist) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                throw new Error("Schema drop queries are not supported by MongoDB driver.");
+            });
+        });
     };
     /**
      * Creates a new table from the given table and columns inside it.
@@ -699,9 +733,9 @@ var MongoQueryRunner = /** @class */ (function () {
         });
     };
     /**
-     * Checks if column with the given name exist in the given table.
+     * Renames the given table.
      */
-    MongoQueryRunner.prototype.hasColumn = function (collectionName, columnName) {
+    MongoQueryRunner.prototype.renameTable = function (oldTableOrName, newTableOrName) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 throw new Error("Schema update queries are not supported by MongoDB driver.");
@@ -751,7 +785,7 @@ var MongoQueryRunner = /** @class */ (function () {
     /**
      * Changes a column in the table.
      */
-    MongoQueryRunner.prototype.changeColumns = function (table, changedColumns) {
+    MongoQueryRunner.prototype.changeColumns = function (tableOrName, changedColumns) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 throw new Error("Schema update queries are not supported by MongoDB driver.");
@@ -761,7 +795,7 @@ var MongoQueryRunner = /** @class */ (function () {
     /**
      * Drops column in the table.
      */
-    MongoQueryRunner.prototype.dropColumn = function (table, column) {
+    MongoQueryRunner.prototype.dropColumn = function (tableOrName, columnOrName) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 throw new Error("Schema update queries are not supported by MongoDB driver.");
@@ -771,7 +805,7 @@ var MongoQueryRunner = /** @class */ (function () {
     /**
      * Drops the columns in the table.
      */
-    MongoQueryRunner.prototype.dropColumns = function (table, columns) {
+    MongoQueryRunner.prototype.dropColumns = function (tableOrName, columns) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 throw new Error("Schema update queries are not supported by MongoDB driver.");
@@ -779,9 +813,109 @@ var MongoQueryRunner = /** @class */ (function () {
         });
     };
     /**
-     * Updates table's primary keys.
+     * Creates a new primary key.
      */
-    MongoQueryRunner.prototype.updatePrimaryKeys = function (table) {
+    MongoQueryRunner.prototype.createPrimaryKey = function (tableOrName, columnNames) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                throw new Error("Schema update queries are not supported by MongoDB driver.");
+            });
+        });
+    };
+    /**
+     * Updates composite primary keys.
+     */
+    MongoQueryRunner.prototype.updatePrimaryKeys = function (tableOrName, columns) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                throw new Error("Schema update queries are not supported by MongoDB driver.");
+            });
+        });
+    };
+    /**
+     * Drops a primary key.
+     */
+    MongoQueryRunner.prototype.dropPrimaryKey = function (tableOrName) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                throw new Error("Schema update queries are not supported by MongoDB driver.");
+            });
+        });
+    };
+    /**
+     * Creates a new unique constraint.
+     */
+    MongoQueryRunner.prototype.createUniqueConstraint = function (tableOrName, uniqueConstraint) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                throw new Error("Schema update queries are not supported by MongoDB driver.");
+            });
+        });
+    };
+    /**
+     * Creates a new unique constraints.
+     */
+    MongoQueryRunner.prototype.createUniqueConstraints = function (tableOrName, uniqueConstraints) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                throw new Error("Schema update queries are not supported by MongoDB driver.");
+            });
+        });
+    };
+    /**
+     * Drops an unique constraint.
+     */
+    MongoQueryRunner.prototype.dropUniqueConstraint = function (tableOrName, uniqueOrName) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                throw new Error("Schema update queries are not supported by MongoDB driver.");
+            });
+        });
+    };
+    /**
+     * Drops an unique constraints.
+     */
+    MongoQueryRunner.prototype.dropUniqueConstraints = function (tableOrName, uniqueConstraints) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                throw new Error("Schema update queries are not supported by MongoDB driver.");
+            });
+        });
+    };
+    /**
+     * Creates a new check constraint.
+     */
+    MongoQueryRunner.prototype.createCheckConstraint = function (tableOrName, checkConstraint) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                throw new Error("Schema update queries are not supported by MongoDB driver.");
+            });
+        });
+    };
+    /**
+     * Creates a new check constraints.
+     */
+    MongoQueryRunner.prototype.createCheckConstraints = function (tableOrName, checkConstraints) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                throw new Error("Schema update queries are not supported by MongoDB driver.");
+            });
+        });
+    };
+    /**
+     * Drops check constraint.
+     */
+    MongoQueryRunner.prototype.dropCheckConstraint = function (tableOrName, checkOrName) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                throw new Error("Schema update queries are not supported by MongoDB driver.");
+            });
+        });
+    };
+    /**
+     * Drops check constraints.
+     */
+    MongoQueryRunner.prototype.dropCheckConstraints = function (tableOrName, checkConstraints) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 throw new Error("Schema update queries are not supported by MongoDB driver.");
@@ -831,7 +965,17 @@ var MongoQueryRunner = /** @class */ (function () {
     /**
      * Creates a new index.
      */
-    MongoQueryRunner.prototype.createIndex = function (collectionName, index) {
+    MongoQueryRunner.prototype.createIndex = function (tableOrName, index) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                throw new Error("Schema update queries are not supported by MongoDB driver.");
+            });
+        });
+    };
+    /**
+     * Creates a new indices
+     */
+    MongoQueryRunner.prototype.createIndices = function (tableOrName, indices) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 throw new Error("Schema update queries are not supported by MongoDB driver.");
@@ -849,13 +993,24 @@ var MongoQueryRunner = /** @class */ (function () {
         });
     };
     /**
+     * Drops an indices from the table.
+     */
+    MongoQueryRunner.prototype.dropIndices = function (tableOrName, indices) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                throw new Error("Schema update queries are not supported by MongoDB driver.");
+            });
+        });
+    };
+    /**
      * Drops collection.
      */
-    MongoQueryRunner.prototype.truncate = function (collectionName) {
+    MongoQueryRunner.prototype.clearTable = function (collectionName) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.databaseConnection
+                            .db(this.connection.driver.database)
                             .dropCollection(collectionName)];
                     case 1:
                         _a.sent();
@@ -882,10 +1037,36 @@ var MongoQueryRunner = /** @class */ (function () {
         throw new Error("This operation is not supported by MongoDB driver.");
     };
     /**
+     * Flushes all memorized sqls.
+     */
+    MongoQueryRunner.prototype.clearSqlMemory = function () {
+        throw new Error("This operation is not supported by MongoDB driver.");
+    };
+    /**
      * Gets sql stored in the memory. Parameters in the sql are already replaced.
      */
     MongoQueryRunner.prototype.getMemorySql = function () {
         throw new Error("This operation is not supported by MongoDB driver.");
+    };
+    /**
+     * Executes up sql queries.
+     */
+    MongoQueryRunner.prototype.executeMemoryUpSql = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                throw new Error("This operation is not supported by MongoDB driver.");
+            });
+        });
+    };
+    /**
+     * Executes down sql queries.
+     */
+    MongoQueryRunner.prototype.executeMemoryDownSql = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                throw new Error("This operation is not supported by MongoDB driver.");
+            });
+        });
     };
     // -------------------------------------------------------------------------
     // Protected Methods
@@ -894,7 +1075,7 @@ var MongoQueryRunner = /** @class */ (function () {
      * Gets collection from the database with a given name.
      */
     MongoQueryRunner.prototype.getCollection = function (collectionName) {
-        return this.databaseConnection.collection(collectionName);
+        return this.databaseConnection.db(this.connection.driver.database).collection(collectionName);
     };
     return MongoQueryRunner;
 }());

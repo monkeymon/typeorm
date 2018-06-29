@@ -29,10 +29,7 @@ var User = /** @class */ (function () {
         __metadata("design:type", String)
     ], User.prototype, "email", void 0);
     __decorate([
-        OneToOne_1.OneToOne(function (type) { return AccessToken_1.AccessToken; }, function (token) { return token.user; }, {
-            cascadeInsert: true,
-            cascadeUpdate: true
-        }),
+        OneToOne_1.OneToOne(function (type) { return AccessToken_1.AccessToken; }, function (token) { return token.user; }),
         JoinColumn_1.JoinColumn(),
         __metadata("design:type", AccessToken_1.AccessToken)
     ], User.prototype, "access_token", void 0);

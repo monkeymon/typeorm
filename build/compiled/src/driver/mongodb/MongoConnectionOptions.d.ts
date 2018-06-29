@@ -198,4 +198,8 @@ export interface MongoConnectionOptions extends BaseConnectionOptions {
      * Specify the log level used by the driver logger (error/warn/info/debug).
      */
     readonly loggerLevel?: "error" | "warn" | "info" | "debug";
+    /**
+     * Sets the authentication mechanism that MongoDB will use to authenticate the connection
+     */
+    readonly authMechanism?: string;
 }

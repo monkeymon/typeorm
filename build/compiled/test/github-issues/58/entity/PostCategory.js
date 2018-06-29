@@ -20,14 +20,14 @@ var PostCategory = /** @class */ (function () {
     __decorate([
         ManyToOne_1.ManyToOne(function (type) { return Post_1.Post; }, function (post) { return post.categories; }, {
             primary: true,
-            cascadeInsert: true
+            cascade: ["insert"]
         }),
         __metadata("design:type", Post_1.Post)
     ], PostCategory.prototype, "post", void 0);
     __decorate([
         ManyToOne_1.ManyToOne(function (type) { return Category_1.Category; }, function (category) { return category.posts; }, {
             primary: true,
-            cascadeInsert: true
+            cascade: ["insert"]
         }),
         __metadata("design:type", Category_1.Category)
     ], PostCategory.prototype, "category", void 0);

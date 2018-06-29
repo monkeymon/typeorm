@@ -1,8 +1,7 @@
 /**
- * Marks a specific property of the class as a children of the tree.
+ * Marks a entity property as a children of the tree.
+ * "Tree children" will contain all children (bind) of this entity.
  */
 export declare function TreeChildren(options?: {
-    cascadeInsert?: boolean;
-    cascadeUpdate?: boolean;
-    lazy?: boolean;
+    cascade?: boolean | ("insert" | "update" | "remove")[];
 }): Function;

@@ -104,6 +104,10 @@ var Post = /** @class */ (function () {
         __metadata("design:type", String)
     ], Post.prototype, "citext", void 0);
     __decorate([
+        Column_1.Column("hstore"),
+        __metadata("design:type", String)
+    ], Post.prototype, "hstore", void 0);
+    __decorate([
         Column_1.Column("bytea"),
         __metadata("design:type", Buffer)
     ], Post.prototype, "bytea", void 0);
@@ -147,6 +151,10 @@ var Post = /** @class */ (function () {
         Column_1.Column("bool"),
         __metadata("design:type", Boolean)
     ], Post.prototype, "bool", void 0);
+    __decorate([
+        Column_1.Column("enum", { enum: ["A", "B", "C"] }),
+        __metadata("design:type", String)
+    ], Post.prototype, "enum", void 0);
     __decorate([
         Column_1.Column("point"),
         __metadata("design:type", Object)
@@ -212,13 +220,45 @@ var Post = /** @class */ (function () {
         __metadata("design:type", Object)
     ], Post.prototype, "json", void 0);
     __decorate([
-        Column_1.Column("int", { isArray: true }),
+        Column_1.Column("jsonb"),
+        __metadata("design:type", Object)
+    ], Post.prototype, "jsonb", void 0);
+    __decorate([
+        Column_1.Column("int4range"),
+        __metadata("design:type", String)
+    ], Post.prototype, "int4range", void 0);
+    __decorate([
+        Column_1.Column("int8range"),
+        __metadata("design:type", String)
+    ], Post.prototype, "int8range", void 0);
+    __decorate([
+        Column_1.Column("numrange"),
+        __metadata("design:type", String)
+    ], Post.prototype, "numrange", void 0);
+    __decorate([
+        Column_1.Column("tsrange"),
+        __metadata("design:type", String)
+    ], Post.prototype, "tsrange", void 0);
+    __decorate([
+        Column_1.Column("tstzrange"),
+        __metadata("design:type", String)
+    ], Post.prototype, "tstzrange", void 0);
+    __decorate([
+        Column_1.Column("daterange"),
+        __metadata("design:type", String)
+    ], Post.prototype, "daterange", void 0);
+    __decorate([
+        Column_1.Column("int", { array: true }),
         __metadata("design:type", Array)
     ], Post.prototype, "array", void 0);
     __decorate([
         Column_1.Column("simple-array"),
         __metadata("design:type", Array)
     ], Post.prototype, "simpleArray", void 0);
+    __decorate([
+        Column_1.Column("simple-json"),
+        __metadata("design:type", Object)
+    ], Post.prototype, "simpleJson", void 0);
     Post = __decorate([
         Entity_1.Entity()
     ], Post);

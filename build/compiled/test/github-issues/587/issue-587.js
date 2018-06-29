@@ -45,8 +45,7 @@ describe("github issues > #587 Ordering of fields in composite indexes defined u
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        schemaCreate: true,
-                        dropSchema: true,
+                        enabledDrivers: ["mysql"]
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }

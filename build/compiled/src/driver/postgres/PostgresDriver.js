@@ -42,6 +42,7 @@ var PostgresQueryRunner_1 = require("./PostgresQueryRunner");
 var DateUtils_1 = require("../../util/DateUtils");
 var PlatformTools_1 = require("../../platform/PlatformTools");
 var RdbmsSchemaBuilder_1 = require("../../schema-builder/RdbmsSchemaBuilder");
+var OrmUtils_1 = require("../../util/OrmUtils");
 /**
  * Organizes communication with PostgreSQL DBMS.
  */
@@ -74,12 +75,19 @@ var PostgresDriver = /** @class */ (function () {
          * @see https://www.postgresql.org/docs/9.2/static/datatype.html
          */
         this.supportedDataTypes = [
+            "int",
+            "int2",
+            "int4",
+            "int8",
             "smallint",
             "integer",
             "bigint",
             "decimal",
             "numeric",
             "real",
+            "float",
+            "float4",
+            "float8",
             "double precision",
             "money",
             "character varying",
@@ -88,9 +96,13 @@ var PostgresDriver = /** @class */ (function () {
             "char",
             "text",
             "citext",
+            "hstore",
             "bytea",
             "bit",
+            "varbit",
             "bit varying",
+            "timetz",
+            "timestamptz",
             "timestamp",
             "timestamp without time zone",
             "timestamp with time zone",
@@ -99,6 +111,7 @@ var PostgresDriver = /** @class */ (function () {
             "time without time zone",
             "time with time zone",
             "interval",
+            "bool",
             "boolean",
             "enum",
             "point",
@@ -116,8 +129,18 @@ var PostgresDriver = /** @class */ (function () {
             "uuid",
             "xml",
             "json",
-            "jsonb"
+            "jsonb",
+            "int4range",
+            "int8range",
+            "numrange",
+            "tsrange",
+            "tstzrange",
+            "daterange"
         ];
+        /**
+         * Gets list of spatial column data types.
+         */
+        this.spatialTypes = [];
         /**
          * Gets list of column data types that support length by a driver.
          */
@@ -127,7 +150,27 @@ var PostgresDriver = /** @class */ (function () {
             "character",
             "char",
             "bit",
+            "varbit",
             "bit varying"
+        ];
+        /**
+         * Gets list of column data types that support precision by a driver.
+         */
+        this.withPrecisionColumnTypes = [
+            "numeric",
+            "decimal",
+            "interval",
+            "time without time zone",
+            "time with time zone",
+            "timestamp without time zone",
+            "timestamp with time zone"
+        ];
+        /**
+         * Gets list of column data types that support scale by a driver.
+         */
+        this.withScaleColumnTypes = [
+            "numeric",
+            "decimal"
         ];
         /**
          * Orm has special columns and we need to know what database column types should be for those types.
@@ -138,16 +181,30 @@ var PostgresDriver = /** @class */ (function () {
             createDateDefault: "now()",
             updateDate: "timestamp",
             updateDateDefault: "now()",
-            version: "int",
-            treeLevel: "int",
+            version: "int4",
+            treeLevel: "int4",
+            migrationId: "int4",
             migrationName: "varchar",
-            migrationTimestamp: "bigint",
-            cacheId: "int",
+            migrationTimestamp: "int8",
+            cacheId: "int4",
             cacheIdentifier: "varchar",
-            cacheTime: "bigint",
-            cacheDuration: "int",
+            cacheTime: "int8",
+            cacheDuration: "int4",
             cacheQuery: "text",
             cacheResult: "text",
+        };
+        /**
+         * Default values of length, precision and scale depends on column data type.
+         * Used in the cases when length/precision/scale is not specified by user.
+         */
+        this.dataTypeDefaults = {
+            "character": { length: 1 },
+            "bit": { length: 1 },
+            "interval": { precision: 6 },
+            "time without time zone": { precision: 6 },
+            "time with time zone": { precision: 6 },
+            "timestamp without time zone": { precision: 6 },
+            "timestamp with time zone": { precision: 6 },
         };
         this.connection = connection;
         this.options = connection.options;
@@ -210,7 +267,7 @@ var PostgresDriver = /** @class */ (function () {
     PostgresDriver.prototype.afterConnect = function () {
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
-            var hasUuidColumns, hasCitextColumns;
+            var hasUuidColumns, hasCitextColumns, hasHstoreColumns;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -220,27 +277,59 @@ var PostgresDriver = /** @class */ (function () {
                         hasCitextColumns = this.connection.entityMetadatas.some(function (metadata) {
                             return metadata.columns.filter(function (column) { return column.type === "citext"; }).length > 0;
                         });
-                        if (!(hasUuidColumns || hasCitextColumns)) return [3 /*break*/, 2];
+                        hasHstoreColumns = this.connection.entityMetadatas.some(function (metadata) {
+                            return metadata.columns.filter(function (column) { return column.type === "hstore"; }).length > 0;
+                        });
+                        if (!(hasUuidColumns || hasCitextColumns || hasHstoreColumns)) return [3 /*break*/, 2];
                         return [4 /*yield*/, Promise.all([this.master].concat(this.slaves).map(function (pool) {
                                 return new Promise(function (ok, fail) {
                                     pool.connect(function (err, connection, release) { return __awaiter(_this, void 0, void 0, function () {
+                                        var logger, _1, _2, _3;
                                         return __generator(this, function (_a) {
                                             switch (_a.label) {
                                                 case 0:
+                                                    logger = this.connection.logger;
                                                     if (err)
                                                         return [2 /*return*/, fail(err)];
-                                                    if (!hasUuidColumns) return [3 /*break*/, 2];
-                                                    return [4 /*yield*/, this.executeQuery(connection, "CREATE extension IF NOT EXISTS \"uuid-ossp\"")];
+                                                    if (!hasUuidColumns) return [3 /*break*/, 4];
+                                                    _a.label = 1;
                                                 case 1:
-                                                    _a.sent();
-                                                    _a.label = 2;
+                                                    _a.trys.push([1, 3, , 4]);
+                                                    return [4 /*yield*/, this.executeQuery(connection, "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"")];
                                                 case 2:
-                                                    if (!hasCitextColumns) return [3 /*break*/, 4];
-                                                    return [4 /*yield*/, this.executeQuery(connection, "CREATE extension IF NOT EXISTS \"citext\"")];
-                                                case 3:
                                                     _a.sent();
-                                                    _a.label = 4;
+                                                    return [3 /*break*/, 4];
+                                                case 3:
+                                                    _1 = _a.sent();
+                                                    logger.log("warn", "At least one of the entities has uuid column, but the 'uuid-ossp' extension cannot be installed automatically. Please install it manually using superuser rights");
+                                                    return [3 /*break*/, 4];
                                                 case 4:
+                                                    if (!hasCitextColumns) return [3 /*break*/, 8];
+                                                    _a.label = 5;
+                                                case 5:
+                                                    _a.trys.push([5, 7, , 8]);
+                                                    return [4 /*yield*/, this.executeQuery(connection, "CREATE EXTENSION IF NOT EXISTS \"citext\"")];
+                                                case 6:
+                                                    _a.sent();
+                                                    return [3 /*break*/, 8];
+                                                case 7:
+                                                    _2 = _a.sent();
+                                                    logger.log("warn", "At least one of the entities has citext column, but the 'citext' extension cannot be installed automatically. Please install it manually using superuser rights");
+                                                    return [3 /*break*/, 8];
+                                                case 8:
+                                                    if (!hasHstoreColumns) return [3 /*break*/, 12];
+                                                    _a.label = 9;
+                                                case 9:
+                                                    _a.trys.push([9, 11, , 12]);
+                                                    return [4 /*yield*/, this.executeQuery(connection, "CREATE EXTENSION IF NOT EXISTS \"hstore\"")];
+                                                case 10:
+                                                    _a.sent();
+                                                    return [3 /*break*/, 12];
+                                                case 11:
+                                                    _3 = _a.sent();
+                                                    logger.log("warn", "At least one of the entities has hstore column, but the 'hstore' extension cannot be installed automatically. Please install it manually using superuser rights");
+                                                    return [3 /*break*/, 12];
+                                                case 12:
                                                     release();
                                                     ok();
                                                     return [2 /*return*/];
@@ -316,13 +405,26 @@ var PostgresDriver = /** @class */ (function () {
             || columnMetadata.type === "timestamp"
             || columnMetadata.type === "timestamp with time zone"
             || columnMetadata.type === "timestamp without time zone") {
-            return DateUtils_1.DateUtils.mixedDateToDate(value, true);
+            return DateUtils_1.DateUtils.mixedDateToDate(value);
         }
         else if (columnMetadata.type === "json" || columnMetadata.type === "jsonb") {
             return JSON.stringify(value);
         }
+        else if (columnMetadata.type === "hstore") {
+            if (typeof value === "string") {
+                return value;
+            }
+            else {
+                return Object.keys(value).map(function (key) {
+                    return "\"" + key + "\"=>\"" + value[key] + "\"";
+                }).join(", ");
+            }
+        }
         else if (columnMetadata.type === "simple-array") {
             return DateUtils_1.DateUtils.simpleArrayToString(value);
+        }
+        else if (columnMetadata.type === "simple-json") {
+            return DateUtils_1.DateUtils.simpleJsonToString(value);
         }
         return value;
     };
@@ -330,43 +432,72 @@ var PostgresDriver = /** @class */ (function () {
      * Prepares given value to a value to be persisted, based on its column type or metadata.
      */
     PostgresDriver.prototype.prepareHydratedValue = function (value, columnMetadata) {
-        if (columnMetadata.transformer)
-            value = columnMetadata.transformer.from(value);
         if (value === null || value === undefined)
             return value;
         if (columnMetadata.type === Boolean) {
-            return value ? true : false;
+            value = value ? true : false;
         }
         else if (columnMetadata.type === "datetime"
             || columnMetadata.type === Date
             || columnMetadata.type === "timestamp"
             || columnMetadata.type === "timestamp with time zone"
             || columnMetadata.type === "timestamp without time zone") {
-            return DateUtils_1.DateUtils.normalizeHydratedDate(value);
+            value = DateUtils_1.DateUtils.normalizeHydratedDate(value);
         }
         else if (columnMetadata.type === "date") {
-            return DateUtils_1.DateUtils.mixedDateToDateString(value);
+            value = DateUtils_1.DateUtils.mixedDateToDateString(value);
         }
         else if (columnMetadata.type === "time") {
-            return DateUtils_1.DateUtils.mixedTimeToString(value);
+            value = DateUtils_1.DateUtils.mixedTimeToString(value);
+        }
+        else if (columnMetadata.type === "hstore") {
+            if (columnMetadata.hstoreType === "object") {
+                var regexp = /"(.*?)"=>"(.*?[^\\"])"/gi;
+                var matchValue = value.match(regexp);
+                var object = {};
+                var match = void 0;
+                while (match = regexp.exec(matchValue)) {
+                    object[match[1].replace("\\\"", "\"")] = match[2].replace("\\\"", "\"");
+                }
+                return object;
+            }
+            else {
+                return value;
+            }
         }
         else if (columnMetadata.type === "simple-array") {
-            return DateUtils_1.DateUtils.stringToSimpleArray(value);
+            value = DateUtils_1.DateUtils.stringToSimpleArray(value);
         }
+        else if (columnMetadata.type === "simple-json") {
+            value = DateUtils_1.DateUtils.stringToSimpleJson(value);
+        }
+        // manually convert enum array to array of values (pg does not support, see https://github.com/brianc/node-pg-types/issues/56)
+        if (columnMetadata.enum && columnMetadata.isArray)
+            value = value.substr(1).substr(0, value.length - 2).split(",");
+        if (columnMetadata.transformer)
+            value = columnMetadata.transformer.from(value);
         return value;
     };
     /**
      * Replaces parameters in the given sql with special escaping character
      * and an array of parameter names to be passed to a query.
      */
-    PostgresDriver.prototype.escapeQueryWithParameters = function (sql, parameters) {
+    PostgresDriver.prototype.escapeQueryWithParameters = function (sql, parameters, nativeParameters) {
+        var builtParameters = Object.keys(nativeParameters).map(function (key) { return nativeParameters[key]; });
         if (!parameters || !Object.keys(parameters).length)
-            return [sql, []];
-        var builtParameters = [];
-        var keys = Object.keys(parameters).map(function (parameter) { return "(:" + parameter + "\\b)"; }).join("|");
+            return [sql, builtParameters];
+        var keys = Object.keys(parameters).map(function (parameter) { return "(:(\\.\\.\\.)?" + parameter + "\\b)"; }).join("|");
         sql = sql.replace(new RegExp(keys, "g"), function (key) {
-            var value = parameters[key.substr(1)];
-            if (value instanceof Array) {
+            var value;
+            var isArray = false;
+            if (key.substr(0, 4) === ":...") {
+                isArray = true;
+                value = parameters[key.substr(4)];
+            }
+            else {
+                value = parameters[key.substr(1)];
+            }
+            if (isArray) {
                 return value.map(function (v) {
                     builtParameters.push(v);
                     return "$" + builtParameters.length;
@@ -389,147 +520,130 @@ var PostgresDriver = /** @class */ (function () {
         return "\"" + columnName + "\"";
     };
     /**
+     * Build full table name with schema name and table name.
+     * E.g. "mySchema"."myTable"
+     */
+    PostgresDriver.prototype.buildTableName = function (tableName, schema) {
+        return schema ? schema + "." + tableName : tableName;
+    };
+    /**
      * Creates a database type from a given column metadata.
      */
     PostgresDriver.prototype.normalizeType = function (column) {
-        var type = "";
-        if (column.type === Number) {
-            type += "integer";
+        if (column.type === Number || column.type === "int" || column.type === "int4") {
+            return "integer";
         }
-        else if (column.type === String) {
-            type += "character varying";
+        else if (column.type === String || column.type === "varchar") {
+            return "character varying";
         }
-        else if (column.type === Date) {
-            type += "timestamp";
+        else if (column.type === Date || column.type === "timestamp") {
+            return "timestamp without time zone";
         }
-        else if (column.type === Boolean) {
-            type += "boolean";
+        else if (column.type === "timestamptz") {
+            return "timestamp with time zone";
+        }
+        else if (column.type === "time") {
+            return "time without time zone";
+        }
+        else if (column.type === "timetz") {
+            return "time with time zone";
+        }
+        else if (column.type === Boolean || column.type === "bool") {
+            return "boolean";
         }
         else if (column.type === "simple-array") {
-            type += "text";
+            return "text";
+        }
+        else if (column.type === "simple-json") {
+            return "text";
+        }
+        else if (column.type === "int2") {
+            return "smallint";
+        }
+        else if (column.type === "int8") {
+            return "bigint";
+        }
+        else if (column.type === "decimal") {
+            return "numeric";
+        }
+        else if (column.type === "float8") {
+            return "double precision";
+        }
+        else if (column.type === "float4") {
+            return "real";
+        }
+        else if (column.type === "char") {
+            return "character";
+        }
+        else if (column.type === "varbit") {
+            return "bit varying";
         }
         else {
-            type += column.type;
+            return column.type || "";
         }
-        // normalize shortcuts
-        if (type === "int" || type === "int4") {
-            type = "integer";
-        }
-        else if (type === "int2") {
-            type = "smallint";
-        }
-        else if (type === "int8") {
-            type = "bigint";
-        }
-        else if (type === "decimal") {
-            type = "numeric";
-        }
-        else if (type === "float8") {
-            type = "double precision";
-        }
-        else if (type === "float4") {
-            type = "real";
-        }
-        else if (type === "citext") {
-            type = "citext";
-        }
-        else if (type === "char") {
-            type = "character";
-        }
-        else if (type === "varchar") {
-            type = "character varying";
-        }
-        else if (type === "time") {
-            type = "time without time zone";
-        }
-        else if (type === "timetz") {
-            type = "time with time zone";
-        }
-        else if (type === "timestamptz") {
-            type = "timestamp with time zone";
-        }
-        else if (type === "bool") {
-            type = "boolean";
-        }
-        else if (type === "varbit") {
-            type = "bit varying";
-        }
-        else if (type === "timestamp") {
-            type = "timestamp without time zone";
-        }
-        return type;
     };
     /**
      * Normalizes "default" value of the column.
      */
-    PostgresDriver.prototype.normalizeDefault = function (column) {
-        if (typeof column.default === "number") {
-            return "" + column.default;
+    PostgresDriver.prototype.normalizeDefault = function (columnMetadata) {
+        var defaultValue = columnMetadata.default;
+        var arrayCast = columnMetadata.isArray ? "::" + columnMetadata.type + "[]" : "";
+        if (typeof defaultValue === "number") {
+            return "" + defaultValue;
         }
-        else if (typeof column.default === "boolean") {
-            return column.default === true ? "true" : "false";
+        else if (typeof defaultValue === "boolean") {
+            return defaultValue === true ? "true" : "false";
         }
-        else if (typeof column.default === "function") {
-            return column.default();
+        else if (typeof defaultValue === "function") {
+            return defaultValue();
         }
-        else if (typeof column.default === "string") {
-            return "'" + column.default + "'";
+        else if (typeof defaultValue === "string") {
+            return "'" + defaultValue + "'" + arrayCast;
         }
-        else if (typeof column.default === "object") {
-            return "'" + JSON.stringify(column.default) + "'";
+        else if (typeof defaultValue === "object") {
+            return "'" + JSON.stringify(defaultValue) + "'";
         }
         else {
-            return column.default;
+            return defaultValue;
         }
     };
     /**
      * Normalizes "isUnique" value of the column.
      */
     PostgresDriver.prototype.normalizeIsUnique = function (column) {
-        return column.isUnique;
+        return column.entityMetadata.uniques.some(function (uq) { return uq.columns.length === 1 && uq.columns[0] === column; });
     };
     /**
-     * Calculates column length taking into account the default length values.
+     * Returns default column lengths, which is required on column creation.
      */
     PostgresDriver.prototype.getColumnLength = function (column) {
-        if (column.length)
-            return column.length;
-        var normalizedType = this.normalizeType(column);
-        if (this.dataTypeDefaults && this.dataTypeDefaults[normalizedType] && this.dataTypeDefaults[normalizedType].length)
-            return this.dataTypeDefaults[normalizedType].length.toString();
-        return "";
+        return column.length ? column.length.toString() : "";
     };
     /**
-     * Normalizes "default" value of the column.
+     * Creates column type definition including length, precision and scale
      */
     PostgresDriver.prototype.createFullType = function (column) {
         var type = column.type;
         if (column.length) {
             type += "(" + column.length + ")";
         }
-        else if (column.precision && column.scale) {
+        else if (column.precision !== null && column.precision !== undefined && column.scale !== null && column.scale !== undefined) {
             type += "(" + column.precision + "," + column.scale + ")";
         }
-        else if (column.precision) {
+        else if (column.precision !== null && column.precision !== undefined) {
             type += "(" + column.precision + ")";
         }
-        else if (column.scale) {
-            type += "(" + column.scale + ")";
-        }
-        else if (this.dataTypeDefaults && this.dataTypeDefaults[column.type] && this.dataTypeDefaults[column.type].length) {
-            type += "(" + this.dataTypeDefaults[column.type].length.toString() + ")";
-        }
         if (column.type === "time without time zone") {
-            type = "TIME" + (column.precision ? "(" + column.precision + ")" : "");
+            type = "TIME" + (column.precision !== null && column.precision !== undefined ? "(" + column.precision + ")" : "");
         }
         else if (column.type === "time with time zone") {
-            type = "TIME" + (column.precision ? "(" + column.precision + ")" : "") + " WITH TIME ZONE";
+            type = "TIME" + (column.precision !== null && column.precision !== undefined ? "(" + column.precision + ")" : "") + " WITH TIME ZONE";
         }
         else if (column.type === "timestamp without time zone") {
-            type = "TIMESTAMP" + (column.precision ? "(" + column.precision + ")" : "");
+            type = "TIMESTAMP" + (column.precision !== null && column.precision !== undefined ? "(" + column.precision + ")" : "");
         }
         else if (column.type === "timestamp with time zone") {
-            type = "TIMESTAMP" + (column.precision ? "(" + column.precision + ")" : "") + " WITH TIME ZONE";
+            type = "TIMESTAMP" + (column.precision !== null && column.precision !== undefined ? "(" + column.precision + ")" : "") + " WITH TIME ZONE";
         }
         if (column.isArray)
             type += " array";
@@ -564,6 +678,64 @@ var PostgresDriver = /** @class */ (function () {
             });
         });
     };
+    /**
+     * Creates generated map of values generated or returned by database after INSERT query.
+     *
+     * todo: slow. optimize Object.keys(), OrmUtils.mergeDeep and column.createValueMap parts
+     */
+    PostgresDriver.prototype.createGeneratedMap = function (metadata, insertResult) {
+        if (!insertResult)
+            return undefined;
+        return Object.keys(insertResult).reduce(function (map, key) {
+            var column = metadata.findColumnWithDatabaseName(key);
+            if (column) {
+                OrmUtils_1.OrmUtils.mergeDeep(map, column.createValueMap(insertResult[key]));
+            }
+            return map;
+        }, {});
+    };
+    /**
+     * Differentiate columns of this table and columns from the given column metadatas columns
+     * and returns only changed.
+     */
+    PostgresDriver.prototype.findChangedColumns = function (tableColumns, columnMetadatas) {
+        var _this = this;
+        return columnMetadatas.filter(function (columnMetadata) {
+            var tableColumn = tableColumns.find(function (c) { return c.name === columnMetadata.databaseName; });
+            if (!tableColumn)
+                return false; // we don't need new columns, we only need exist and changed
+            return tableColumn.name !== columnMetadata.databaseName
+                || tableColumn.type !== _this.normalizeType(columnMetadata)
+                || tableColumn.length !== columnMetadata.length
+                || tableColumn.precision !== columnMetadata.precision
+                || tableColumn.scale !== columnMetadata.scale
+                // || tableColumn.comment !== columnMetadata.comment // todo
+                || (!tableColumn.isGenerated && _this.normalizeDefault(columnMetadata) !== tableColumn.default) // we included check for generated here, because generated columns already can have default values
+                || tableColumn.isPrimary !== columnMetadata.isPrimary
+                || tableColumn.isNullable !== columnMetadata.isNullable
+                || tableColumn.isUnique !== _this.normalizeIsUnique(columnMetadata)
+                || (tableColumn.enum && columnMetadata.enum && !OrmUtils_1.OrmUtils.isArraysEqual(tableColumn.enum, columnMetadata.enum))
+                || tableColumn.isGenerated !== columnMetadata.isGenerated;
+        });
+    };
+    /**
+     * Returns true if driver supports RETURNING / OUTPUT statement.
+     */
+    PostgresDriver.prototype.isReturningSqlSupported = function () {
+        return true;
+    };
+    /**
+     * Returns true if driver supports uuid values generation on its own.
+     */
+    PostgresDriver.prototype.isUUIDGenerationSupported = function () {
+        return true;
+    };
+    /**
+     * Creates an escaped parameter.
+     */
+    PostgresDriver.prototype.createParameter = function (parameterName, index) {
+        return "$" + (index + 1);
+    };
     // -------------------------------------------------------------------------
     // Public Methods
     // -------------------------------------------------------------------------
@@ -574,7 +746,7 @@ var PostgresDriver = /** @class */ (function () {
         try {
             return PlatformTools_1.PlatformTools.load("pg-query-stream");
         }
-        catch (e) {
+        catch (e) { // todo: better error for browser env
             throw new Error("To use streams you should install pg-query-stream package. Please run npm i pg-query-stream --save command.");
         }
     };
@@ -594,7 +766,7 @@ var PostgresDriver = /** @class */ (function () {
             }
             catch (e) { }
         }
-        catch (e) {
+        catch (e) { // todo: better error for browser env
             throw new DriverPackageNotInstalledError_1.DriverPackageNotInstalledError("Postgres", "pg");
         }
     };
@@ -603,7 +775,7 @@ var PostgresDriver = /** @class */ (function () {
      */
     PostgresDriver.prototype.createPool = function (options, credentials) {
         return __awaiter(this, void 0, void 0, function () {
-            var connectionOptions, pool;
+            var connectionOptions, pool, logger;
             return __generator(this, function (_a) {
                 credentials = Object.assign(credentials, DriverUtils_1.DriverUtils.buildDriverOptions(credentials)); // todo: do it better way
                 connectionOptions = Object.assign({}, {
@@ -615,6 +787,12 @@ var PostgresDriver = /** @class */ (function () {
                     ssl: credentials.ssl
                 }, options.extra || {});
                 pool = new this.postgres.Pool(connectionOptions);
+                logger = this.connection.logger;
+                /*
+                  Attaching an error handler to pool errors is essential, as, otherwise, errors raised will go unhandled and
+                  cause the hosting app to crash.
+                 */
+                pool.on("error", function (error) { return logger.log("warn", "Postgres pool raised an error. " + error); });
                 return [2 /*return*/, new Promise(function (ok, fail) {
                         pool.connect(function (err, connection, release) {
                             if (err)

@@ -13,14 +13,11 @@ var Entity_1 = require("../../../../src/decorator/entity/Entity");
 var PrimaryGeneratedColumn_1 = require("../../../../src/decorator/columns/PrimaryGeneratedColumn");
 var Index_1 = require("../../../../src/decorator/Index");
 var Column_1 = require("../../../../src/decorator/columns/Column");
-var CreateDateColumn_1 = require("../../../../src/decorator/columns/CreateDateColumn");
-var UpdateDateColumn_1 = require("../../../../src/decorator/columns/UpdateDateColumn");
 var User = /** @class */ (function () {
     function User() {
     }
     __decorate([
         PrimaryGeneratedColumn_1.PrimaryGeneratedColumn(),
-        Index_1.Index(),
         __metadata("design:type", Number)
     ], User.prototype, "id", void 0);
     __decorate([
@@ -38,14 +35,6 @@ var User = /** @class */ (function () {
         Index_1.Index(),
         __metadata("design:type", Number)
     ], User.prototype, "privilege", void 0);
-    __decorate([
-        CreateDateColumn_1.CreateDateColumn(),
-        __metadata("design:type", String)
-    ], User.prototype, "createdAt", void 0);
-    __decorate([
-        UpdateDateColumn_1.UpdateDateColumn(),
-        __metadata("design:type", String)
-    ], User.prototype, "updatedAt", void 0);
     User = __decorate([
         Entity_1.Entity()
     ], User);

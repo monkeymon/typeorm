@@ -15,16 +15,7 @@ var DateUtils = /** @class */ (function () {
     DateUtils.normalizeHydratedDate = function (mixedDate) {
         if (!mixedDate)
             return mixedDate;
-        var date = typeof mixedDate === "string" ? new Date(mixedDate) : mixedDate;
-        // if (!storedInLocal) {
-        // else if it was not stored in local timezone, means it was stored in UTC
-        // because driver hydrates it with timezone applied why we need to add timezone hours to match a local timezone
-        var correctedDate = new Date();
-        correctedDate.setUTCFullYear(date.getFullYear(), date.getMonth(), date.getDate());
-        correctedDate.setUTCHours(date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
-        return correctedDate;
-        // }
-        // return date;
+        return typeof mixedDate === "string" ? new Date(mixedDate) : mixedDate;
     };
     /**
      * Converts given value into date string in a "YYYY-MM-DD" format.
@@ -102,7 +93,7 @@ var DateUtils = /** @class */ (function () {
                 this.formatZerolessValue(value.getHours()) + ":" +
                 this.formatZerolessValue(value.getMinutes()) + ":" +
                 this.formatZerolessValue(value.getSeconds()) + "." +
-                this.formatMilliseconds(value.getUTCMilliseconds());
+                this.formatMilliseconds(value.getMilliseconds());
         }
         return value;
     };
@@ -149,6 +140,12 @@ var DateUtils = /** @class */ (function () {
         }
         return value;
     };
+    DateUtils.simpleJsonToString = function (value) {
+        return JSON.stringify(value);
+    };
+    DateUtils.stringToSimpleJson = function (value) {
+        return typeof value === "string" ? JSON.parse(value) : value;
+    };
     // -------------------------------------------------------------------------
     // Private Static Methods
     // -------------------------------------------------------------------------
@@ -164,9 +161,15 @@ var DateUtils = /** @class */ (function () {
      * Formats given number to "0x" format, e.g. if it is 1 then it will return "01".
      */
     DateUtils.formatMilliseconds = function (value) {
-        if (value < 100)
+        if (value < 10) {
+            return "00" + value;
+        }
+        else if (value < 100) {
             return "0" + value;
-        return String(value);
+        }
+        else {
+            return String(value);
+        }
     };
     return DateUtils;
 }());

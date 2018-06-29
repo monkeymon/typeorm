@@ -77,11 +77,11 @@ describe("multi-schema-and-database > custom-junction-database", function () {
                 case 3:
                     junctionTable = _a.sent();
                     chai_1.expect(postTable).not.to.be.empty;
-                    postTable.database.should.be.equal("yoman");
+                    postTable.name.should.be.equal("yoman..post");
                     chai_1.expect(categoryTable).not.to.be.empty;
-                    categoryTable.database.should.be.equal("yoman");
+                    categoryTable.name.should.be.equal("yoman..category");
                     chai_1.expect(junctionTable).not.to.be.empty;
-                    junctionTable.database.should.be.equal("yoman");
+                    junctionTable.name.should.be.equal("yoman.." + junctionMetadata.tableName);
                     return [3 /*break*/, 8];
                 case 4: return [4 /*yield*/, queryRunner.getTable("yoman.post")];
                 case 5:
@@ -94,11 +94,11 @@ describe("multi-schema-and-database > custom-junction-database", function () {
                 case 7:
                     junctionTable = _a.sent();
                     chai_1.expect(postTable).not.to.be.empty;
-                    postTable.database.should.be.equal("yoman");
+                    postTable.name.should.be.equal("yoman.post");
                     chai_1.expect(categoryTable).not.to.be.empty;
-                    categoryTable.database.should.be.equal("yoman");
+                    categoryTable.name.should.be.equal("yoman.category");
                     chai_1.expect(junctionTable).not.to.be.empty;
-                    junctionTable.database.should.be.equal("yoman");
+                    junctionTable.name.should.be.equal("yoman." + junctionMetadata.tableName);
                     _a.label = 8;
                 case 8: return [4 /*yield*/, queryRunner.release()];
                 case 9:

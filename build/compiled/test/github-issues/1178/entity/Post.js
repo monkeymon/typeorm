@@ -10,6 +10,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var index_1 = require("../../../../src/index");
+var User_1 = require("./User");
+var ManyToOne_1 = require("../../../../src/decorator/relations/ManyToOne");
 var Post = /** @class */ (function () {
     function Post() {
     }
@@ -22,9 +24,9 @@ var Post = /** @class */ (function () {
         __metadata("design:type", String)
     ], Post.prototype, "name", void 0);
     __decorate([
-        index_1.Column(),
-        __metadata("design:type", Number)
-    ], Post.prototype, "userId", void 0);
+        ManyToOne_1.ManyToOne(function (type) { return User_1.User; }),
+        __metadata("design:type", User_1.User)
+    ], Post.prototype, "user", void 0);
     Post = __decorate([
         index_1.Entity()
     ], Post);

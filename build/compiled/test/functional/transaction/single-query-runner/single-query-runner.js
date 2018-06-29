@@ -48,8 +48,6 @@ describe("transaction > single query runner", function () {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        schemaCreate: true,
-                        dropSchema: true,
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -113,7 +111,7 @@ describe("transaction > single query runner", function () {
                 case 9:
                     loadedPost4 = _a.sent();
                     chai_1.expect(loadedPost4).to.be.eql({ id: 1, title: "Hello World" });
-                    return [4 /*yield*/, entityManager.query("DELETE FROM post")];
+                    return [4 /*yield*/, entityManager.query("DELETE FROM " + connection.driver.escape("post"))];
                 case 10:
                     _a.sent();
                     return [4 /*yield*/, entityManager.findOne(Post_1.Post, { title: "Hello World" })];
@@ -127,6 +125,9 @@ describe("transaction > single query runner", function () {
                 case 13:
                     loadedPost6 = _a.sent();
                     chai_1.expect(loadedPost6).to.be.eql({ id: 1, title: "Hello World" });
+                    return [4 /*yield*/, entityManager.queryRunner.release()];
+                case 14:
+                    _a.sent();
                     return [2 /*return*/];
             }
         });

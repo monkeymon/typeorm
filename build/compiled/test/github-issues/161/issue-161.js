@@ -48,8 +48,6 @@ describe("github issues > #161 joinAndSelect can't find entity from inverse side
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        schemaCreate: true,
-                        dropSchema: true,
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -72,7 +70,7 @@ describe("github issues > #161 joinAndSelect can't find entity from inverse side
                     return [4 /*yield*/, connection.manager.save(ticket)];
                 case 1:
                     _a.sent();
-                    return [4 /*yield*/, connection.manager.findOneById(Ticket_1.Ticket, 1, {
+                    return [4 /*yield*/, connection.manager.findOne(Ticket_1.Ticket, 1, {
                             join: {
                                 alias: "ticket",
                                 innerJoinAndSelect: {
@@ -93,7 +91,7 @@ describe("github issues > #161 joinAndSelect can't find entity from inverse side
                             success: false
                         }
                     });
-                    return [4 /*yield*/, connection.manager.findOneById(Request_1.Request, 1, {
+                    return [4 /*yield*/, connection.manager.findOne(Request_1.Request, 1, {
                             join: {
                                 alias: "request",
                                 innerJoinAndSelect: {
@@ -137,10 +135,10 @@ describe("github issues > #161 joinAndSelect can't find entity from inverse side
                     ticket.name = "USD PAYMENT";
                     ticket.request = request;
                     request.ticket = ticket;
-                    return [4 /*yield*/, connection.manager.save(request)];
+                    return [4 /*yield*/, connection.manager.save(ticket)];
                 case 2:
                     _a.sent();
-                    return [4 /*yield*/, connection.manager.findOneById(Request_1.Request, 2, {
+                    return [4 /*yield*/, connection.manager.findOne(Request_1.Request, 2, {
                             join: {
                                 alias: "request",
                                 innerJoinAndSelect: { ticket: "request.ticket" }

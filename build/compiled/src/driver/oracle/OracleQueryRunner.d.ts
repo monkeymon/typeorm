@@ -1,68 +1,27 @@
 /// <reference types="node" />
 import { QueryRunner } from "../../query-runner/QueryRunner";
-import { ObjectLiteral } from "../../common/ObjectLiteral";
-import { TableColumn } from "../../schema-builder/schema/TableColumn";
-import { Table } from "../../schema-builder/schema/Table";
-import { TableForeignKey } from "../../schema-builder/schema/TableForeignKey";
-import { TableIndex } from "../../schema-builder/schema/TableIndex";
+import { TableColumn } from "../../schema-builder/table/TableColumn";
+import { Table } from "../../schema-builder/table/Table";
+import { TableForeignKey } from "../../schema-builder/table/TableForeignKey";
+import { TableIndex } from "../../schema-builder/table/TableIndex";
 import { OracleDriver } from "./OracleDriver";
-import { Connection } from "../../connection/Connection";
 import { ReadStream } from "../../platform/PlatformTools";
-import { EntityManager } from "../../entity-manager/EntityManager";
+import { TableUnique } from "../../schema-builder/table/TableUnique";
+import { BaseQueryRunner } from "../../query-runner/BaseQueryRunner";
+import { TableCheck } from "../../schema-builder/table/TableCheck";
+import { IsolationLevel } from "../types/IsolationLevel";
 /**
  * Runs queries on a single oracle database connection.
- *
- * todo: this driver is not 100% finished yet, need to fix all issues that are left
  */
-export declare class OracleQueryRunner implements QueryRunner {
+export declare class OracleQueryRunner extends BaseQueryRunner implements QueryRunner {
     /**
      * Database driver used by connection.
      */
     driver: OracleDriver;
     /**
-     * Connection used by this query runner.
-     */
-    connection: Connection;
-    /**
-     * Isolated entity manager working only with current query runner.
-     */
-    manager: EntityManager;
-    /**
-     * Indicates if connection for this query runner is released.
-     * Once its released, query runner cannot run queries anymore.
-     */
-    isReleased: boolean;
-    /**
-     * Indicates if transaction is in progress.
-     */
-    isTransactionActive: boolean;
-    /**
-     * Stores temporarily user data.
-     * Useful for sharing data with subscribers.
-     */
-    data: {};
-    /**
-     * Real database connection from a connection pool used to perform queries.
-     */
-    protected databaseConnection: any;
-    /**
      * Promise used to obtain a database connection for a first time.
      */
     protected databaseConnectionPromise: Promise<any>;
-    /**
-     * Indicates if special query runner mode in which sql queries won't be executed is enabled.
-     */
-    protected sqlMemoryMode: boolean;
-    /**
-     * Sql-s stored if "sql in memory" mode is enabled.
-     */
-    protected sqlsInMemory: string[];
-    /**
-     * Mode in which query runner executes.
-     * Used for replication.
-     * If replication is not setup its value is ignored.
-     */
-    protected mode: "master" | "slave";
     constructor(driver: OracleDriver, mode?: "master" | "slave");
     /**
      * Creates/uses database connection from the connection pool to perform further operations.
@@ -77,7 +36,7 @@ export declare class OracleQueryRunner implements QueryRunner {
     /**
      * Starts transaction.
      */
-    startTransaction(): Promise<void>;
+    startTransaction(isolationLevel?: IsolationLevel): Promise<void>;
     /**
      * Commits transaction.
      * Error will be thrown if transaction was not started.
@@ -97,58 +56,58 @@ export declare class OracleQueryRunner implements QueryRunner {
      */
     stream(query: string, parameters?: any[], onEnd?: Function, onError?: Function): Promise<ReadStream>;
     /**
-     * Insert a new row with given values into the given table.
-     * Returns value of the generated column if given and generate column exist in the table.
+     * Returns all available database names including system databases.
      */
-    insert(tableName: string, keyValues: ObjectLiteral): Promise<any>;
+    getDatabases(): Promise<string[]>;
     /**
-     * Updates rows that match given conditions in the given table.
+     * Returns all available schema names including system schemas.
+     * If database parameter specified, returns schemas of that database.
      */
-    update(tableName: string, valuesMap: ObjectLiteral, conditions: ObjectLiteral): Promise<void>;
-    /**
-     * Deletes from the given table by a given conditions.
-     */
-    delete(tableName: string, conditions: ObjectLiteral | string, maybeParameters?: any[]): Promise<void>;
-    /**
-     * Inserts rows into the closure table.
-     */
-    insertIntoClosureTable(tableName: string, newEntityId: any, parentId: any, hasLevel: boolean): Promise<number>;
-    /**
-     * Loads given table's data from the database.
-     */
-    getTable(tableName: string): Promise<Table | undefined>;
-    /**
-     * Loads all tables (with given names) from the database and creates a Table from them.
-     */
-    getTables(tableNames: string[]): Promise<Table[]>;
+    getSchemas(database?: string): Promise<string[]>;
     /**
      * Checks if database with the given name exist.
      */
     hasDatabase(database: string): Promise<boolean>;
     /**
+     * Checks if schema with the given name exist.
+     */
+    hasSchema(schema: string): Promise<boolean>;
+    /**
      * Checks if table with the given name exist in the database.
      */
-    hasTable(tableName: string): Promise<boolean>;
-    /**
-     * Creates a database if it's not created.
-     */
-    createDatabase(database: string): Promise<void[]>;
-    /**
-     * Creates a schema if it's not created.
-     */
-    createSchema(schemas: string[]): Promise<void[]>;
-    /**
-     * Creates a new table from the given table metadata and column metadatas.
-     */
-    createTable(table: Table): Promise<void>;
-    /**
-     * Drops the table.
-     */
-    dropTable(tableName: string): Promise<void>;
+    hasTable(tableOrName: Table | string): Promise<boolean>;
     /**
      * Checks if column with the given name exist in the given table.
      */
-    hasColumn(tableName: string, columnName: string): Promise<boolean>;
+    hasColumn(tableOrName: Table | string, columnName: string): Promise<boolean>;
+    /**
+     * Creates a new database.
+     */
+    createDatabase(database: string, ifNotExist?: boolean): Promise<void>;
+    /**
+     * Drops database.
+     */
+    dropDatabase(database: string, ifExist?: boolean): Promise<void>;
+    /**
+     * Creates a new table schema.
+     */
+    createSchema(schemas: string, ifNotExist?: boolean): Promise<void>;
+    /**
+     * Drops table schema.
+     */
+    dropSchema(schemaPath: string, ifExist?: boolean): Promise<void>;
+    /**
+     * Creates a new table.
+     */
+    createTable(table: Table, ifNotExist?: boolean, createForeignKeys?: boolean, createIndices?: boolean): Promise<void>;
+    /**
+     * Drops the table.
+     */
+    dropTable(tableOrName: Table | string, ifExist?: boolean, dropForeignKeys?: boolean, dropIndices?: boolean): Promise<void>;
+    /**
+     * Renames the given table.
+     */
+    renameTable(oldTableOrName: Table | string, newTableOrName: Table | string): Promise<void>;
     /**
      * Creates a new column from the column in the table.
      */
@@ -168,22 +127,62 @@ export declare class OracleQueryRunner implements QueryRunner {
     /**
      * Changes a column in the table.
      */
-    changeColumns(table: Table, changedColumns: {
+    changeColumns(tableOrName: Table | string, changedColumns: {
         newColumn: TableColumn;
         oldColumn: TableColumn;
     }[]): Promise<void>;
     /**
      * Drops column in the table.
      */
-    dropColumn(table: Table, column: TableColumn): Promise<void>;
+    dropColumn(tableOrName: Table | string, columnOrName: TableColumn | string): Promise<void>;
     /**
      * Drops the columns in the table.
      */
-    dropColumns(table: Table, columns: TableColumn[]): Promise<void>;
+    dropColumns(tableOrName: Table | string, columns: TableColumn[]): Promise<void>;
     /**
-     * Updates table's primary keys.
+     * Creates a new primary key.
      */
-    updatePrimaryKeys(dbTable: Table): Promise<void>;
+    createPrimaryKey(tableOrName: Table | string, columnNames: string[]): Promise<void>;
+    /**
+     * Updates composite primary keys.
+     */
+    updatePrimaryKeys(tableOrName: Table | string, columns: TableColumn[]): Promise<void>;
+    /**
+     * Drops a primary key.
+     */
+    dropPrimaryKey(tableOrName: Table | string): Promise<void>;
+    /**
+     * Creates a new unique constraint.
+     */
+    createUniqueConstraint(tableOrName: Table | string, uniqueConstraint: TableUnique): Promise<void>;
+    /**
+     * Creates a new unique constraints.
+     */
+    createUniqueConstraints(tableOrName: Table | string, uniqueConstraints: TableUnique[]): Promise<void>;
+    /**
+     * Drops an unique constraint.
+     */
+    dropUniqueConstraint(tableOrName: Table | string, uniqueOrName: TableUnique | string): Promise<void>;
+    /**
+     * Creates an unique constraints.
+     */
+    dropUniqueConstraints(tableOrName: Table | string, uniqueConstraints: TableUnique[]): Promise<void>;
+    /**
+     * Creates new check constraint.
+     */
+    createCheckConstraint(tableOrName: Table | string, checkConstraint: TableCheck): Promise<void>;
+    /**
+     * Creates new check constraints.
+     */
+    createCheckConstraints(tableOrName: Table | string, checkConstraints: TableCheck[]): Promise<void>;
+    /**
+     * Drops check constraint.
+     */
+    dropCheckConstraint(tableOrName: Table | string, checkOrName: TableCheck | string): Promise<void>;
+    /**
+     * Drops check constraints.
+     */
+    dropCheckConstraints(tableOrName: Table | string, checkConstraints: TableCheck[]): Promise<void>;
     /**
      * Creates a new foreign key.
      */
@@ -195,7 +194,7 @@ export declare class OracleQueryRunner implements QueryRunner {
     /**
      * Drops a foreign key from the table.
      */
-    dropForeignKey(tableOrName: Table | string, foreignKey: TableForeignKey): Promise<void>;
+    dropForeignKey(tableOrName: Table | string, foreignKeyOrName: TableForeignKey | string): Promise<void>;
     /**
      * Drops a foreign keys from the table.
      */
@@ -203,47 +202,80 @@ export declare class OracleQueryRunner implements QueryRunner {
     /**
      * Creates a new index.
      */
-    createIndex(table: Table | string, index: TableIndex): Promise<void>;
+    createIndex(tableOrName: Table | string, index: TableIndex): Promise<void>;
+    /**
+     * Creates a new indices
+     */
+    createIndices(tableOrName: Table | string, indices: TableIndex[]): Promise<void>;
     /**
      * Drops an index from the table.
      */
-    dropIndex(tableSchemeOrName: Table | string, indexName: string): Promise<void>;
+    dropIndex(tableOrName: Table | string, indexOrName: TableIndex | string): Promise<void>;
     /**
-     * Truncates table.
+     * Drops an indices from the table.
      */
-    truncate(tableName: string): Promise<void>;
+    dropIndices(tableOrName: Table | string, indices: TableIndex[]): Promise<void>;
+    /**
+     * Clears all table contents.
+     * Note: this operation uses SQL's TRUNCATE query which cannot be reverted in transactions.
+     */
+    clearTable(tableName: string): Promise<void>;
     /**
      * Removes all tables from the currently connected database.
      */
     clearDatabase(): Promise<void>;
     /**
-     * Enables special query runner mode in which sql queries won't be executed,
-     * instead they will be memorized into a special variable inside query runner.
-     * You can get memorized sql using getMemorySql() method.
+     * Loads all tables (with given names) from the database and creates a Table from them.
      */
-    enableSqlMemory(): void;
+    protected loadTables(tableNames: string[]): Promise<Table[]>;
     /**
-     * Disables special query runner mode in which sql queries won't be executed
-     * started by calling enableSqlMemory() method.
-     *
-     * Previously memorized sql will be flushed.
+     * Builds and returns SQL for create table.
      */
-    disableSqlMemory(): void;
+    protected createTableSql(table: Table, createForeignKeys?: boolean): string;
     /**
-     * Gets sql stored in the memory. Parameters in the sql are already replaced.
+     * Builds drop table sql.
      */
-    getMemorySql(): (string | {
-        up: string;
-        down: string;
-    })[];
+    protected dropTableSql(tableOrName: Table | string, ifExist?: boolean): string;
     /**
-     * Database name shortcut.
+     * Builds create index sql.
      */
-    protected readonly dbName: string;
+    protected createIndexSql(table: Table, index: TableIndex): string;
     /**
-     * Parametrizes given object of values. Used to create column=value queries.
+     * Builds drop index sql.
      */
-    protected parametrize(objectLiteral: ObjectLiteral): string[];
+    protected dropIndexSql(indexOrName: TableIndex | string): string;
+    /**
+     * Builds create primary key sql.
+     */
+    protected createPrimaryKeySql(table: Table, columnNames: string[]): string;
+    /**
+     * Builds drop primary key sql.
+     */
+    protected dropPrimaryKeySql(table: Table): string;
+    /**
+     * Builds create unique constraint sql.
+     */
+    protected createUniqueConstraintSql(table: Table, uniqueConstraint: TableUnique): string;
+    /**
+     * Builds drop unique constraint sql.
+     */
+    protected dropUniqueConstraintSql(table: Table, uniqueOrName: TableUnique | string): string;
+    /**
+     * Builds create check constraint sql.
+     */
+    protected createCheckConstraintSql(table: Table, checkConstraint: TableCheck): string;
+    /**
+     * Builds drop check constraint sql.
+     */
+    protected dropCheckConstraintSql(table: Table, checkOrName: TableCheck | string): string;
+    /**
+     * Builds create foreign key sql.
+     */
+    protected createForeignKeySql(table: Table, foreignKey: TableForeignKey): string;
+    /**
+     * Builds drop foreign key sql.
+     */
+    protected dropForeignKeySql(table: Table, foreignKeyOrName: TableForeignKey | string): string;
     /**
      * Builds a query for create column.
      */

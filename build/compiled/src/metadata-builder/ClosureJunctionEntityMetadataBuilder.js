@@ -32,29 +32,36 @@ var ClosureJunctionEntityMetadataBuilder = /** @class */ (function () {
                 type: "closure-junction"
             }
         });
+        entityMetadata.build();
         // create ancestor and descendant columns for new closure junction table
         parentClosureEntityMetadata.primaryColumns.forEach(function (primaryColumn) {
             entityMetadata.ownColumns.push(new ColumnMetadata_1.ColumnMetadata({
                 connection: _this.connection,
                 entityMetadata: entityMetadata,
+                closureType: "ancestor",
+                referencedColumn: primaryColumn,
                 args: {
                     target: "",
                     mode: "virtual",
-                    propertyName: "ancestor",
+                    propertyName: primaryColumn.propertyName + "_ancestor",
                     options: {
+                        primary: true,
                         length: primaryColumn.length,
-                        type: primaryColumn.type,
+                        type: primaryColumn.type
                     }
                 }
             }));
             entityMetadata.ownColumns.push(new ColumnMetadata_1.ColumnMetadata({
                 connection: _this.connection,
                 entityMetadata: entityMetadata,
+                closureType: "descendant",
+                referencedColumn: primaryColumn,
                 args: {
                     target: "",
                     mode: "virtual",
-                    propertyName: "descendant",
+                    propertyName: primaryColumn.propertyName + "_descendant",
                     options: {
+                        primary: true,
                         length: primaryColumn.length,
                         type: primaryColumn.type,
                     }
@@ -82,13 +89,13 @@ var ClosureJunctionEntityMetadataBuilder = /** @class */ (function () {
                 entityMetadata: entityMetadata,
                 referencedEntityMetadata: parentClosureEntityMetadata,
                 columns: [entityMetadata.ownColumns[0]],
-                referencedColumns: parentClosureEntityMetadata.primaryColumns
+                referencedColumns: parentClosureEntityMetadata.primaryColumns,
             }),
             new ForeignKeyMetadata_1.ForeignKeyMetadata({
                 entityMetadata: entityMetadata,
                 referencedEntityMetadata: parentClosureEntityMetadata,
                 columns: [entityMetadata.ownColumns[1]],
-                referencedColumns: parentClosureEntityMetadata.primaryColumns
+                referencedColumns: parentClosureEntityMetadata.primaryColumns,
             }),
         ];
         return entityMetadata;

@@ -32,10 +32,6 @@ var PostWithOptions = /** @class */ (function () {
         __metadata("design:type", Number)
     ], PostWithOptions.prototype, "numeric", void 0);
     __decorate([
-        Column_1.Column("float", { precision: 24 }),
-        __metadata("design:type", Number)
-    ], PostWithOptions.prototype, "float", void 0);
-    __decorate([
         Column_1.Column("char", { length: 3 }),
         __metadata("design:type", String)
     ], PostWithOptions.prototype, "char", void 0);
@@ -60,15 +56,15 @@ var PostWithOptions = /** @class */ (function () {
         __metadata("design:type", Buffer)
     ], PostWithOptions.prototype, "varbinary", void 0);
     __decorate([
-        Column_1.Column("datetime2", { precision: 5 }),
+        Column_1.Column("datetime2", { precision: 4 }),
         __metadata("design:type", Date)
     ], PostWithOptions.prototype, "datetime2", void 0);
     __decorate([
-        Column_1.Column("time", { precision: 6 }),
+        Column_1.Column("time", { precision: 5 }),
         __metadata("design:type", Date)
     ], PostWithOptions.prototype, "time", void 0);
     __decorate([
-        Column_1.Column("datetimeoffset", { precision: 7 }),
+        Column_1.Column("datetimeoffset", { precision: 6 }),
         __metadata("design:type", Date)
     ], PostWithOptions.prototype, "datetimeoffset", void 0);
     PostWithOptions = __decorate([

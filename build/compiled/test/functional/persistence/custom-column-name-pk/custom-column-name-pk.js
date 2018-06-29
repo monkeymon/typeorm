@@ -47,8 +47,6 @@ describe("persistence > cascade operations with custom name", function () {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        schemaCreate: true,
-                        dropSchema: true,
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -90,7 +88,8 @@ describe("persistence > cascade operations with custom name", function () {
                         posts = _a.sent();
                         posts.should.be.eql([{
                                 id: 1,
-                                title: "Hello Post #1"
+                                title: "Hello Post #1",
+                                category: null
                             }]);
                         return [2 /*return*/];
                 }

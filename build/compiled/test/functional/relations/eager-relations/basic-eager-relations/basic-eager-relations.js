@@ -50,7 +50,6 @@ describe("relations > eager relations > basic", function () {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        dropSchema: true,
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -98,8 +97,8 @@ describe("relations > eager relations > basic", function () {
                         _a.sent();
                         post = new Post_1.Post();
                         post.title = "about eager relations";
-                        post.primaryCategories = [primaryCategory1, primaryCategory2];
-                        post.secondaryCategories = [secondaryCategory1, secondaryCategory2];
+                        post.categories1 = [primaryCategory1, primaryCategory2];
+                        post.categories2 = [secondaryCategory1, secondaryCategory2];
                         post.author = user;
                         return [4 /*yield*/, connection.manager.save(post)];
                     case 7:
@@ -122,20 +121,20 @@ describe("relations > eager relations > basic", function () {
                 case 0: return [4 /*yield*/, prepareData(connection)];
                 case 1:
                     _a.sent();
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 1)];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 1)];
                 case 2:
                     loadedPost = _a.sent();
                     loadedPost.should.be.eql({
                         id: 1,
                         title: "about eager relations",
-                        primaryCategories: [{
+                        categories1: [{
                                 id: 1,
                                 name: "primary category #1"
                             }, {
                                 id: 2,
                                 name: "primary category #2"
                             }],
-                        secondaryCategories: [{
+                        categories2: [{
                                 id: 3,
                                 name: "secondary category #1"
                             }, {

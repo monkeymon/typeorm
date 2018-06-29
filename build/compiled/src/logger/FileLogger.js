@@ -97,7 +97,7 @@ var FileLogger = /** @class */ (function () {
         try {
             return JSON.stringify(parameters);
         }
-        catch (error) {
+        catch (error) { // most probably circular objects in parameters
             return parameters;
         }
     };

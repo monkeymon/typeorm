@@ -37,7 +37,7 @@ var Post = /** @class */ (function () {
     ], Post.prototype, "counters", void 0);
     __decorate([
         ManyToMany_1.ManyToMany(function (type) { return Category_1.Category; }, function (category) { return category.posts; }, {
-            cascadeUpdate: true
+            cascade: ["update"],
         }),
         JoinTable_1.JoinTable(),
         __metadata("design:type", Array)

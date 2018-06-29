@@ -48,7 +48,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var QueryBuilder_1 = require("./QueryBuilder");
 var RelationUpdater_1 = require("./RelationUpdater");
 var RelationRemover_1 = require("./RelationRemover");
-var RelationLoader_1 = require("./RelationLoader");
 /**
  * Allows to work with entity relations and perform specific operations with those relations.
  *
@@ -89,7 +88,7 @@ var RelationQueryBuilder = /** @class */ (function (_super) {
             var relation, updater;
             return __generator(this, function (_a) {
                 relation = this.expressionMap.relationMetadata;
-                if (!this.expressionMap.of)
+                if (!this.expressionMap.of) // todo: move this check before relation query builder creation?
                     throw new Error("Entity whose relation needs to be set is not set. Use .of method to define whose relation you want to set.");
                 if (relation.isManyToMany || relation.isOneToMany)
                     throw new Error("Set operation is only supported for many-to-one and one-to-one relations. " +
@@ -119,7 +118,7 @@ var RelationQueryBuilder = /** @class */ (function (_super) {
                 if (value instanceof Array && value.length === 0)
                     return [2 /*return*/];
                 relation = this.expressionMap.relationMetadata;
-                if (!this.expressionMap.of)
+                if (!this.expressionMap.of) // todo: move this check before relation query builder creation?
                     throw new Error("Entity whose relation needs to be set is not set. Use .of method to define whose relation you want to set.");
                 if (relation.isManyToOne || relation.isOneToOne)
                     throw new Error("Add operation is only supported for many-to-many and one-to-many relations. " +
@@ -149,7 +148,7 @@ var RelationQueryBuilder = /** @class */ (function (_super) {
                 if (value instanceof Array && value.length === 0)
                     return [2 /*return*/];
                 relation = this.expressionMap.relationMetadata;
-                if (!this.expressionMap.of)
+                if (!this.expressionMap.of) // todo: move this check before relation query builder creation?
                     throw new Error("Entity whose relation needs to be set is not set. Use .of method to define whose relation you want to set.");
                 if (relation.isManyToOne || relation.isOneToOne)
                     throw new Error("Add operation is only supported for many-to-many and one-to-many relations. " +
@@ -198,17 +197,8 @@ var RelationQueryBuilder = /** @class */ (function (_super) {
      */
     RelationQueryBuilder.prototype.loadOne = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var of, metadata, relationLoader;
             return __generator(this, function (_a) {
-                of = this.expressionMap.of;
-                if (!(of instanceof Object)) {
-                    metadata = this.expressionMap.mainAlias.metadata;
-                    if (metadata.hasMultiplePrimaryKeys)
-                        throw new Error("Cannot load entity because only one primary key was specified, however entity contains multiple primary keys");
-                    of = metadata.primaryColumns[0].createValueMap(of);
-                }
-                relationLoader = new RelationLoader_1.RelationLoader(this.connection);
-                return [2 /*return*/, relationLoader.load(this.expressionMap.relationMetadata, of)];
+                return [2 /*return*/, this.loadMany().then(function (results) { return results[0]; })];
             });
         });
     };
@@ -218,8 +208,16 @@ var RelationQueryBuilder = /** @class */ (function (_super) {
      */
     RelationQueryBuilder.prototype.loadMany = function () {
         return __awaiter(this, void 0, void 0, function () {
+            var of, metadata;
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.loadOne()];
+                of = this.expressionMap.of;
+                if (!(of instanceof Object)) {
+                    metadata = this.expressionMap.mainAlias.metadata;
+                    if (metadata.hasMultiplePrimaryKeys)
+                        throw new Error("Cannot load entity because only one primary key was specified, however entity contains multiple primary keys");
+                    of = metadata.primaryColumns[0].createValueMap(of);
+                }
+                return [2 /*return*/, this.connection.relationLoader.load(this.expressionMap.relationMetadata, of)];
             });
         });
     };

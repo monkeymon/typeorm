@@ -34,7 +34,7 @@ var Post = /** @class */ (function () {
         ManyToOne_1.ManyToOne(function (type) { return Category_1.Category; }),
         JoinColumn_1.JoinColumn(),
         __metadata("design:type", Category_1.Category)
-    ], Post.prototype, "categoryWithEmptyJoinColumn", void 0);
+    ], Post.prototype, "categoryWithJoinColumn", void 0);
     __decorate([
         ManyToOne_1.ManyToOne(function (type) { return Category_1.Category; }),
         JoinColumn_1.JoinColumn([
@@ -51,7 +51,7 @@ var Post = /** @class */ (function () {
             { name: "category_description", referencedColumnName: "description" }
         ]),
         __metadata("design:type", Category_1.Category)
-    ], Post.prototype, "categoryWithNonPrimaryColumns", void 0);
+    ], Post.prototype, "categoryWithNonPKColumns", void 0);
     Post = __decorate([
         Entity_1.Entity()
     ], Post);

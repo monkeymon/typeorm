@@ -48,8 +48,6 @@ describe("embedded > basic functionality", function () {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        schemaCreate: true,
-                        dropSchema: true,
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -73,7 +71,7 @@ describe("embedded > basic functionality", function () {
                     return [4 /*yield*/, postRepository.save(post)];
                 case 1:
                     _a.sent();
-                    return [4 /*yield*/, postRepository.findOneById(1)];
+                    return [4 /*yield*/, postRepository.findOne(1)];
                 case 2:
                     loadedPost = (_a.sent());
                     loadedPost.id.should.be.equal(1);
@@ -89,7 +87,7 @@ describe("embedded > basic functionality", function () {
                     return [4 /*yield*/, postRepository.save(loadedPost)];
                 case 3:
                     _a.sent();
-                    return [4 /*yield*/, postRepository.findOneById(1)];
+                    return [4 /*yield*/, postRepository.findOne(1)];
                 case 4:
                     loadedPost2 = (_a.sent());
                     loadedPost2.id.should.be.equal(1);
@@ -103,7 +101,7 @@ describe("embedded > basic functionality", function () {
                     return [4 /*yield*/, postRepository.remove(loadedPost2)];
                 case 5:
                     _a.sent();
-                    return [4 /*yield*/, postRepository.findOneById(1)];
+                    return [4 /*yield*/, postRepository.findOne(1)];
                 case 6:
                     loadedPost3 = (_a.sent());
                     chai_1.expect(loadedPost3).to.be.undefined;

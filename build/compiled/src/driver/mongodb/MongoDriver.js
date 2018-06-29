@@ -62,9 +62,21 @@ var MongoDriver = /** @class */ (function () {
          */
         this.supportedDataTypes = [];
         /**
+         * Gets list of spatial column data types.
+         */
+        this.spatialTypes = [];
+        /**
          * Gets list of column data types that support length by a driver.
          */
         this.withLengthColumnTypes = [];
+        /**
+         * Gets list of column data types that support precision by a driver.
+         */
+        this.withPrecisionColumnTypes = [];
+        /**
+         * Gets list of column data types that support scale by a driver.
+         */
+        this.withScaleColumnTypes = [];
         /**
          * Mongodb does not need to have a strong defined mapped column types because they are not used in schema sync.
          */
@@ -75,6 +87,7 @@ var MongoDriver = /** @class */ (function () {
             updateDateDefault: "",
             version: "int",
             treeLevel: "int",
+            migrationId: "int",
             migrationName: "int",
             migrationTimestamp: "int",
             cacheId: "int",
@@ -139,11 +152,13 @@ var MongoDriver = /** @class */ (function () {
                 readConcern: _this.options.readConcern,
                 maxStalenessSeconds: _this.options.maxStalenessSeconds,
                 loggerLevel: _this.options.loggerLevel,
-                logger: _this.options.logger
-            }, function (err, dbConnection) {
+                logger: _this.options.logger,
+                authMechanism: _this.options.authMechanism
+            }, function (err, client) {
                 if (err)
                     return fail(err);
-                _this.queryRunner = new MongoQueryRunner_1.MongoQueryRunner(_this.connection, dbConnection);
+                _this.queryRunner = new MongoQueryRunner_1.MongoQueryRunner(_this.connection, client);
+                Object.assign(_this.queryRunner, { manager: _this.connection.manager });
                 ok();
             });
         });
@@ -185,7 +200,7 @@ var MongoDriver = /** @class */ (function () {
      * Replaces parameters in the given sql with special escaping character
      * and an array of parameter names to be passed to a query.
      */
-    MongoDriver.prototype.escapeQueryWithParameters = function (sql, parameters) {
+    MongoDriver.prototype.escapeQueryWithParameters = function (sql, parameters, nativeParameters) {
         throw new Error("This operation is not supported by Mongodb driver.");
     };
     /**
@@ -193,6 +208,13 @@ var MongoDriver = /** @class */ (function () {
      */
     MongoDriver.prototype.escape = function (columnName) {
         return columnName;
+    };
+    /**
+     * Build full table name with database name, schema name and table name.
+     * E.g. "myDB"."mySchema"."myTable"
+     */
+    MongoDriver.prototype.buildTableName = function (tableName, schema, database) {
+        return tableName;
     };
     /**
      * Prepares given value to a value to be persisted, based on its column type and metadata.
@@ -219,7 +241,7 @@ var MongoDriver = /** @class */ (function () {
     /**
      * Normalizes "default" value of the column.
      */
-    MongoDriver.prototype.normalizeDefault = function (column) {
+    MongoDriver.prototype.normalizeDefault = function (columnMetadata) {
         throw new Error("MongoDB is schema-less, not supported by this driver.");
     };
     /**
@@ -255,6 +277,37 @@ var MongoDriver = /** @class */ (function () {
      */
     MongoDriver.prototype.obtainSlaveConnection = function () {
         return Promise.resolve();
+    };
+    /**
+     * Creates generated map of values generated or returned by database after INSERT query.
+     */
+    MongoDriver.prototype.createGeneratedMap = function (metadata, insertedId) {
+        return metadata.objectIdColumn.createValueMap(insertedId);
+    };
+    /**
+     * Differentiate columns of this table and columns from the given column metadatas columns
+     * and returns only changed.
+     */
+    MongoDriver.prototype.findChangedColumns = function (tableColumns, columnMetadatas) {
+        throw new Error("MongoDB is schema-less, not supported by this driver.");
+    };
+    /**
+     * Returns true if driver supports RETURNING / OUTPUT statement.
+     */
+    MongoDriver.prototype.isReturningSqlSupported = function () {
+        return false;
+    };
+    /**
+     * Returns true if driver supports uuid values generation on its own.
+     */
+    MongoDriver.prototype.isUUIDGenerationSupported = function () {
+        return false;
+    };
+    /**
+     * Creates an escaped parameter.
+     */
+    MongoDriver.prototype.createParameter = function (parameterName, index) {
+        return "";
     };
     // -------------------------------------------------------------------------
     // Protected Methods

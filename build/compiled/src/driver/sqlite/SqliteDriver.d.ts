@@ -27,7 +27,7 @@ export declare class SqliteDriver extends AbstractSqliteDriver {
     normalizeType(column: {
         type?: ColumnType;
         length?: number | string;
-        precision?: number;
+        precision?: number | null;
         scale?: number;
     }): string;
     /**

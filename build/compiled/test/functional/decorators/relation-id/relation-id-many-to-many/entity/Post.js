@@ -47,7 +47,7 @@ var Post = /** @class */ (function () {
         __metadata("design:type", Array)
     ], Post.prototype, "categoryIds", void 0);
     __decorate([
-        RelationId_1.RelationId(function (post) { return post.categories; }, "removedCategories", function (qb) { return qb.andWhere("removedCategories.isRemoved = :isRemoved", { isRemoved: true }); }),
+        RelationId_1.RelationId(function (post) { return post.categories; }, "rc", function (qb) { return qb.andWhere("rc.isRemoved = :isRemoved", { isRemoved: true }); }),
         __metadata("design:type", Array)
     ], Post.prototype, "removedCategoryIds", void 0);
     __decorate([
@@ -55,7 +55,7 @@ var Post = /** @class */ (function () {
         __metadata("design:type", Array)
     ], Post.prototype, "subcategoryIds", void 0);
     __decorate([
-        RelationId_1.RelationId(function (post) { return post.subcategories; }, "removedSubcategories", function (qb) { return qb.andWhere("removedSubcategories.isRemoved = :isRemoved", { isRemoved: true }); }),
+        RelationId_1.RelationId(function (post) { return post.subcategories; }, "rsc", function (qb) { return qb.andWhere("rsc.isRemoved = :isRemoved", { isRemoved: true }); }),
         __metadata("design:type", Array)
     ], Post.prototype, "removedSubcategoryIds", void 0);
     Post = __decorate([

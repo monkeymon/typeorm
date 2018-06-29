@@ -41,7 +41,7 @@ var test_utils_1 = require("../../utils/test-utils");
 var Post_1 = require("./entity/Post");
 var Category_1 = require("./entity/Category");
 var chai_1 = require("chai");
-describe("github issues > #1055 already loaded via query builder relations should not be loaded again when they are lazily loaded", function () {
+describe("github issues > #996 already loaded via query builder relations should not be loaded again when they are lazily loaded", function () {
     var connections;
     before(function () { return __awaiter(_this, void 0, void 0, function () {
         return __generator(this, function (_a) {

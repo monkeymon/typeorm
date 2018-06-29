@@ -40,6 +40,7 @@ function __export(m) {
 Object.defineProperty(exports, "__esModule", { value: true });
 /*!
  */
+require("reflect-metadata");
 var ConnectionManager_1 = require("./connection/ConnectionManager");
 var MetadataArgsStorage_1 = require("./metadata-args/MetadataArgsStorage");
 var container_1 = require("./container");
@@ -53,7 +54,6 @@ __export(require("./container"));
 __export(require("./error/QueryFailedError"));
 __export(require("./decorator/columns/Column"));
 __export(require("./decorator/columns/CreateDateColumn"));
-__export(require("./decorator/columns/DiscriminatorColumn"));
 __export(require("./decorator/columns/PrimaryGeneratedColumn"));
 __export(require("./decorator/columns/PrimaryColumn"));
 __export(require("./decorator/columns/UpdateDateColumn"));
@@ -67,7 +67,6 @@ __export(require("./decorator/listeners/BeforeInsert"));
 __export(require("./decorator/listeners/BeforeRemove"));
 __export(require("./decorator/listeners/BeforeUpdate"));
 __export(require("./decorator/listeners/EventSubscriber"));
-__export(require("./decorator/relations/RelationCount"));
 __export(require("./decorator/relations/JoinColumn"));
 __export(require("./decorator/relations/JoinTable"));
 __export(require("./decorator/relations/ManyToMany"));
@@ -77,9 +76,7 @@ __export(require("./decorator/relations/OneToOne"));
 __export(require("./decorator/relations/RelationCount"));
 __export(require("./decorator/relations/RelationId"));
 __export(require("./decorator/entity/Entity"));
-__export(require("./decorator/entity/ClassEntityChild"));
-__export(require("./decorator/entity/ClosureEntity"));
-__export(require("./decorator/entity/SingleEntityChild"));
+__export(require("./decorator/entity/ChildEntity"));
 __export(require("./decorator/entity/TableInheritance"));
 __export(require("./decorator/transaction/Transaction"));
 __export(require("./decorator/transaction/TransactionManager"));
@@ -87,25 +84,37 @@ __export(require("./decorator/transaction/TransactionRepository"));
 __export(require("./decorator/tree/TreeLevelColumn"));
 __export(require("./decorator/tree/TreeParent"));
 __export(require("./decorator/tree/TreeChildren"));
+__export(require("./decorator/tree/Tree"));
 __export(require("./decorator/Index"));
+__export(require("./decorator/Unique"));
+__export(require("./decorator/Check"));
 __export(require("./decorator/Generated"));
-__export(require("./decorator/DiscriminatorValue"));
 __export(require("./decorator/EntityRepository"));
+__export(require("./find-options/operator/Any"));
+__export(require("./find-options/operator/Between"));
+__export(require("./find-options/operator/Equal"));
+__export(require("./find-options/operator/In"));
+__export(require("./find-options/operator/IsNull"));
+__export(require("./find-options/operator/LessThan"));
+__export(require("./find-options/operator/Like"));
+__export(require("./find-options/operator/MoreThan"));
+__export(require("./find-options/operator/Not"));
+__export(require("./find-options/operator/Raw"));
+__export(require("./find-options/FindOperator"));
 __export(require("./logger/AdvancedConsoleLogger"));
 __export(require("./logger/SimpleConsoleLogger"));
 __export(require("./logger/FileLogger"));
-__export(require("./metadata/EntityMetadataUtils"));
+__export(require("./metadata/EntityMetadata"));
 __export(require("./entity-manager/EntityManager"));
 __export(require("./repository/AbstractRepository"));
 __export(require("./repository/Repository"));
 __export(require("./repository/BaseEntity"));
 __export(require("./repository/TreeRepository"));
 __export(require("./repository/MongoRepository"));
-__export(require("./schema-builder/schema/TableColumn"));
-__export(require("./schema-builder/schema/TableForeignKey"));
-__export(require("./schema-builder/schema/TableIndex"));
-__export(require("./schema-builder/schema/TablePrimaryKey"));
-__export(require("./schema-builder/schema/Table"));
+__export(require("./schema-builder/table/TableColumn"));
+__export(require("./schema-builder/table/TableForeignKey"));
+__export(require("./schema-builder/table/TableIndex"));
+__export(require("./schema-builder/table/Table"));
 __export(require("./driver/mongodb/typings"));
 __export(require("./driver/sqlserver/MssqlParameter"));
 var ConnectionOptionsReader_2 = require("./connection/ConnectionOptionsReader");
@@ -128,6 +137,12 @@ var RelationQueryBuilder_1 = require("./query-builder/RelationQueryBuilder");
 exports.RelationQueryBuilder = RelationQueryBuilder_1.RelationQueryBuilder;
 var Brackets_1 = require("./query-builder/Brackets");
 exports.Brackets = Brackets_1.Brackets;
+var InsertResult_1 = require("./query-builder/result/InsertResult");
+exports.InsertResult = InsertResult_1.InsertResult;
+var UpdateResult_1 = require("./query-builder/result/UpdateResult");
+exports.UpdateResult = UpdateResult_1.UpdateResult;
+var DeleteResult_1 = require("./query-builder/result/DeleteResult");
+exports.DeleteResult = DeleteResult_1.DeleteResult;
 var EntityManager_1 = require("./entity-manager/EntityManager");
 exports.EntityManager = EntityManager_1.EntityManager;
 var MongoEntityManager_1 = require("./entity-manager/MongoEntityManager");
@@ -142,6 +157,8 @@ var MongoRepository_1 = require("./repository/MongoRepository");
 exports.MongoRepository = MongoRepository_1.MongoRepository;
 var BaseEntity_1 = require("./repository/BaseEntity");
 exports.BaseEntity = BaseEntity_1.BaseEntity;
+var EntitySchema_1 = require("./entity-schema/EntitySchema");
+exports.EntitySchema = EntitySchema_1.EntitySchema;
 var PromiseUtils_2 = require("./util/PromiseUtils");
 exports.PromiseUtils = PromiseUtils_2.PromiseUtils;
 // -------------------------------------------------------------------------
@@ -194,17 +211,23 @@ exports.getConnectionManager = getConnectionManager;
  * based on content of ormconfig (json/js/yml/xml/env) file or environment variables.
  * Only one connection from ormconfig will be created (name "default" or connection without name).
  */
-function createConnection(options) {
+function createConnection(optionsOrName) {
     return __awaiter(this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            switch (_a.label) {
+        var connectionName, options, _a;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
                 case 0:
-                    if (!!options) return [3 /*break*/, 2];
-                    return [4 /*yield*/, getConnectionOptions()];
-                case 1:
-                    options = _a.sent();
-                    _a.label = 2;
-                case 2: return [2 /*return*/, getConnectionManager().create(options).connect()];
+                    connectionName = typeof optionsOrName === "string" ? optionsOrName : "default";
+                    if (!(optionsOrName instanceof Object)) return [3 /*break*/, 1];
+                    _a = optionsOrName;
+                    return [3 /*break*/, 3];
+                case 1: return [4 /*yield*/, getConnectionOptions(connectionName)];
+                case 2:
+                    _a = _b.sent();
+                    _b.label = 3;
+                case 3:
+                    options = _a;
+                    return [2 /*return*/, getConnectionManager().create(options).connect()];
             }
         });
     });
@@ -263,6 +286,11 @@ function getMongoManager(connectionName) {
     return getConnectionManager().get(connectionName).manager;
 }
 exports.getMongoManager = getMongoManager;
+/**
+ * Gets Sqljs entity manager from connection name.
+ * "default" connection is used, when no name is specified.
+ * Only works when Sqljs driver is used.
+ */
 function getSqljsManager(connectionName) {
     if (connectionName === void 0) { connectionName = "default"; }
     return getConnectionManager().get(connectionName).manager;
@@ -300,4 +328,15 @@ function getMongoRepository(entityClass, connectionName) {
     return getConnectionManager().get(connectionName).getMongoRepository(entityClass);
 }
 exports.getMongoRepository = getMongoRepository;
+/**
+ * Creates a new query builder.
+ */
+function createQueryBuilder(entityClass, alias, connectionName) {
+    if (connectionName === void 0) { connectionName = "default"; }
+    if (entityClass) {
+        return getRepository(entityClass, connectionName).createQueryBuilder(alias);
+    }
+    return getConnection(connectionName).createQueryBuilder();
+}
+exports.createQueryBuilder = createQueryBuilder;
 //# sourceMappingURL=index.js.map

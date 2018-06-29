@@ -55,5 +55,23 @@ describe("ConnectionOptionsReader", function () {
             }
         });
     }); });
+    it("properly loads sqlite in-memory/path config", function () { return __awaiter(_this, void 0, void 0, function () {
+        var connectionOptionsReader, inmemoryOptions, fileOptions;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    connectionOptionsReader = new ConnectionOptionsReader_1.ConnectionOptionsReader({ root: __dirname, configName: "configs/sqlite-memory" });
+                    return [4 /*yield*/, connectionOptionsReader.get("memory")];
+                case 1:
+                    inmemoryOptions = _a.sent();
+                    chai_1.expect(inmemoryOptions.database).to.equal(":memory:");
+                    return [4 /*yield*/, connectionOptionsReader.get("file")];
+                case 2:
+                    fileOptions = _a.sent();
+                    chai_1.expect(fileOptions.database).to.have.string("/test");
+                    return [2 /*return*/];
+            }
+        });
+    }); });
 });
 //# sourceMappingURL=connection-options-reader.js.map

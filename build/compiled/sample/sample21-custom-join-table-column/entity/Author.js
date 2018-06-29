@@ -25,8 +25,7 @@ var Author = /** @class */ (function () {
     ], Author.prototype, "name", void 0);
     __decorate([
         OneToMany_1.OneToMany(function (type) { return Post_1.Post; }, function (post) { return post.author; }, {
-            cascadeInsert: true,
-            cascadeUpdate: true
+            cascade: true
         }),
         __metadata("design:type", Array)
     ], Author.prototype, "posts", void 0);

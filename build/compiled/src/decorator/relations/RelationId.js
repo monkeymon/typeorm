@@ -1,19 +1,20 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var index_1 = require("../../index");
+var _1 = require("../../");
 /**
  * Special decorator used to extract relation id into separate entity property.
+ *
+ * @experimental
  */
 function RelationId(relation, alias, queryBuilderFactory) {
     return function (object, propertyName) {
-        var args = {
+        _1.getMetadataArgsStorage().relationIds.push({
             target: object.constructor,
             propertyName: propertyName,
             relation: relation,
             alias: alias,
             queryBuilderFactory: queryBuilderFactory
-        };
-        index_1.getMetadataArgsStorage().relationIds.push(args);
+        });
     };
 }
 exports.RelationId = RelationId;

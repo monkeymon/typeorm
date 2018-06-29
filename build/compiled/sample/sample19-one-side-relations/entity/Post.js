@@ -34,19 +34,16 @@ var Post = /** @class */ (function () {
         __metadata("design:type", String)
     ], Post.prototype, "text", void 0);
     __decorate([
-        ManyToOne_1.ManyToOne(function (type) { return Author_1.Author; }, { cascadeAll: true }),
+        ManyToOne_1.ManyToOne(function (type) { return Author_1.Author; }, { cascade: true }),
         __metadata("design:type", Author_1.Author)
     ], Post.prototype, "author", void 0);
     __decorate([
-        ManyToMany_1.ManyToMany(function (type) { return Category_1.Category; }, {
-            cascadeInsert: true,
-            cascadeUpdate: true
-        }),
+        ManyToMany_1.ManyToMany(function (type) { return Category_1.Category; }, { cascade: true }),
         JoinTable_1.JoinTable(),
         __metadata("design:type", Array)
     ], Post.prototype, "categories", void 0);
     __decorate([
-        OneToOne_1.OneToOne(function (type) { return PostMetadata_1.PostMetadata; }, { cascadeAll: true }),
+        OneToOne_1.OneToOne(function (type) { return PostMetadata_1.PostMetadata; }, { cascade: true }),
         JoinColumn_1.JoinColumn(),
         __metadata("design:type", PostMetadata_1.PostMetadata)
     ], Post.prototype, "metadata", void 0);

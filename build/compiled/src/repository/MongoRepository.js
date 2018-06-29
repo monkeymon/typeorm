@@ -60,15 +60,8 @@ var MongoRepository = /** @class */ (function (_super) {
     /**
      * Finds first entity that matches given conditions and/or find options.
      */
-    MongoRepository.prototype.findOne = function (optionsOrConditions) {
-        return this.manager.findOne(this.metadata.target, optionsOrConditions);
-    };
-    /**
-     * Finds entity by given id.
-     * Optionally find options or conditions can be applied.
-     */
-    MongoRepository.prototype.findOneById = function (id, optionsOrConditions) {
-        return this.manager.findOneById(this.metadata.target, id, optionsOrConditions);
+    MongoRepository.prototype.findOne = function (optionsOrConditions, maybeOptions) {
+        return this.manager.findOne(this.metadata.target, optionsOrConditions, maybeOptions);
     };
     /**
      * Creates a cursor for a query that can be used to iterate over results from MongoDB.
@@ -88,6 +81,13 @@ var MongoRepository = /** @class */ (function (_super) {
      */
     MongoRepository.prototype.aggregate = function (pipeline, options) {
         return this.manager.aggregate(this.metadata.target, pipeline, options);
+    };
+    /**
+     * Execute an aggregation framework pipeline against the collection.
+     * This returns modified version of cursor that transforms each result into Entity model.
+     */
+    MongoRepository.prototype.aggregateEntity = function (pipeline, options) {
+        return this.manager.aggregateEntity(this.metadata.target, pipeline, options);
     };
     /**
      * Perform a bulkWrite operation without a fluent API.

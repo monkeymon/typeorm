@@ -40,7 +40,7 @@ require("reflect-metadata");
 var chai_1 = require("chai");
 var Post_1 = require("./entity/Post");
 var test_utils_1 = require("../../../../utils/test-utils");
-describe("database schema > column length > mssql", function () {
+describe("database schema > column length > postgres", function () {
     var connections;
     before(function () { return __awaiter(_this, void 0, void 0, function () {
         return __generator(this, function (_a) {
@@ -48,8 +48,6 @@ describe("database schema > column length > mssql", function () {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [Post_1.Post],
                         enabledDrivers: ["postgres"],
-                        schemaCreate: true,
-                        dropSchema: true,
                     })];
                 case 1:
                     connections = _a.sent();

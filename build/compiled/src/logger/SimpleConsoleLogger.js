@@ -20,7 +20,7 @@ var SimpleConsoleLogger = /** @class */ (function () {
     SimpleConsoleLogger.prototype.logQuery = function (query, parameters, queryRunner) {
         if (this.options === "all" || this.options === true || (this.options instanceof Array && this.options.indexOf("query") !== -1)) {
             var sql = query + (parameters && parameters.length ? " -- PARAMETERS: " + this.stringifyParams(parameters) : "");
-            console.log("executing query" + ": " + sql);
+            console.log("query" + ": " + sql);
         }
     };
     /**
@@ -86,7 +86,7 @@ var SimpleConsoleLogger = /** @class */ (function () {
         try {
             return JSON.stringify(parameters);
         }
-        catch (error) {
+        catch (error) { // most probably circular objects in parameters
             return parameters;
         }
     };

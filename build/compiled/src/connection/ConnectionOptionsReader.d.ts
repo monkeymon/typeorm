@@ -22,11 +22,15 @@ export declare class ConnectionOptionsReader {
      */
     get(name: string): Promise<ConnectionOptions>;
     /**
+     * Checks if there is a TypeORM configuration file.
+     */
+    has(name: string): Promise<boolean>;
+    /**
      * Loads all connection options from a configuration file.
      *
      * todo: get in count NODE_ENV somehow
      */
-    protected load(): Promise<ConnectionOptions[]>;
+    protected load(): Promise<ConnectionOptions[] | undefined>;
     /**
      * Normalize connection options.
      */

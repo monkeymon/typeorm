@@ -10,13 +10,13 @@ export declare class User {
      *
      * @returns {number}
      */
-    getId(): number;
+    getId(): string;
     /**
      * Setter identifier
      *
      * @param id new identifier value
      */
-    setId(id: number): void;
+    setId(id: string): void;
     /**
      * Getter circles
      *

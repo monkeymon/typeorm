@@ -41,14 +41,13 @@ var Post_1 = require("./entity/Post");
 var Image_1 = require("./entity/Image");
 var test_utils_1 = require("../../../../utils/test-utils");
 var chai_1 = require("chai");
-describe("query builder > relational query builder > add and remove operations > many to many relation", function () {
+describe("query builder > relational with many > load many", function () {
     var connections;
     before(function () { return __awaiter(_this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        dropSchema: true,
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -94,7 +93,7 @@ describe("query builder > relational query builder > add and remove operations >
                     return [4 /*yield*/, connection.manager.save(post3)];
                 case 6:
                     _b.sent();
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 1)];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 1)];
                 case 7:
                     loadedPost1 = _b.sent();
                     _a = loadedPost1;
@@ -150,7 +149,7 @@ describe("query builder > relational query builder > add and remove operations >
                     return [4 /*yield*/, connection.manager.save(post3)];
                 case 6:
                     _b.sent();
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 1)];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 1)];
                 case 7:
                     loadedPost1 = _b.sent();
                     _a = loadedPost1;
@@ -206,7 +205,7 @@ describe("query builder > relational query builder > add and remove operations >
                     return [4 /*yield*/, connection.manager.save(post3)];
                 case 6:
                     _b.sent();
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 1)];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 1)];
                 case 7:
                     loadedPost1 = _b.sent();
                     _a = loadedPost1;

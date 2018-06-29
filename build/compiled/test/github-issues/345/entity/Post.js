@@ -27,7 +27,7 @@ var Post = /** @class */ (function () {
     ], Post.prototype, "title", void 0);
     __decorate([
         ManyToMany_1.ManyToMany(function () { return Category_1.Category; }, function (category) { return category.posts; }, {
-            cascadeInsert: true
+            cascade: ["insert"]
         }),
         __metadata("design:type", Array)
     ], Post.prototype, "categories", void 0);

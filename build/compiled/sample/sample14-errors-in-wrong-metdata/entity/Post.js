@@ -32,9 +32,7 @@ var Post = /** @class */ (function () {
     ], Post.prototype, "text", void 0);
     __decorate([
         index_1.OneToOne(function (type) { return PostAuthor_1.PostAuthor; }, function (author) { return author.post; }, {
-            cascadeInsert: true,
-            cascadeUpdate: true,
-            cascadeRemove: true
+            cascade: true
         }),
         JoinColumn_1.JoinColumn() // comment this and you'll get an error because JoinColumn must be at least on one side of the one-to-one relationship
         // @JoinTable() // uncomment this and you'll get an error because JoinTable is not allowed here (only many-to-many)
@@ -43,8 +41,7 @@ var Post = /** @class */ (function () {
     ], Post.prototype, "author", void 0);
     __decorate([
         OneToMany_1.OneToMany(function (type) { return PostAuthor_1.PostAuthor; }, function (author) { return author.editedPost; }, {
-            cascadeInsert: true,
-            cascadeUpdate: true
+            cascade: true
         })
         // @JoinColumn() // uncomment this and you'll get an error, because JoinColumn is not allowed here (only many-to-one/one-to-one)
         // @JoinTable() // uncomment this and you'll get an error because JoinTable is not allowed here (only many-to-many)

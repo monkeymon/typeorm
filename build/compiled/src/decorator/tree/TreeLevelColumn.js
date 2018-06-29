@@ -1,19 +1,17 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var index_1 = require("../../index");
+var _1 = require("../../");
 /**
  * Creates a "level"/"length" column to the table that holds a closure table.
  */
 function TreeLevelColumn() {
     return function (object, propertyName) {
-        // create and register a new column metadata
-        var args = {
+        _1.getMetadataArgsStorage().columns.push({
             target: object.constructor,
             propertyName: propertyName,
             mode: "treeLevel",
             options: {}
-        };
-        index_1.getMetadataArgsStorage().columns.push(args);
+        });
     };
 }
 exports.TreeLevelColumn = TreeLevelColumn;

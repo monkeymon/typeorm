@@ -48,7 +48,6 @@ describe("github issues > #953 MySQL 5.7 JSON column parse", function () {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
                         enabledDrivers: ["mysql"],
-                        dropSchema: true
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }

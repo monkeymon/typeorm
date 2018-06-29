@@ -47,8 +47,6 @@ describe("embedded > prefix functionality", function () {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        schemaCreate: true,
-                        dropSchema: true,
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -72,7 +70,7 @@ describe("embedded > prefix functionality", function () {
                     return [4 /*yield*/, postRepository.save(post)];
                 case 1:
                     _a.sent();
-                    return [4 /*yield*/, postRepository.findOneById(1)];
+                    return [4 /*yield*/, postRepository.findOne(1)];
                 case 2:
                     loadedPost = (_a.sent());
                     loadedPost.id.should.be.equal(1);

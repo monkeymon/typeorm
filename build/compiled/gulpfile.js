@@ -18,8 +18,6 @@ var del = require("del");
 var shell = require("gulp-shell");
 var replace = require("gulp-replace");
 var rename = require("gulp-rename");
-var file = require("gulp-file");
-var uglify = require("gulp-uglify");
 var mocha = require("gulp-mocha");
 var chai = require("chai");
 var tslint = require("gulp-tslint");
@@ -36,10 +34,10 @@ var Gulpfile = /** @class */ (function () {
     // General tasks
     // -------------------------------------------------------------------------
     /**
-     * Creates a delay and resolves after 30 seconds.
+     * Creates a delay and resolves after 15 seconds.
      */
     Gulpfile.prototype.wait = function (cb) {
-        setTimeout(function () { return cb(); }, 30000);
+        setTimeout(function () { return cb(); }, 15000);
     };
     /**
      * Cleans build folder.
@@ -69,16 +67,7 @@ var Gulpfile = /** @class */ (function () {
             "!./src/typeorm-model-shim.ts",
             "!./src/platform/PlatformTools.ts"
         ])
-            .pipe(gulp.dest("./build/systemjs/typeorm"))
             .pipe(gulp.dest("./build/browser/src"));
-    };
-    /**
-     * Creates special main file for browser build.
-     */
-    Gulpfile.prototype.browserCopyMainBrowserFile = function () {
-        return gulp.src("./package.json", { read: false })
-            .pipe(file("typeorm.ts", "export * from \"./typeorm/index\";"))
-            .pipe(gulp.dest("./build/systemjs"));
     };
     /**
      * Replaces PlatformTools with browser-specific implementation called BrowserPlatformTools.
@@ -86,27 +75,7 @@ var Gulpfile = /** @class */ (function () {
     Gulpfile.prototype.browserCopyPlatformTools = function () {
         return gulp.src("./src/platform/BrowserPlatformTools.template")
             .pipe(rename("PlatformTools.ts"))
-            .pipe(gulp.dest("./build/systemjs/typeorm/platform"))
             .pipe(gulp.dest("./build/browser/src/platform"));
-    };
-    /**
-     * Runs files compilation of browser-specific source code.
-     */
-    Gulpfile.prototype.browserCompileSystemJS = function () {
-        var tsProject = ts.createProject("tsconfig.json", {
-            outFile: "typeorm-browser.js",
-            module: "system",
-            "lib": ["es5", "es6", "dom"],
-            typescript: require("typescript")
-        });
-        var tsResult = gulp.src(["./build/systemjs/**/*.ts", "./node_modules/reflect-metadata/**/*.d.ts", "./node_modules/@types/**/*.ts"])
-            .pipe(sourcemaps.init())
-            .pipe(tsProject());
-        return [
-            tsResult.js
-                .pipe(sourcemaps.write(".", { sourceRoot: "", includeContent: true }))
-                .pipe(gulp.dest("./build/package"))
-        ];
     };
     Gulpfile.prototype.browserCompile = function () {
         var tsProject = ts.createProject("tsconfig.json", {
@@ -124,18 +93,9 @@ var Gulpfile = /** @class */ (function () {
                 .pipe(gulp.dest("./build/package/browser"))
         ];
     };
-    /**
-     * Uglifys all code.
-     */
-    Gulpfile.prototype.browserUglify = function () {
-        return gulp.src("./build/package/typeorm-browser.js")
-            .pipe(uglify())
-            .pipe(rename("typeorm-browser.min.js"))
-            .pipe(gulp.dest("./build/package"));
-    };
     Gulpfile.prototype.browserClearPackageDirectory = function (cb) {
         return del([
-            "./build/systemjs/**"
+            "./build/browser/**"
         ]);
     };
     // -------------------------------------------------------------------------
@@ -227,9 +187,9 @@ var Gulpfile = /** @class */ (function () {
     Gulpfile.prototype.package = function () {
         return [
             "clean",
-            ["browserCopySources", "browserCopyMainBrowserFile", "browserCopyPlatformTools"],
-            ["packageCompile", "browserCompile", "browserCompileSystemJS"],
-            ["packageMoveCompiledFiles", "browserUglify"],
+            ["browserCopySources", "browserCopyPlatformTools"],
+            ["packageCompile", "browserCompile"],
+            "packageMoveCompiledFiles",
             [
                 "browserClearPackageDirectory",
                 "packageClearPackageDirectory",
@@ -279,6 +239,13 @@ var Gulpfile = /** @class */ (function () {
      * Runs post coverage operations.
      */
     Gulpfile.prototype.coveragePost = function () {
+        return gulp.src(["./build/compiled/test/**/*.js"])
+            .pipe(istanbul.writeReports());
+    };
+    /**
+     * Runs mocha tests.
+     */
+    Gulpfile.prototype.runTests = function () {
         chai.should();
         chai.use(require("sinon-chai"));
         chai.use(require("chai-as-promised"));
@@ -286,20 +253,6 @@ var Gulpfile = /** @class */ (function () {
             .pipe(mocha({
             bail: true,
             grep: !!args.grep ? new RegExp(args.grep) : undefined,
-            timeout: 15000
-        }))
-            .pipe(istanbul.writeReports());
-    };
-    /**
-     * Runs tests the quick way.
-     */
-    Gulpfile.prototype.quickTests = function () {
-        chai.should();
-        chai.use(require("sinon-chai"));
-        chai.use(require("chai-as-promised"));
-        return gulp.src(["./build/compiled/test/**/*.js"])
-            .pipe(mocha({
-            bail: true,
             timeout: 15000
         }));
     };
@@ -314,7 +267,8 @@ var Gulpfile = /** @class */ (function () {
     Gulpfile.prototype.tests = function () {
         return [
             "compile",
-            "tslint",
+            "coveragePre",
+            "runTests",
             "coveragePost",
             "coverageRemap"
         ];
@@ -324,18 +278,15 @@ var Gulpfile = /** @class */ (function () {
      */
     Gulpfile.prototype.ciTests = function () {
         return [
-            "wait",
+            "clean",
             "compile",
             "tslint",
+            "wait",
+            "coveragePre",
+            "runTests",
             "coveragePost",
             "coverageRemap"
         ];
-    };
-    /**
-     * Compiles the code and runs only mocha tests.
-     */
-    Gulpfile.prototype.mocha = function () {
-        return ["compile", "quickTests"];
     };
     // -------------------------------------------------------------------------
     // CI tasks
@@ -374,31 +325,13 @@ var Gulpfile = /** @class */ (function () {
         __metadata("design:type", Function),
         __metadata("design:paramtypes", []),
         __metadata("design:returntype", void 0)
-    ], Gulpfile.prototype, "browserCopyMainBrowserFile", null);
-    __decorate([
-        gulpclass_1.Task(),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", []),
-        __metadata("design:returntype", void 0)
     ], Gulpfile.prototype, "browserCopyPlatformTools", null);
     __decorate([
         gulpclass_1.MergedTask(),
         __metadata("design:type", Function),
         __metadata("design:paramtypes", []),
         __metadata("design:returntype", void 0)
-    ], Gulpfile.prototype, "browserCompileSystemJS", null);
-    __decorate([
-        gulpclass_1.MergedTask(),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", []),
-        __metadata("design:returntype", void 0)
     ], Gulpfile.prototype, "browserCompile", null);
-    __decorate([
-        gulpclass_1.Task(),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", []),
-        __metadata("design:returntype", void 0)
-    ], Gulpfile.prototype, "browserUglify", null);
     __decorate([
         gulpclass_1.Task(),
         __metadata("design:type", Function),
@@ -490,7 +423,7 @@ var Gulpfile = /** @class */ (function () {
         __metadata("design:returntype", void 0)
     ], Gulpfile.prototype, "coveragePre", null);
     __decorate([
-        gulpclass_1.Task("coveragePost", ["coveragePre"]),
+        gulpclass_1.Task(),
         __metadata("design:type", Function),
         __metadata("design:paramtypes", []),
         __metadata("design:returntype", void 0)
@@ -500,7 +433,7 @@ var Gulpfile = /** @class */ (function () {
         __metadata("design:type", Function),
         __metadata("design:paramtypes", []),
         __metadata("design:returntype", void 0)
-    ], Gulpfile.prototype, "quickTests", null);
+    ], Gulpfile.prototype, "runTests", null);
     __decorate([
         gulpclass_1.Task(),
         __metadata("design:type", Function),
@@ -519,12 +452,6 @@ var Gulpfile = /** @class */ (function () {
         __metadata("design:paramtypes", []),
         __metadata("design:returntype", void 0)
     ], Gulpfile.prototype, "ciTests", null);
-    __decorate([
-        gulpclass_1.SequenceTask(),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", []),
-        __metadata("design:returntype", void 0)
-    ], Gulpfile.prototype, "mocha", null);
     __decorate([
         gulpclass_1.Task(),
         __metadata("design:type", Function),

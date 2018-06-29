@@ -43,15 +43,14 @@ var Teacher_1 = require("./entity/Teacher");
 var Accountant_1 = require("./entity/Accountant");
 var Employee_1 = require("./entity/Employee");
 var Person_1 = require("./entity/Person");
-describe.skip("table-inheritance > single-table > basic-functionality", function () {
+var chai_1 = require("chai");
+describe("table-inheritance > single-table > basic-functionality", function () {
     var connections;
     before(function () { return __awaiter(_this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
-                        entities: [__dirname + "/entity/*{.js,.ts}"],
-                        schemaCreate: true,
-                        dropSchema: true,
+                        entities: [__dirname + "/entity/*{.js,.ts}"]
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -106,6 +105,7 @@ describe.skip("table-inheritance > single-table > basic-functionality", function
                     _a.sent();
                     return [4 /*yield*/, connection.manager
                             .createQueryBuilder(Student_1.Student, "students")
+                            .orderBy("students.id")
                             .getMany()];
                 case 7:
                     loadedStudents = _a.sent();
@@ -119,6 +119,7 @@ describe.skip("table-inheritance > single-table > basic-functionality", function
                     loadedStudents[1].faculty.should.equal("Programming");
                     return [4 /*yield*/, connection.manager
                             .createQueryBuilder(Teacher_1.Teacher, "teachers")
+                            .orderBy("teachers.id")
                             .getMany()];
                 case 8:
                     loadedTeachers = _a.sent();
@@ -134,6 +135,7 @@ describe.skip("table-inheritance > single-table > basic-functionality", function
                     loadedTeachers[1].salary.should.equal(4000);
                     return [4 /*yield*/, connection.manager
                             .createQueryBuilder(Accountant_1.Accountant, "accountants")
+                            .orderBy("accountants.id")
                             .getMany()];
                 case 9:
                     loadedAccountants = _a.sent();
@@ -220,6 +222,7 @@ describe.skip("table-inheritance > single-table > basic-functionality", function
                     _a.sent();
                     return [4 /*yield*/, connection.manager
                             .createQueryBuilder(Student_1.Student, "students")
+                            .orderBy("students.id")
                             .getMany()];
                 case 20:
                     loadedStudents = _a.sent();
@@ -233,6 +236,7 @@ describe.skip("table-inheritance > single-table > basic-functionality", function
                     _a.sent();
                     return [4 /*yield*/, connection.manager
                             .createQueryBuilder(Teacher_1.Teacher, "teachers")
+                            .orderBy("teachers.id")
                             .getMany()];
                 case 22:
                     loadedTeachers = _a.sent();
@@ -247,6 +251,7 @@ describe.skip("table-inheritance > single-table > basic-functionality", function
                     _a.sent();
                     return [4 /*yield*/, connection.manager
                             .createQueryBuilder(Accountant_1.Accountant, "accountants")
+                            .orderBy("accountants.id")
                             .getMany()];
                 case 24:
                     loadedAccountants = _a.sent();
@@ -258,6 +263,7 @@ describe.skip("table-inheritance > single-table > basic-functionality", function
                     loadedAccountants[0].salary.should.equal(3000);
                     return [4 /*yield*/, connection.manager
                             .createQueryBuilder(Employee_1.Employee, "employees")
+                            .orderBy("employees.id")
                             .getMany()];
                 case 25:
                     loadedEmployees = _a.sent();
@@ -275,6 +281,7 @@ describe.skip("table-inheritance > single-table > basic-functionality", function
                     loadedEmployees[1].salary.should.equal(3000);
                     return [4 /*yield*/, connection.manager
                             .createQueryBuilder(Person_1.Person, "persons")
+                            .orderBy("persons.id")
                             .getMany()];
                 case 26:
                     loadedPersons = _a.sent();
@@ -295,6 +302,104 @@ describe.skip("table-inheritance > single-table > basic-functionality", function
                     loadedPersons[2].name.should.equal("Mr. Burns");
                     loadedPersons[2].department = "Bookkeeping";
                     loadedPersons[2].salary.should.equal(3000);
+                    return [2 /*return*/];
+            }
+        });
+    }); })); });
+    it("should be able to save different child entities in bulk", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
+        var student, employee;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    student = new Student_1.Student();
+                    student.name = "Alice";
+                    student.faculty = "Economics";
+                    employee = new Employee_1.Employee();
+                    employee.name = "John";
+                    employee.salary = 1000;
+                    return [4 /*yield*/, connection.manager.save([student, employee])];
+                case 1:
+                    _a.sent();
+                    student.name.should.be.eql("Alice");
+                    student.faculty.should.be.eql("Economics");
+                    student.should.not.haveOwnProperty("department");
+                    student.should.not.haveOwnProperty("specialization");
+                    student.should.not.haveOwnProperty("salary");
+                    employee.name.should.be.eql("John");
+                    employee.salary.should.be.eql(1000);
+                    employee.should.not.haveOwnProperty("department");
+                    employee.should.not.haveOwnProperty("specialization");
+                    employee.should.not.haveOwnProperty("faculty");
+                    return [2 /*return*/];
+            }
+        });
+    }); })); });
+    it("should be able to find correct child entities when base class is used as entity metadata", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
+        var student, employee, loadedEmployee1, loadedEmployee2, loadedStudent1, loadedStudent2, loadedPerson1, loadedPerson2;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    student = new Student_1.Student();
+                    student.name = "Alice";
+                    student.faculty = "Economics";
+                    return [4 /*yield*/, connection.manager.save(student)];
+                case 1:
+                    _a.sent();
+                    employee = new Employee_1.Employee();
+                    employee.name = "John";
+                    employee.salary = 1000;
+                    return [4 /*yield*/, connection.manager.save(employee)];
+                case 2:
+                    _a.sent();
+                    return [4 /*yield*/, connection.manager.findOne(Employee_1.Employee, 1)];
+                case 3:
+                    loadedEmployee1 = _a.sent();
+                    chai_1.expect(loadedEmployee1).to.be.empty;
+                    return [4 /*yield*/, connection.manager.findOne(Employee_1.Employee, 2)];
+                case 4:
+                    loadedEmployee2 = _a.sent();
+                    loadedEmployee2.should.be.instanceof(Employee_1.Employee);
+                    chai_1.expect(loadedEmployee2).not.to.be.empty;
+                    loadedEmployee2.id.should.be.eql(2);
+                    loadedEmployee2.name.should.be.eql("John");
+                    loadedEmployee2.salary.should.be.eql(1000);
+                    loadedEmployee2.should.not.haveOwnProperty("department");
+                    loadedEmployee2.should.not.haveOwnProperty("specialization");
+                    loadedEmployee2.should.not.haveOwnProperty("faculty");
+                    return [4 /*yield*/, connection.manager.findOne(Student_1.Student, 1)];
+                case 5:
+                    loadedStudent1 = _a.sent();
+                    loadedStudent1.should.be.instanceof(Student_1.Student);
+                    loadedStudent1.id.should.be.eql(1);
+                    loadedStudent1.name.should.be.eql("Alice");
+                    loadedStudent1.faculty.should.be.eql("Economics");
+                    loadedStudent1.should.not.haveOwnProperty("department");
+                    loadedStudent1.should.not.haveOwnProperty("specialization");
+                    loadedStudent1.should.not.haveOwnProperty("salary");
+                    return [4 /*yield*/, connection.manager.findOne(Student_1.Student, 2)];
+                case 6:
+                    loadedStudent2 = _a.sent();
+                    chai_1.expect(loadedStudent2).to.be.empty;
+                    return [4 /*yield*/, connection.manager.findOne(Person_1.Person, 1)];
+                case 7:
+                    loadedPerson1 = _a.sent();
+                    loadedPerson1.should.be.instanceof(Student_1.Student);
+                    loadedPerson1.id.should.be.eql(1);
+                    loadedPerson1.name.should.be.eql("Alice");
+                    loadedPerson1.faculty.should.be.eql("Economics");
+                    loadedPerson1.should.not.haveOwnProperty("department");
+                    loadedPerson1.should.not.haveOwnProperty("specialization");
+                    loadedPerson1.should.not.haveOwnProperty("salary");
+                    return [4 /*yield*/, connection.manager.findOne(Person_1.Person, 2)];
+                case 8:
+                    loadedPerson2 = _a.sent();
+                    loadedPerson2.should.be.instanceof(Employee_1.Employee);
+                    loadedPerson2.id.should.be.eql(2);
+                    loadedPerson2.name.should.be.eql("John");
+                    loadedPerson2.salary.should.be.eql(1000);
+                    loadedPerson2.should.not.haveOwnProperty("department");
+                    loadedPerson2.should.not.haveOwnProperty("specialization");
+                    loadedPerson2.should.not.haveOwnProperty("faculty");
                     return [2 /*return*/];
             }
         });

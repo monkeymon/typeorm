@@ -13,7 +13,6 @@ var Entity_1 = require("../../../../../../../src/decorator/entity/Entity");
 var ManyToMany_1 = require("../../../../../../../src/decorator/relations/ManyToMany");
 var PrimaryColumn_1 = require("../../../../../../../src/decorator/columns/PrimaryColumn");
 var Post_1 = require("./Post");
-var Index_1 = require("../../../../../../../src/decorator/Index");
 var Category = /** @class */ (function () {
     function Category() {
     }
@@ -30,8 +29,7 @@ var Category = /** @class */ (function () {
         __metadata("design:type", Array)
     ], Category.prototype, "posts", void 0);
     Category = __decorate([
-        Entity_1.Entity(),
-        Index_1.Index(["id", "name"])
+        Entity_1.Entity()
     ], Category);
     return Category;
 }());

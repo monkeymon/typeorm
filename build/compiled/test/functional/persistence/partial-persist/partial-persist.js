@@ -52,8 +52,6 @@ describe("persistence > partial persist", function () {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        schemaCreate: true,
-                        dropSchema: true
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -64,7 +62,7 @@ describe("persistence > partial persist", function () {
     // -------------------------------------------------------------------------
     // Specifications
     // -------------------------------------------------------------------------
-    it("should persist partial entities without data loose", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
+    it("should persist partial entities without data loss", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
         var postRepository, categoryRepository, newCategory, newPost, loadedPost, loadedPostAfterTitleUpdate, loadedPostAfterStarsUpdate, loadedPostAfterCategoryUpdate;
         return __generator(this, function (_a) {
             switch (_a.label) {
@@ -88,7 +86,7 @@ describe("persistence > partial persist", function () {
                     return [4 /*yield*/, postRepository.save(newPost)];
                 case 2:
                     _a.sent();
-                    return [4 /*yield*/, postRepository.findOneById(1, {
+                    return [4 /*yield*/, postRepository.findOne(1, {
                             join: {
                                 alias: "post",
                                 leftJoinAndSelect: {
@@ -112,7 +110,7 @@ describe("persistence > partial persist", function () {
                 case 4:
                     // now update partially
                     _a.sent();
-                    return [4 /*yield*/, postRepository.findOneById(1, {
+                    return [4 /*yield*/, postRepository.findOne(1, {
                             join: {
                                 alias: "post",
                                 leftJoinAndSelect: {
@@ -136,7 +134,7 @@ describe("persistence > partial persist", function () {
                 case 6:
                     // now update in partial embeddable column
                     _a.sent();
-                    return [4 /*yield*/, postRepository.findOneById(1, {
+                    return [4 /*yield*/, postRepository.findOne(1, {
                             join: {
                                 alias: "post",
                                 leftJoinAndSelect: {
@@ -160,7 +158,7 @@ describe("persistence > partial persist", function () {
                 case 8:
                     // now update in relational column
                     _a.sent();
-                    return [4 /*yield*/, postRepository.findOneById(1, {
+                    return [4 /*yield*/, postRepository.findOne(1, {
                             join: {
                                 alias: "post",
                                 leftJoinAndSelect: {

@@ -47,7 +47,6 @@ describe("github issues > #966 Inheritance in embeddables", function () {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        dropSchema: true,
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -71,7 +70,7 @@ describe("github issues > #966 Inheritance in embeddables", function () {
                     return [4 /*yield*/, repository.save(user)];
                 case 1:
                     _a.sent();
-                    return [4 /*yield*/, repository.findOneById(user.id)];
+                    return [4 /*yield*/, repository.findOne(user.id)];
                 case 2:
                     loadedUser = _a.sent();
                     chai_1.expect(info).to.deep.equal(loadedUser.info);

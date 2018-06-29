@@ -42,7 +42,7 @@ var User_1 = require("./entity/User");
 var Profile_1 = require("./entity/Profile");
 var Information_1 = require("./entity/Information");
 var chai_1 = require("chai");
-describe("github issues > #1042 EntityMetadataUtils.createPropertyPath does not work properly with objects inside entities (date, json, etc.)", function () {
+describe("github issues > #1042 EntityMetadata.createPropertyPath does not work properly with objects inside entities (date, json, etc.)", function () {
     var connections;
     before(function () { return __awaiter(_this, void 0, void 0, function () {
         return __generator(this, function (_a) {
@@ -76,7 +76,7 @@ describe("github issues > #1042 EntityMetadataUtils.createPropertyPath does not 
                     return [4 /*yield*/, connection.manager.save(user)];
                 case 1:
                     _a.sent();
-                    return [4 /*yield*/, connection.manager.findOneById(User_1.User, 1)];
+                    return [4 /*yield*/, connection.manager.findOne(User_1.User, 1)];
                 case 2:
                     loadedUser = _a.sent();
                     chai_1.expect(loadedUser).not.to.be.empty;
@@ -110,7 +110,7 @@ describe("github issues > #1042 EntityMetadataUtils.createPropertyPath does not 
                 case 3:
                     // update some of the user's properties (registration date)
                     _a.sent();
-                    return [4 /*yield*/, connection.manager.findOneById(User_1.User, 1)];
+                    return [4 /*yield*/, connection.manager.findOne(User_1.User, 1)];
                 case 4:
                     loadedUser2 = _a.sent();
                     chai_1.expect(loadedUser2).not.to.be.empty;
@@ -146,7 +146,7 @@ describe("github issues > #1042 EntityMetadataUtils.createPropertyPath does not 
                 case 5:
                     // update some of the user's properties (json object)
                     _a.sent();
-                    return [4 /*yield*/, connection.manager.findOneById(User_1.User, 1)];
+                    return [4 /*yield*/, connection.manager.findOne(User_1.User, 1)];
                 case 6:
                     loadedUser3 = _a.sent();
                     chai_1.expect(loadedUser3).not.to.be.empty;
@@ -182,7 +182,7 @@ describe("github issues > #1042 EntityMetadataUtils.createPropertyPath does not 
                 case 7:
                     // update some of the user's properties (embedded object)
                     _a.sent();
-                    return [4 /*yield*/, connection.manager.findOneById(User_1.User, 1)];
+                    return [4 /*yield*/, connection.manager.findOne(User_1.User, 1)];
                 case 8:
                     loadedUser4 = _a.sent();
                     chai_1.expect(loadedUser4).not.to.be.empty;

@@ -135,6 +135,10 @@ var Post = /** @class */ (function () {
         Column_1.Column("simple-array"),
         __metadata("design:type", Array)
     ], Post.prototype, "simpleArray", void 0);
+    __decorate([
+        Column_1.Column("simple-json"),
+        __metadata("design:type", Object)
+    ], Post.prototype, "simpleJson", void 0);
     Post = __decorate([
         Entity_1.Entity()
     ], Post);

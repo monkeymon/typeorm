@@ -21,7 +21,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var Column_1 = require("../../../../src/decorator/columns/Column");
 var Person_1 = require("./Person");
-var SingleEntityChild_1 = require("../../../../src/decorator/entity/SingleEntityChild");
+var ChildEntity_1 = require("../../../../src/decorator/entity/ChildEntity");
 var Employee = /** @class */ (function (_super) {
     __extends(Employee, _super);
     function Employee() {
@@ -32,7 +32,7 @@ var Employee = /** @class */ (function (_super) {
         __metadata("design:type", Number)
     ], Employee.prototype, "salary", void 0);
     Employee = __decorate([
-        SingleEntityChild_1.SingleEntityChild()
+        ChildEntity_1.ChildEntity()
     ], Employee);
     return Employee;
 }(Person_1.Person));

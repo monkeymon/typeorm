@@ -34,22 +34,21 @@ var Post = /** @class */ (function () {
     ], Post.prototype, "text", void 0);
     __decorate([
         index_1.ManyToMany(function (type) { return PostCategory_1.PostCategory; }, {
-            cascadeInsert: true,
-            cascadeUpdate: true
+            cascade: true
         }),
         JoinTable_1.JoinTable(),
         __metadata("design:type", Array)
     ], Post.prototype, "categories", void 0);
     __decorate([
         index_1.ManyToMany(function (type) { return PostDetails_1.PostDetails; }, function (details) { return details.posts; }, {
-            cascadeInsert: true
+            cascade: ["insert"]
         }),
         JoinTable_1.JoinTable(),
         __metadata("design:type", Array)
     ], Post.prototype, "details", void 0);
     __decorate([
         index_1.ManyToMany(function (type) { return PostImage_1.PostImage; }, function (image) { return image.posts; }, {
-            cascadeUpdate: true
+            cascade: ["update"]
         }),
         JoinTable_1.JoinTable(),
         __metadata("design:type", Array)
@@ -61,8 +60,7 @@ var Post = /** @class */ (function () {
     ], Post.prototype, "metadatas", void 0);
     __decorate([
         index_1.ManyToMany(function (type) { return PostInformation_1.PostInformation; }, function (information) { return information.posts; }, {
-            cascadeInsert: true,
-            cascadeUpdate: true
+            cascade: true
         }),
         JoinTable_1.JoinTable(),
         __metadata("design:type", Array)

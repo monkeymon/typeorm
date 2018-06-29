@@ -30,4 +30,7 @@ export declare class Post {
     date: string;
     datetime: Date;
     simpleArray: string[];
+    simpleJson: {
+        param: string;
+    };
 }

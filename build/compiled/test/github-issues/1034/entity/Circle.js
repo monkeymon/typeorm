@@ -51,7 +51,7 @@ var Circle = /** @class */ (function () {
     };
     __decorate([
         PrimaryGeneratedColumn_1.PrimaryGeneratedColumn({ type: "bigint" }),
-        __metadata("design:type", Number)
+        __metadata("design:type", String)
     ], Circle.prototype, "id", void 0);
     __decorate([
         ManyToMany_1.ManyToMany(function (type) { return User_1.User; }, function (user) { return "circles"; }),

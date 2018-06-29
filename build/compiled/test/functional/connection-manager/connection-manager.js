@@ -174,7 +174,7 @@ describe("ConnectionManager", function () {
                     case 4:
                         // recreate connection and find previously saved post
                         connection = _a.sent();
-                        return [4 /*yield*/, connection.manager.findOneById(Post, 1)];
+                        return [4 /*yield*/, connection.manager.findOne(Post, 1)];
                     case 5:
                         loadedPost = (_a.sent());
                         loadedPost.should.be.instanceof(Post);
@@ -212,7 +212,7 @@ describe("ConnectionManager", function () {
                     case 4:
                         // recreate connection and find previously saved post
                         connection = _a.sent();
-                        return [4 /*yield*/, connection.manager.findOneById(Post, 1)];
+                        return [4 /*yield*/, connection.manager.findOne(Post, 1)];
                     case 5:
                         loadedPost = _a.sent();
                         chai_1.expect(loadedPost).to.be.undefined;
@@ -240,7 +240,7 @@ describe("ConnectionManager", function () {
    
                // recreate connection and find previously saved post
                connection = await connectionManager.createAndConnect(options);
-               const loadedPost = await connection.manager.findOneById(Post, 1);
+               const loadedPost = await connection.manager.findOne(Post, 1);
                expect(loadedPost).to.be.undefined;
    
                await connection.close();
@@ -262,7 +262,7 @@ describe("ConnectionManager", function () {
     
                 // recreate connection and find previously saved post
                 connection = await connectionManager.createAndConnect(options);
-                const loadedPost = await connection.manager.findOneById(Post, 1);
+                const loadedPost = await connection.manager.findOne(Post, 1);
                 expect(loadedPost).to.be.undefined;
                 await connection.close();
              });*/

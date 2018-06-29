@@ -27,7 +27,7 @@ var Subcounters = /** @class */ (function () {
     ], Subcounters.prototype, "watches", void 0);
     __decorate([
         ManyToMany_1.ManyToMany(function (type) { return User_1.User; }, function (user) { return user.posts; }),
-        JoinTable_1.JoinTable(),
+        JoinTable_1.JoinTable({ name: "subcnt_users" }),
         __metadata("design:type", Array)
     ], Subcounters.prototype, "watchedUsers", void 0);
     return Subcounters;

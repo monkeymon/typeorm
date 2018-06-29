@@ -1,5 +1,6 @@
 import { Connection } from "../connection/Connection";
 import { SchemaBuilder } from "./SchemaBuilder";
+import { SqlInMemory } from "../driver/SqlInMemory";
 /**
  * Creates complete tables schemas in the database based on the entity metadatas.
  *
@@ -24,8 +25,5 @@ export declare class MongoSchemaBuilder implements SchemaBuilder {
     /**
      * Returns query to be executed by schema builder.
      */
-    log(): Promise<(string | {
-        up: string;
-        down: string;
-    })[]>;
+    log(): Promise<SqlInMemory>;
 }

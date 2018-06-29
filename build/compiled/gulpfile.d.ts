@@ -3,7 +3,7 @@
 /// <reference path="../../node_modules/@types/mocha/index.d.ts" />
 export declare class Gulpfile {
     /**
-     * Creates a delay and resolves after 30 seconds.
+     * Creates a delay and resolves after 15 seconds.
      */
     wait(cb: Function): void;
     /**
@@ -19,22 +19,10 @@ export declare class Gulpfile {
      */
     browserCopySources(): any;
     /**
-     * Creates special main file for browser build.
-     */
-    browserCopyMainBrowserFile(): any;
-    /**
      * Replaces PlatformTools with browser-specific implementation called BrowserPlatformTools.
      */
     browserCopyPlatformTools(): any;
-    /**
-     * Runs files compilation of browser-specific source code.
-     */
-    browserCompileSystemJS(): any[];
     browserCompile(): any[];
-    /**
-     * Uglifys all code.
-     */
-    browserUglify(): any;
     browserClearPackageDirectory(cb: Function): any;
     /**
      * Publishes a package to npm from ./build/package directory.
@@ -97,9 +85,9 @@ export declare class Gulpfile {
      */
     coveragePost(): any;
     /**
-     * Runs tests the quick way.
+     * Runs mocha tests.
      */
-    quickTests(): any;
+    runTests(): any;
     coverageRemap(): any;
     /**
      * Compiles the code and runs tests + makes coverage report.
@@ -109,9 +97,5 @@ export declare class Gulpfile {
      * Runs tests, but creates a small delay before running them to make sure to give time for docker containers to be initialized.
      */
     ciTests(): string[];
-    /**
-     * Compiles the code and runs only mocha tests.
-     */
-    mocha(): string[];
     createTravisOrmConfig(): any;
 }

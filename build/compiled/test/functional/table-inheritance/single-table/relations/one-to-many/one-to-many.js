@@ -46,15 +46,13 @@ var Person_1 = require("./entity/Person");
 var Faculty_1 = require("./entity/Faculty");
 var Specialization_1 = require("./entity/Specialization");
 var Department_1 = require("./entity/Department");
-describe.skip("table-inheritance > single-table > relations > one-to-many", function () {
+describe("table-inheritance > single-table > relations > one-to-many", function () {
     var connections;
     before(function () { return __awaiter(_this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
-                        entities: [__dirname + "/entity/*{.js,.ts}"],
-                        schemaCreate: true,
-                        dropSchema: true,
+                        entities: [__dirname + "/entity/*{.js,.ts}"]
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -121,6 +119,7 @@ describe.skip("table-inheritance > single-table > relations > one-to-many", func
                             .createQueryBuilder(Student_1.Student, "student")
                             .leftJoinAndSelect("student.faculties", "faculty")
                             .where("student.name = :name", { name: "Alice" })
+                            .orderBy("student.id, faculty.id")
                             .getOne()];
                 case 10:
                     loadedStudent = _a.sent();
@@ -134,6 +133,7 @@ describe.skip("table-inheritance > single-table > relations > one-to-many", func
                             .createQueryBuilder(Teacher_1.Teacher, "teacher")
                             .leftJoinAndSelect("teacher.specializations", "specialization")
                             .where("teacher.name = :name", { name: "Mr. Garrison" })
+                            .orderBy("teacher.id, specialization.id")
                             .getOne()];
                 case 11:
                     loadedTeacher = _a.sent();
@@ -148,6 +148,7 @@ describe.skip("table-inheritance > single-table > relations > one-to-many", func
                             .createQueryBuilder(Accountant_1.Accountant, "accountant")
                             .leftJoinAndSelect("accountant.departments", "department")
                             .where("accountant.name = :name", { name: "Mr. Burns" })
+                            .orderBy("accountant.id, department.id")
                             .getOne()];
                 case 12:
                     loadedAccountant = _a.sent();
@@ -187,7 +188,7 @@ describe.skip("table-inheritance > single-table > relations > one-to-many", func
                             .leftJoinAndSelect("person.faculties", "faculty")
                             .leftJoinAndSelect("person.specializations", "specialization")
                             .leftJoinAndSelect("person.departments", "department")
-                            .orderBy("person.id, specialization.id, department.id")
+                            .orderBy("person.id, specialization.id, department.id, faculty.id")
                             .getMany()];
                 case 14:
                     loadedPersons = _a.sent();

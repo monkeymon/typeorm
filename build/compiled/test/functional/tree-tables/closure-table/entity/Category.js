@@ -9,12 +9,12 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ClosureEntity_1 = require("../../../../../src/decorator/entity/ClosureEntity");
 var PrimaryGeneratedColumn_1 = require("../../../../../src/decorator/columns/PrimaryGeneratedColumn");
 var Column_1 = require("../../../../../src/decorator/columns/Column");
 var TreeParent_1 = require("../../../../../src/decorator/tree/TreeParent");
 var TreeChildren_1 = require("../../../../../src/decorator/tree/TreeChildren");
-var TreeLevelColumn_1 = require("../../../../../src/decorator/tree/TreeLevelColumn");
+var Entity_1 = require("../../../../../src/decorator/entity/Entity");
+var Tree_1 = require("../../../../../src/decorator/tree/Tree");
 var Category = /** @class */ (function () {
     function Category() {
     }
@@ -27,19 +27,16 @@ var Category = /** @class */ (function () {
         __metadata("design:type", String)
     ], Category.prototype, "name", void 0);
     __decorate([
-        TreeParent_1.TreeParent({ cascadeInsert: true, cascadeUpdate: true }),
+        TreeParent_1.TreeParent(),
         __metadata("design:type", Category)
     ], Category.prototype, "parentCategory", void 0);
     __decorate([
-        TreeChildren_1.TreeChildren({ cascadeInsert: true, cascadeUpdate: true }),
+        TreeChildren_1.TreeChildren({ cascade: true }),
         __metadata("design:type", Array)
     ], Category.prototype, "childCategories", void 0);
-    __decorate([
-        TreeLevelColumn_1.TreeLevelColumn(),
-        __metadata("design:type", Number)
-    ], Category.prototype, "level", void 0);
     Category = __decorate([
-        ClosureEntity_1.ClosureEntity()
+        Entity_1.Entity(),
+        Tree_1.Tree("closure-table")
     ], Category);
     return Category;
 }());

@@ -8,8 +8,8 @@ export declare class Category {
     description: string;
     post: Post;
     postWithOptions: Post;
-    postWithNonPrimaryColumns: Post;
+    postWithNonPKColumns: Post;
     tag: Tag;
     tagWithOptions: Tag;
-    tagWithNonPrimaryColumns: Tag;
+    tagWithNonPKColumns: Tag;
 }

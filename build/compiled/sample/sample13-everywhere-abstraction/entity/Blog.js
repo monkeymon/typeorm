@@ -37,8 +37,7 @@ var Blog = /** @class */ (function (_super) {
     ], Blog.prototype, "text", void 0);
     __decorate([
         ManyToMany_1.ManyToMany(function (type) { return PostCategory_1.PostCategory; }, function (category) { return category.posts; }, {
-            cascadeInsert: true,
-            cascadeUpdate: true
+            cascade: true
         }),
         JoinTable_1.JoinTable(),
         __metadata("design:type", Array)

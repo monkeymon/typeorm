@@ -24,26 +24,6 @@ var PostWithOptions = /** @class */ (function () {
         __metadata("design:type", String)
     ], PostWithOptions.prototype, "name", void 0);
     __decorate([
-        Column_1.Column("int", { length: 3 }),
-        __metadata("design:type", Number)
-    ], PostWithOptions.prototype, "int", void 0);
-    __decorate([
-        Column_1.Column("tinyint", { length: 3 }),
-        __metadata("design:type", Number)
-    ], PostWithOptions.prototype, "tinyint", void 0);
-    __decorate([
-        Column_1.Column("smallint", { length: 3 }),
-        __metadata("design:type", Number)
-    ], PostWithOptions.prototype, "smallint", void 0);
-    __decorate([
-        Column_1.Column("mediumint", { length: 3 }),
-        __metadata("design:type", Number)
-    ], PostWithOptions.prototype, "mediumint", void 0);
-    __decorate([
-        Column_1.Column("bigint", { length: 3 }),
-        __metadata("design:type", Number)
-    ], PostWithOptions.prototype, "bigint", void 0);
-    __decorate([
         Column_1.Column("float", { precision: 5, scale: 2 }),
         __metadata("design:type", Number)
     ], PostWithOptions.prototype, "float", void 0);
@@ -52,8 +32,8 @@ var PostWithOptions = /** @class */ (function () {
         __metadata("design:type", Number)
     ], PostWithOptions.prototype, "double", void 0);
     __decorate([
-        Column_1.Column("decimal", { precision: 5, scale: 2 }),
-        __metadata("design:type", Number)
+        Column_1.Column("decimal", { precision: 7, scale: 2 }),
+        __metadata("design:type", String)
     ], PostWithOptions.prototype, "decimal", void 0);
     __decorate([
         Column_1.Column("char", { length: 5 }),

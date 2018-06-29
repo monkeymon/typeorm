@@ -35,10 +35,7 @@ var Platform = /** @class */ (function () {
         __metadata("design:type", String)
     ], Platform.prototype, "slug", void 0);
     __decorate([
-        ManyToMany_1.ManyToMany(function (type) { return Game_1.Game; }, function (game) { return game.platforms; }, {
-            cascadeInsert: true,
-            cascadeUpdate: true,
-        }),
+        ManyToMany_1.ManyToMany(function (type) { return Game_1.Game; }, function (game) { return game.platforms; }),
         __metadata("design:type", Array)
     ], Platform.prototype, "games", void 0);
     Platform = __decorate([

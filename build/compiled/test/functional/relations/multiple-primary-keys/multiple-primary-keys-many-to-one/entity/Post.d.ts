@@ -3,7 +3,7 @@ export declare class Post {
     id: number;
     title: string;
     category: Category;
-    categoryWithEmptyJoinColumn: Category;
+    categoryWithJoinColumn: Category;
     categoryWithOptions: Category;
-    categoryWithNonPrimaryColumns: Category;
+    categoryWithNonPKColumns: Category;
 }

@@ -24,7 +24,7 @@ var Post = /** @class */ (function () {
     ], Post.prototype, "key", void 0);
     __decorate([
         OneToOne_1.OneToOne(function (type) { return PostDetails_1.PostDetails; }, function (details) { return details.post; }, {
-            cascadeInsert: true
+            cascade: ["insert"]
         }),
         JoinColumn_1.JoinColumn(),
         __metadata("design:type", PostDetails_1.PostDetails)

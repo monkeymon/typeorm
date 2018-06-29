@@ -1,49 +1,24 @@
 /// <reference types="node" />
 import { QueryRunner } from "../../query-runner/QueryRunner";
-import { ObjectLiteral } from "../../common/ObjectLiteral";
-import { TableColumn } from "../../schema-builder/schema/TableColumn";
-import { Table } from "../../schema-builder/schema/Table";
-import { TableForeignKey } from "../../schema-builder/schema/TableForeignKey";
-import { TableIndex } from "../../schema-builder/schema/TableIndex";
+import { TableColumn } from "../../schema-builder/table/TableColumn";
+import { Table } from "../../schema-builder/table/Table";
+import { TableForeignKey } from "../../schema-builder/table/TableForeignKey";
+import { TableIndex } from "../../schema-builder/table/TableIndex";
 import { SqlServerDriver } from "./SqlServerDriver";
-import { Connection } from "../../connection/Connection";
 import { ReadStream } from "../../platform/PlatformTools";
 import { MssqlParameter } from "./MssqlParameter";
-import { EntityManager } from "../../entity-manager/EntityManager";
+import { TableUnique } from "../../schema-builder/table/TableUnique";
+import { TableCheck } from "../../schema-builder/table/TableCheck";
+import { BaseQueryRunner } from "../../query-runner/BaseQueryRunner";
+import { IsolationLevel } from "../types/IsolationLevel";
 /**
- * Runs queries on a single mysql database connection.
+ * Runs queries on a single SQL Server database connection.
  */
-export declare class SqlServerQueryRunner implements QueryRunner {
+export declare class SqlServerQueryRunner extends BaseQueryRunner implements QueryRunner {
     /**
      * Database driver used by connection.
      */
     driver: SqlServerDriver;
-    /**
-     * Connection used by this query runner.
-     */
-    connection: Connection;
-    /**
-     * Isolated entity manager working only with current query runner.
-     */
-    manager: EntityManager;
-    /**
-     * Indicates if connection for this query runner is released.
-     * Once its released, query runner cannot run queries anymore.
-     */
-    isReleased: boolean;
-    /**
-     * Indicates if transaction is in progress.
-     */
-    isTransactionActive: boolean;
-    /**
-     * Stores temporarily user data.
-     * Useful for sharing data with subscribers.
-     */
-    data: {};
-    /**
-     * Real database connection from a connection pool used to perform queries.
-     */
-    protected databaseConnection: any;
     /**
      * Last executed query in a transaction.
      * This is needed because in transaction mode mssql cannot execute parallel queries,
@@ -52,26 +27,12 @@ export declare class SqlServerQueryRunner implements QueryRunner {
      * @see https://github.com/patriksimek/node-mssql/issues/491
      */
     protected queryResponsibilityChain: Promise<any>[];
-    /**
-     * Indicates if special query runner mode in which sql queries won't be executed is enabled.
-     */
-    protected sqlMemoryMode: boolean;
-    /**
-     * Sql-s stored if "sql in memory" mode is enabled.
-     */
-    protected sqlsInMemory: string[];
-    /**
-     * Mode in which query runner executes.
-     * Used for replication.
-     * If replication is not setup its value is ignored.
-     */
-    protected mode: "master" | "slave";
     constructor(driver: SqlServerDriver, mode?: "master" | "slave");
     /**
      * Creates/uses database connection from the connection pool to perform further operations.
      * Returns obtained database connection.
      */
-    connect(): Promise<any>;
+    connect(): Promise<void>;
     /**
      * Releases used database connection.
      * You cannot use query runner methods once its released.
@@ -80,7 +41,7 @@ export declare class SqlServerQueryRunner implements QueryRunner {
     /**
      * Starts transaction.
      */
-    startTransaction(): Promise<void>;
+    startTransaction(isolationLevel?: IsolationLevel): Promise<void>;
     /**
      * Commits transaction.
      * Error will be thrown if transaction was not started.
@@ -91,7 +52,6 @@ export declare class SqlServerQueryRunner implements QueryRunner {
      * Error will be thrown if transaction was not started.
      */
     rollbackTransaction(): Promise<void>;
-    protected mssqlParameterToNativeParameter(parameter: MssqlParameter): any;
     /**
      * Executes a given SQL query.
      */
@@ -101,62 +61,64 @@ export declare class SqlServerQueryRunner implements QueryRunner {
      */
     stream(query: string, parameters?: any[], onEnd?: Function, onError?: Function): Promise<ReadStream>;
     /**
-     * Insert a new row with given values into the given table.
-     * Returns value of the generated column if given and generate column exist in the table.
+     * Returns all available database names including system databases.
      */
-    insert(tablePath: string, keyValues: ObjectLiteral): Promise<any>;
+    getDatabases(): Promise<string[]>;
     /**
-     * Updates rows that match given conditions in the given table.
+     * Returns all available schema names including system schemas.
+     * If database parameter specified, returns schemas of that database.
      */
-    update(tablePath: string, valuesMap: ObjectLiteral, conditions: ObjectLiteral): Promise<void>;
-    /**
-     * Deletes from the given table by a given conditions.
-     */
-    delete(tablePath: string, conditions: ObjectLiteral | string, maybeParameters?: any[]): Promise<void>;
-    /**
-     * Inserts rows into the closure table.
-     */
-    insertIntoClosureTable(tablePath: string, newEntityId: any, parentId: any, hasLevel: boolean): Promise<number>;
-    /**
-     * Loads given table's data from the database.
-     */
-    getTable(tablePath: string): Promise<Table | undefined>;
-    /**
-     * Loads all tables (with given names) from the database and creates a Table from them.
-     */
-    getTables(tablePaths: string[]): Promise<Table[]>;
+    getSchemas(database?: string): Promise<string[]>;
     /**
      * Checks if database with the given name exist.
      */
     hasDatabase(database: string): Promise<boolean>;
     /**
+     * Checks if schema with the given name exist.
+     */
+    hasSchema(schema: string): Promise<boolean>;
+    /**
      * Checks if table with the given name exist in the database.
      */
-    hasTable(tablePath: string): Promise<boolean>;
+    hasTable(tableOrName: Table | string): Promise<boolean>;
     /**
-     * Creates a database if it's not created.
+     * Checks if column exist in the table.
      */
-    createDatabase(database: string): Promise<void[]>;
+    hasColumn(tableOrName: Table | string, columnName: string): Promise<boolean>;
     /**
-     * Creates a schema if it's not created.
+     * Creates a new database.
      */
-    createSchema(schemaPaths: string[]): Promise<void[]>;
+    createDatabase(database: string, ifNotExist?: boolean): Promise<void>;
     /**
-     * Creates a new table from the given table metadata and column metadatas.
+     * Drops database.
      */
-    createTable(table: Table): Promise<void>;
+    dropDatabase(database: string, ifExist?: boolean): Promise<void>;
+    /**
+     * Creates table schema.
+     * If database name also specified (e.g. 'dbName.schemaName') schema will be created in specified database.
+     */
+    createSchema(schemaPath: string, ifNotExist?: boolean): Promise<void>;
+    /**
+     * Drops table schema.
+     * If database name also specified (e.g. 'dbName.schemaName') schema will be dropped in specified database.
+     */
+    dropSchema(schemaPath: string, ifExist?: boolean): Promise<void>;
+    /**
+     * Creates a new table.
+     */
+    createTable(table: Table, ifNotExist?: boolean, createForeignKeys?: boolean, createIndices?: boolean): Promise<void>;
     /**
      * Drops the table.
      */
-    dropTable(tablePath: string): Promise<void>;
+    dropTable(tableOrName: Table | string, ifExist?: boolean, dropForeignKeys?: boolean, dropIndices?: boolean): Promise<void>;
     /**
-     * Checks if column with the given name exist in the given table.
+     * Renames a table.
      */
-    hasColumn(tablePath: string, columnName: string): Promise<boolean>;
+    renameTable(oldTableOrName: Table | string, newTableName: string): Promise<void>;
     /**
      * Creates a new column from the column in the table.
      */
-    addColumn(tableOrPath: Table | string, column: TableColumn): Promise<void>;
+    addColumn(tableOrName: Table | string, column: TableColumn): Promise<void>;
     /**
      * Creates a new columns from the column in the table.
      */
@@ -172,26 +134,66 @@ export declare class SqlServerQueryRunner implements QueryRunner {
     /**
      * Changes a column in the table.
      */
-    changeColumns(table: Table, changedColumns: {
+    changeColumns(tableOrName: Table | string, changedColumns: {
         newColumn: TableColumn;
         oldColumn: TableColumn;
     }[]): Promise<void>;
     /**
      * Drops column in the table.
      */
-    dropColumn(table: Table, column: TableColumn): Promise<void>;
+    dropColumn(tableOrName: Table | string, columnOrName: TableColumn | string): Promise<void>;
     /**
      * Drops the columns in the table.
      */
-    dropColumns(table: Table, columns: TableColumn[]): Promise<void>;
+    dropColumns(tableOrName: Table | string, columns: TableColumn[]): Promise<void>;
     /**
-     * Updates table's primary keys.
+     * Creates a new primary key.
      */
-    updatePrimaryKeys(table: Table): Promise<void>;
+    createPrimaryKey(tableOrName: Table | string, columnNames: string[]): Promise<void>;
+    /**
+     * Updates composite primary keys.
+     */
+    updatePrimaryKeys(tableOrName: Table | string, columns: TableColumn[]): Promise<void>;
+    /**
+     * Drops a primary key.
+     */
+    dropPrimaryKey(tableOrName: Table | string): Promise<void>;
+    /**
+     * Creates a new unique constraint.
+     */
+    createUniqueConstraint(tableOrName: Table | string, uniqueConstraint: TableUnique): Promise<void>;
+    /**
+     * Creates a new unique constraints.
+     */
+    createUniqueConstraints(tableOrName: Table | string, uniqueConstraints: TableUnique[]): Promise<void>;
+    /**
+     * Drops unique constraint.
+     */
+    dropUniqueConstraint(tableOrName: Table | string, uniqueOrName: TableUnique | string): Promise<void>;
+    /**
+     * Drops an unique constraints.
+     */
+    dropUniqueConstraints(tableOrName: Table | string, uniqueConstraints: TableUnique[]): Promise<void>;
+    /**
+     * Creates a new check constraint.
+     */
+    createCheckConstraint(tableOrName: Table | string, checkConstraint: TableCheck): Promise<void>;
+    /**
+     * Creates a new check constraints.
+     */
+    createCheckConstraints(tableOrName: Table | string, checkConstraints: TableCheck[]): Promise<void>;
+    /**
+     * Drops check constraint.
+     */
+    dropCheckConstraint(tableOrName: Table | string, checkOrName: TableCheck | string): Promise<void>;
+    /**
+     * Drops check constraints.
+     */
+    dropCheckConstraints(tableOrName: Table | string, checkConstraints: TableCheck[]): Promise<void>;
     /**
      * Creates a new foreign key.
      */
-    createForeignKey(tableOrPath: Table | string, foreignKey: TableForeignKey): Promise<void>;
+    createForeignKey(tableOrName: Table | string, foreignKey: TableForeignKey): Promise<void>;
     /**
      * Creates a new foreign keys.
      */
@@ -199,7 +201,7 @@ export declare class SqlServerQueryRunner implements QueryRunner {
     /**
      * Drops a foreign key from the table.
      */
-    dropForeignKey(tableOrPath: Table | string, foreignKey: TableForeignKey): Promise<void>;
+    dropForeignKey(tableOrName: Table | string, foreignKeyOrName: TableForeignKey | string): Promise<void>;
     /**
      * Drops a foreign keys from the table.
      */
@@ -207,50 +209,121 @@ export declare class SqlServerQueryRunner implements QueryRunner {
     /**
      * Creates a new index.
      */
-    createIndex(tablePath: Table | string, index: TableIndex): Promise<void>;
+    createIndex(tableOrName: Table | string, index: TableIndex): Promise<void>;
     /**
-     * Drops an index from the table.
+     * Creates a new indices
      */
-    dropIndex(tableSchemeOrName: Table | string, indexName: string): Promise<void>;
+    createIndices(tableOrName: Table | string, indices: TableIndex[]): Promise<void>;
     /**
-     * Truncates table.
+     * Drops an index.
      */
-    truncate(tablePath: string): Promise<void>;
+    dropIndex(tableOrName: Table | string, indexOrName: TableIndex | string): Promise<void>;
+    /**
+     * Drops an indices from the table.
+     */
+    dropIndices(tableOrName: Table | string, indices: TableIndex[]): Promise<void>;
+    /**
+     * Clears all table contents.
+     * Note: this operation uses SQL's TRUNCATE query which cannot be reverted in transactions.
+     */
+    clearTable(tablePath: string): Promise<void>;
     /**
      * Removes all tables from the currently connected database.
      */
-    clearDatabase(schemas?: string[], database?: string): Promise<void>;
+    clearDatabase(database?: string): Promise<void>;
     /**
-     * Enables special query runner mode in which sql queries won't be executed,
-     * instead they will be memorized into a special variable inside query runner.
-     * You can get memorized sql using getMemorySql() method.
+     * Return current database.
      */
-    enableSqlMemory(): void;
+    protected getCurrentDatabase(): Promise<string>;
     /**
-     * Disables special query runner mode in which sql queries won't be executed
-     * started by calling enableSqlMemory() method.
-     *
-     * Previously memorized sql will be flushed.
+     * Return current schema.
      */
-    disableSqlMemory(): void;
+    protected getCurrentSchema(): Promise<string>;
     /**
-     * Gets sql stored in the memory. Parameters in the sql are already replaced.
+     * Loads all tables (with given names) from the database and creates a Table from them.
      */
-    getMemorySql(): (string | {
-        up: string;
-        down: string;
-    })[];
+    protected loadTables(tableNames: string[]): Promise<Table[]>;
     /**
-     * Escapes given table path.
+     * Builds and returns SQL for create table.
      */
-    protected escapeTablePath(tableOrPath: Table | string, disableEscape?: boolean): string;
-    protected parseTablePath(target: Table | string): any;
+    protected createTableSql(table: Table, createForeignKeys?: boolean): string;
     /**
-     * Parametrizes given object of values. Used to create column=value queries.
+     * Builds drop table sql.
      */
-    protected parametrize(objectLiteral: ObjectLiteral, startFrom?: number): string[];
+    protected dropTableSql(tableOrName: Table | string, ifExist?: boolean): string;
+    /**
+     * Builds create index sql.
+     */
+    protected createIndexSql(table: Table, index: TableIndex): string;
+    /**
+     * Builds drop index sql.
+     */
+    protected dropIndexSql(table: Table, indexOrName: TableIndex | string): string;
+    /**
+     * Builds create primary key sql.
+     */
+    protected createPrimaryKeySql(table: Table, columnNames: string[]): string;
+    /**
+     * Builds drop primary key sql.
+     */
+    protected dropPrimaryKeySql(table: Table): string;
+    /**
+     * Builds create unique constraint sql.
+     */
+    protected createUniqueConstraintSql(table: Table, uniqueConstraint: TableUnique): string;
+    /**
+     * Builds drop unique constraint sql.
+     */
+    protected dropUniqueConstraintSql(table: Table, uniqueOrName: TableUnique | string): string;
+    /**
+     * Builds create check constraint sql.
+     */
+    protected createCheckConstraintSql(table: Table, checkConstraint: TableCheck): string;
+    /**
+     * Builds drop check constraint sql.
+     */
+    protected dropCheckConstraintSql(table: Table, checkOrName: TableCheck | string): string;
+    /**
+     * Builds create foreign key sql.
+     */
+    protected createForeignKeySql(table: Table, foreignKey: TableForeignKey): string;
+    /**
+     * Builds drop foreign key sql.
+     */
+    protected dropForeignKeySql(table: Table, foreignKeyOrName: TableForeignKey | string): string;
+    /**
+     * Escapes given table name.
+     */
+    protected escapeTableName(tableOrName: Table | string, disableEscape?: boolean): string;
+    protected parseTableName(target: Table | string): {
+        database: string | undefined;
+        schema: string;
+        tableName: string;
+    };
+    /**
+     * Concat database name and schema name to the foreign key name.
+     * Needs because FK name is relevant to the schema and database.
+     */
+    protected buildForeignKeyName(fkName: string, schemaName: string | undefined, dbName: string | undefined): string;
+    /**
+     * Removes parenthesis around default value.
+     * Sql server returns default value with parenthesis around, e.g.
+     *  ('My text') - for string
+     *  ((1)) - for number
+     *  (newsequentialId()) - for function
+     */
+    protected removeParenthesisFromDefault(defaultValue: any): any;
     /**
      * Builds a query for create column.
      */
-    protected buildCreateColumnSql(tableName: string, column: TableColumn, skipIdentity: boolean, createDefault: boolean): string;
+    protected buildCreateColumnSql(table: Table, column: TableColumn, skipIdentity: boolean, createDefault: boolean): string;
+    /**
+     * Converts MssqlParameter into real mssql parameter type.
+     */
+    protected mssqlParameterToNativeParameter(parameter: MssqlParameter): any;
+    /**
+     * Converts string literal of isolation level to enum.
+     * The underlying mssql driver requires an enum for the isolation level.
+     */
+    convertIsolationLevel(isolation: IsolationLevel): any;
 }

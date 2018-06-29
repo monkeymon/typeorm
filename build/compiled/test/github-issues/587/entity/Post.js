@@ -39,7 +39,6 @@ var Post = /** @class */ (function () {
         __metadata("design:type", Tag_1.Tag)
     ], Post.prototype, "tag", void 0);
     Post = __decorate([
-        Index_1.Index(["tag", "c", "b", "a"]),
         Index_1.Index(["a", "b", "c", "tag"]),
         Index_1.Index(["b", "tag", "c"]),
         Index_1.Index(["c", "a"]),

@@ -47,7 +47,6 @@ describe("query builder > cache", function () {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        dropSchema: true,
                         cache: true,
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];

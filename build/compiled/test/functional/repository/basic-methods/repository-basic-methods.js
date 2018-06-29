@@ -43,6 +43,7 @@ var QueryBuilder_1 = require("../../../../src/query-builder/QueryBuilder");
 var QuestionSchema_1 = require("./model-schema/QuestionSchema");
 var Blog_1 = require("./entity/Blog");
 var Category_1 = require("./entity/Category");
+var src_1 = require("../../../../src");
 describe("repository > basic methods", function () {
     var userSchema;
     try {
@@ -53,15 +54,14 @@ describe("repository > basic methods", function () {
         var resourceDir = __dirname + "/";
         userSchema = require(resourceDir + "schema/user.json");
     }
+    var UserEntity = new src_1.EntitySchema(userSchema);
+    var QuestionEntity = new src_1.EntitySchema(QuestionSchema_1.default);
     var connections;
     before(function () { return __awaiter(_this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
-                        entities: [Post_1.Post, Blog_1.Blog, Category_1.Category],
-                        entitySchemas: [userSchema, QuestionSchema_1.default],
-                        schemaCreate: true,
-                        dropSchema: true
+                        entities: [Post_1.Post, Blog_1.Blog, Category_1.Category, UserEntity, QuestionEntity],
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -323,6 +323,46 @@ describe("repository > basic methods", function () {
             });
         }); })); });
     });
+    describe("save", function () {
+        var _this = this;
+        it("should update existing entity using transformers", function () { return __awaiter(_this, void 0, void 0, function () {
+            var connection, post, date, postRepository, dbPost, saved;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        connection = connections.find(function (c) { return c.name === "sqlite"; });
+                        if (!connection || connection.options.skip === true) {
+                            return [2 /*return*/];
+                        }
+                        post = new Post_1.Post();
+                        date = new Date("2018-01-01 01:00:00");
+                        post.dateAdded = date;
+                        post.title = "Post title";
+                        post.id = 1;
+                        postRepository = connection.getRepository(Post_1.Post);
+                        return [4 /*yield*/, postRepository.save(post)];
+                    case 1:
+                        _a.sent();
+                        return [4 /*yield*/, postRepository.findOne(post.id)];
+                    case 2:
+                        dbPost = _a.sent();
+                        dbPost.should.be.instanceOf(Post_1.Post);
+                        dbPost.dateAdded.should.be.instanceOf(Date);
+                        dbPost.dateAdded.getTime().should.be.equal(date.getTime());
+                        dbPost.title = "New title";
+                        return [4 /*yield*/, postRepository.save(dbPost)];
+                    case 3:
+                        saved = _a.sent();
+                        saved.should.be.instanceOf(Post_1.Post);
+                        saved.id.should.be.equal(1);
+                        saved.title.should.be.equal("New title");
+                        saved.dateAdded.should.be.instanceof(Date);
+                        saved.dateAdded.getTime().should.be.equal(date.getTime());
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+    });
     describe("preload also should also implement merge functionality", function () {
         var _this = this;
         it("if we preload entity from the plain object and merge preloaded object with plain object we'll have an object from the db with the replaced properties by a plain object's properties", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
@@ -373,13 +413,13 @@ describe("repository > basic methods", function () {
     describe("query", function () {
         var _this = this;
         it("should execute the query natively and it should return the result", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
-            var repository, promises, i, blog, result;
+            var repository, promises, i, blog, query, result;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         repository = connection.getRepository(Blog_1.Blog);
                         promises = [];
-                        for (i = 0; i < 5; i++) {
+                        for (i = 0; i < 5; i++) { // todo: should pass with 50 items. find the problem
                             blog = new Blog_1.Blog();
                             blog.title = "hello blog";
                             blog.text = "hello blog #" + i;
@@ -389,7 +429,9 @@ describe("repository > basic methods", function () {
                         return [4 /*yield*/, Promise.all(promises)];
                     case 1:
                         _a.sent();
-                        return [4 /*yield*/, repository.query("SELECT MAX(blog.counter) as max from blog blog")];
+                        query = "SELECT MAX(" + connection.driver.escape("blog") + "." + connection.driver.escape("counter") + ") as " + connection.driver.escape("max") + " " +
+                            (" FROM " + connection.driver.escape("blog") + " " + connection.driver.escape("blog"));
+                        return [4 /*yield*/, repository.query(query)];
                     case 2:
                         result = _a.sent();
                         result[0].should.not.be.empty;

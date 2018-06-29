@@ -57,7 +57,7 @@ var Tag = /** @class */ (function () {
         __metadata("design:type", Array)
     ], Tag.prototype, "categoriesWithOptions", void 0);
     __decorate([
-        ManyToMany_1.ManyToMany(function (type) { return Category_1.Category; }, function (category) { return category.tagsWithNonPrimaryColumns; }),
+        ManyToMany_1.ManyToMany(function (type) { return Category_1.Category; }, function (category) { return category.tagsWithNonPKColumns; }),
         JoinTable_1.JoinTable({
             name: "tag_categories_non_primary",
             joinColumns: [{
@@ -79,7 +79,7 @@ var Tag = /** @class */ (function () {
                 }]
         }),
         __metadata("design:type", Array)
-    ], Tag.prototype, "categoriesWithNonPrimaryColumns", void 0);
+    ], Tag.prototype, "categoriesWithNonPKColumns", void 0);
     Tag = __decorate([
         Entity_1.Entity()
     ], Tag);

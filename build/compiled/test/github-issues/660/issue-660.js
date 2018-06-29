@@ -42,6 +42,7 @@ var User_1 = require("./entity/User");
 var SqlServerDriver_1 = require("../../../src/driver/sqlserver/SqlServerDriver");
 var PostgresDriver_1 = require("../../../src/driver/postgres/PostgresDriver");
 var chai_1 = require("chai");
+var ReturningStatementNotSupportedError_1 = require("../../../src/error/ReturningStatementNotSupportedError");
 describe("github issues > #660 Specifying a RETURNING or OUTPUT clause with QueryBuilder", function () {
     var connections;
     before(function () { return __awaiter(_this, void 0, void 0, function () {
@@ -49,8 +50,6 @@ describe("github issues > #660 Specifying a RETURNING or OUTPUT clause with Quer
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        schemaCreate: true,
-                        dropSchema: true,
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -63,6 +62,7 @@ describe("github issues > #660 Specifying a RETURNING or OUTPUT clause with Quer
         return __generator(this, function (_a) {
             user = new User_1.User();
             user.name = "Tim Merrison";
+            sql = "";
             try {
                 sql = connection.createQueryBuilder()
                     .insert()
@@ -71,15 +71,15 @@ describe("github issues > #660 Specifying a RETURNING or OUTPUT clause with Quer
                     .returning(connection.driver instanceof PostgresDriver_1.PostgresDriver ? "*" : "inserted.*")
                     .disableEscaping()
                     .getSql();
-                if (connection.driver instanceof SqlServerDriver_1.SqlServerDriver) {
-                    chai_1.expect(sql).to.equal("INSERT INTO user(name) OUTPUT inserted.* VALUES (@0)");
-                }
-                else if (connection.driver instanceof PostgresDriver_1.PostgresDriver) {
-                    chai_1.expect(sql).to.equal("INSERT INTO user(name) VALUES ($1) RETURNING *");
-                }
             }
             catch (err) {
-                chai_1.expect(err).to.eql(new Error("OUTPUT or RETURNING clause only supported by MS SQLServer or PostgreSQL"));
+                chai_1.expect(err.message).to.eql(new ReturningStatementNotSupportedError_1.ReturningStatementNotSupportedError().message);
+            }
+            if (connection.driver instanceof SqlServerDriver_1.SqlServerDriver) {
+                chai_1.expect(sql).to.equal("INSERT INTO user(name) OUTPUT inserted.* VALUES (@0)");
+            }
+            else if (connection.driver instanceof PostgresDriver_1.PostgresDriver) {
+                chai_1.expect(sql).to.equal("INSERT INTO user(name) VALUES ($1) RETURNING *");
             }
             return [2 /*return*/];
         });
@@ -100,7 +100,7 @@ describe("github issues > #660 Specifying a RETURNING or OUTPUT clause with Quer
                             .execute()];
                 case 1:
                     returning = _a.sent();
-                    returning.should.be.eql([
+                    returning.raw.should.be.eql([
                         { id: 1, name: user.name }
                     ]);
                     _a.label = 2;
@@ -129,7 +129,7 @@ describe("github issues > #660 Specifying a RETURNING or OUTPUT clause with Quer
                 }
             }
             catch (err) {
-                chai_1.expect(err).to.eql(new Error("OUTPUT or RETURNING clause only supported by MS SQLServer or PostgreSQL"));
+                chai_1.expect(err.message).to.eql(new ReturningStatementNotSupportedError_1.ReturningStatementNotSupportedError().message);
             }
             return [2 /*return*/];
         });
@@ -153,7 +153,7 @@ describe("github issues > #660 Specifying a RETURNING or OUTPUT clause with Quer
                             .execute()];
                 case 2:
                     returning = _a.sent();
-                    returning.should.be.eql([
+                    returning.raw.should.be.eql([
                         { id: 1, name: "Joe Bloggs" }
                     ]);
                     _a.label = 3;
@@ -182,7 +182,7 @@ describe("github issues > #660 Specifying a RETURNING or OUTPUT clause with Quer
                 }
             }
             catch (err) {
-                chai_1.expect(err).to.eql(new Error("OUTPUT or RETURNING clause only supported by MS SQLServer or PostgreSQL"));
+                chai_1.expect(err.message).to.eql(new ReturningStatementNotSupportedError_1.ReturningStatementNotSupportedError().message);
             }
             return [2 /*return*/];
         });
@@ -206,7 +206,7 @@ describe("github issues > #660 Specifying a RETURNING or OUTPUT clause with Quer
                             .execute()];
                 case 2:
                     returning = _a.sent();
-                    returning.should.be.eql([
+                    returning.raw.should.be.eql([
                         { id: 1, name: user.name }
                     ]);
                     _a.label = 3;

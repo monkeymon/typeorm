@@ -50,8 +50,6 @@ describe("repository > deleteById methods", function () {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        schemaCreate: true,
-                        dropSchema: true
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -85,7 +83,7 @@ describe("repository > deleteById methods", function () {
                 case 1:
                     _a.sent();
                     // remove one
-                    return [4 /*yield*/, postRepository.deleteById(1)];
+                    return [4 /*yield*/, postRepository.delete(1)];
                 case 2:
                     // remove one
                     _a.sent();
@@ -125,7 +123,7 @@ describe("repository > deleteById methods", function () {
                 case 1:
                     _a.sent();
                     // remove multiple
-                    return [4 /*yield*/, postRepository.removeByIds([2, 3])];
+                    return [4 /*yield*/, postRepository.delete([2, 3])];
                 case 2:
                     // remove multiple
                     _a.sent();

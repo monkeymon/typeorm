@@ -48,7 +48,6 @@ describe("query builder > relational query builder > add operation > one to many
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        dropSchema: true,
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -98,18 +97,18 @@ describe("query builder > relational query builder > add operation > one to many
                             .add(post1)];
                 case 7:
                     _a.sent();
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 1, { relations: ["category"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 1, { relations: ["category"] })];
                 case 8:
                     loadedPost1 = _a.sent();
                     chai_1.expect(loadedPost1.category).to.be.eql({ id: 1, name: "category #1" });
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 2, { relations: ["category"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 2, { relations: ["category"] })];
                 case 9:
                     loadedPost2 = _a.sent();
-                    chai_1.expect(loadedPost2.category).to.be.undefined;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 3, { relations: ["category"] })];
+                    chai_1.expect(loadedPost2.category).to.be.null;
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 3, { relations: ["category"] })];
                 case 10:
                     loadedPost3 = _a.sent();
-                    chai_1.expect(loadedPost3.category).to.be.undefined;
+                    chai_1.expect(loadedPost3.category).to.be.null;
                     return [4 /*yield*/, connection
                             .createQueryBuilder()
                             .relation(Category_1.Category, "posts")
@@ -117,18 +116,18 @@ describe("query builder > relational query builder > add operation > one to many
                             .remove(post1)];
                 case 11:
                     _a.sent();
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 1, { relations: ["category"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 1, { relations: ["category"] })];
                 case 12:
                     loadedPost1 = _a.sent();
-                    chai_1.expect(loadedPost1.category).to.be.undefined;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 2, { relations: ["category"] })];
+                    chai_1.expect(loadedPost1.category).to.be.null;
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 2, { relations: ["category"] })];
                 case 13:
                     loadedPost2 = _a.sent();
-                    chai_1.expect(loadedPost2.category).to.be.undefined;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 3, { relations: ["category"] })];
+                    chai_1.expect(loadedPost2.category).to.be.null;
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 3, { relations: ["category"] })];
                 case 14:
                     loadedPost3 = _a.sent();
-                    chai_1.expect(loadedPost3.category).to.be.undefined;
+                    chai_1.expect(loadedPost3.category).to.be.null;
                     return [2 /*return*/];
             }
         });
@@ -175,18 +174,18 @@ describe("query builder > relational query builder > add operation > one to many
                             .add(2)];
                 case 7:
                     _a.sent(); // post id
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 1, { relations: ["category"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 1, { relations: ["category"] })];
                 case 8:
                     loadedPost1 = _a.sent();
-                    chai_1.expect(loadedPost1.category).to.be.undefined;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 2, { relations: ["category"] })];
+                    chai_1.expect(loadedPost1.category).to.be.null;
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 2, { relations: ["category"] })];
                 case 9:
                     loadedPost2 = _a.sent();
                     chai_1.expect(loadedPost2.category).to.be.eql({ id: 2, name: "category #2" });
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 3, { relations: ["category"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 3, { relations: ["category"] })];
                 case 10:
                     loadedPost3 = _a.sent();
-                    chai_1.expect(loadedPost3.category).to.be.undefined;
+                    chai_1.expect(loadedPost3.category).to.be.null;
                     return [4 /*yield*/, connection
                             .createQueryBuilder()
                             .relation(Category_1.Category, "posts")
@@ -194,18 +193,18 @@ describe("query builder > relational query builder > add operation > one to many
                             .remove(2)];
                 case 11:
                     _a.sent(); // post id
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 1, { relations: ["category"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 1, { relations: ["category"] })];
                 case 12:
                     loadedPost1 = _a.sent();
-                    chai_1.expect(loadedPost1.category).to.be.undefined;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 2, { relations: ["category"] })];
+                    chai_1.expect(loadedPost1.category).to.be.null;
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 2, { relations: ["category"] })];
                 case 13:
                     loadedPost2 = _a.sent();
-                    chai_1.expect(loadedPost2.category).to.be.undefined;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 3, { relations: ["category"] })];
+                    chai_1.expect(loadedPost2.category).to.be.null;
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 3, { relations: ["category"] })];
                 case 14:
                     loadedPost3 = _a.sent();
-                    chai_1.expect(loadedPost3.category).to.be.undefined;
+                    chai_1.expect(loadedPost3.category).to.be.null;
                     return [2 /*return*/];
             }
         });
@@ -252,15 +251,15 @@ describe("query builder > relational query builder > add operation > one to many
                             .add({ id: 3 })];
                 case 7:
                     _a.sent(); // post id
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 1, { relations: ["category"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 1, { relations: ["category"] })];
                 case 8:
                     loadedPost1 = _a.sent();
-                    chai_1.expect(loadedPost1.category).to.be.undefined;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 2, { relations: ["category"] })];
+                    chai_1.expect(loadedPost1.category).to.be.null;
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 2, { relations: ["category"] })];
                 case 9:
                     loadedPost2 = _a.sent();
-                    chai_1.expect(loadedPost2.category).to.be.undefined;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 3, { relations: ["category"] })];
+                    chai_1.expect(loadedPost2.category).to.be.null;
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 3, { relations: ["category"] })];
                 case 10:
                     loadedPost3 = _a.sent();
                     chai_1.expect(loadedPost3.category).to.be.eql({ id: 3, name: "category #3" });
@@ -271,18 +270,18 @@ describe("query builder > relational query builder > add operation > one to many
                             .remove({ id: 3 })];
                 case 11:
                     _a.sent(); // post id
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 1, { relations: ["category"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 1, { relations: ["category"] })];
                 case 12:
                     loadedPost1 = _a.sent();
-                    chai_1.expect(loadedPost1.category).to.be.undefined;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 2, { relations: ["category"] })];
+                    chai_1.expect(loadedPost1.category).to.be.null;
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 2, { relations: ["category"] })];
                 case 13:
                     loadedPost2 = _a.sent();
-                    chai_1.expect(loadedPost2.category).to.be.undefined;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 3, { relations: ["category"] })];
+                    chai_1.expect(loadedPost2.category).to.be.null;
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 3, { relations: ["category"] })];
                 case 14:
                     loadedPost3 = _a.sent();
-                    chai_1.expect(loadedPost3.category).to.be.undefined;
+                    chai_1.expect(loadedPost3.category).to.be.null;
                     return [2 /*return*/];
             }
         });
@@ -329,15 +328,15 @@ describe("query builder > relational query builder > add operation > one to many
                             .add([{ id: 1 }, { id: 3 }])];
                 case 7:
                     _a.sent(); // posts
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 1, { relations: ["category"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 1, { relations: ["category"] })];
                 case 8:
                     loadedPost1 = _a.sent();
                     chai_1.expect(loadedPost1.category).to.be.eql({ id: 3, name: "category #3" });
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 2, { relations: ["category"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 2, { relations: ["category"] })];
                 case 9:
                     loadedPost2 = _a.sent();
-                    chai_1.expect(loadedPost2.category).to.be.undefined;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 3, { relations: ["category"] })];
+                    chai_1.expect(loadedPost2.category).to.be.null;
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 3, { relations: ["category"] })];
                 case 10:
                     loadedPost3 = _a.sent();
                     chai_1.expect(loadedPost3.category).to.be.eql({ id: 3, name: "category #3" });
@@ -348,18 +347,18 @@ describe("query builder > relational query builder > add operation > one to many
                             .remove([{ id: 1 }, { id: 3 }])];
                 case 11:
                     _a.sent(); // posts
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 1, { relations: ["category"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 1, { relations: ["category"] })];
                 case 12:
                     loadedPost1 = _a.sent();
-                    chai_1.expect(loadedPost1.category).to.be.undefined;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 2, { relations: ["category"] })];
+                    chai_1.expect(loadedPost1.category).to.be.null;
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 2, { relations: ["category"] })];
                 case 13:
                     loadedPost2 = _a.sent();
-                    chai_1.expect(loadedPost2.category).to.be.undefined;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 3, { relations: ["category"] })];
+                    chai_1.expect(loadedPost2.category).to.be.null;
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 3, { relations: ["category"] })];
                 case 14:
                     loadedPost3 = _a.sent();
-                    chai_1.expect(loadedPost3.category).to.be.undefined;
+                    chai_1.expect(loadedPost3.category).to.be.null;
                     return [2 /*return*/];
             }
         });
@@ -408,7 +407,7 @@ describe("query builder > relational query builder > add operation > one to many
                 case 7:
                     // add initial data
                     _a.sent(); // post
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 2, { relations: ["category"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 2, { relations: ["category"] })];
                 case 8:
                     loadedPost1 = _a.sent();
                     chai_1.expect(loadedPost1.category).to.be.eql({ id: 3, name: "category #3" });
@@ -421,7 +420,7 @@ describe("query builder > relational query builder > add operation > one to many
                 case 9:
                     // when nothing is specified nothing should be performed
                     _a.sent(); // post
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 2, { relations: ["category"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 2, { relations: ["category"] })];
                 case 10:
                     loadedPost1 = _a.sent();
                     chai_1.expect(loadedPost1.category).to.be.eql({ id: 3, name: "category #3" });
@@ -434,7 +433,7 @@ describe("query builder > relational query builder > add operation > one to many
                 case 11:
                     // now add and remove =)
                     _a.sent(); // post
-                    return [4 /*yield*/, connection.manager.findOneById(Category_1.Category, 3, { relations: ["posts"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Category_1.Category, 3, { relations: ["posts"] })];
                 case 12:
                     loadedCategory = _a.sent();
                     chai_1.expect(loadedCategory.posts).to.contain({ id: 1, title: "post #1" });

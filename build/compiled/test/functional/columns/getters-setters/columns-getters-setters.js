@@ -47,7 +47,6 @@ describe("columns > getters and setters", function () {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [Post_1.Post],
-                        dropSchema: true
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -66,7 +65,7 @@ describe("columns > getters and setters", function () {
                     return [4 /*yield*/, postRepository.save(post)];
                 case 1:
                     _a.sent();
-                    return [4 /*yield*/, postRepository.findOneById(1)];
+                    return [4 /*yield*/, postRepository.findOne(1)];
                 case 2:
                     loadedPost1 = _a.sent();
                     chai_1.expect(loadedPost1.title).to.be.equal("bye");

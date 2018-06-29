@@ -12,10 +12,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var Entity_1 = require("../../../../../../src/decorator/entity/Entity");
 var PrimaryColumn_1 = require("../../../../../../src/decorator/columns/PrimaryColumn");
 var Column_1 = require("../../../../../../src/decorator/columns/Column");
-var Index_1 = require("../../../../../../src/decorator/Index");
 var OneToOne_1 = require("../../../../../../src/decorator/relations/OneToOne");
 var Post_1 = require("./Post");
 var Tag_1 = require("./Tag");
+var src_1 = require("../../../../../../src");
 var Category = /** @class */ (function () {
     function Category() {
     }
@@ -48,9 +48,9 @@ var Category = /** @class */ (function () {
         __metadata("design:type", Post_1.Post)
     ], Category.prototype, "postWithOptions", void 0);
     __decorate([
-        OneToOne_1.OneToOne(function (type) { return Post_1.Post; }, function (post) { return post.categoryWithNonPrimaryColumns; }),
+        OneToOne_1.OneToOne(function (type) { return Post_1.Post; }, function (post) { return post.categoryWithNonPKColumns; }),
         __metadata("design:type", Post_1.Post)
-    ], Category.prototype, "postWithNonPrimaryColumns", void 0);
+    ], Category.prototype, "postWithNonPKColumns", void 0);
     __decorate([
         OneToOne_1.OneToOne(function (type) { return Tag_1.Tag; }, function (tag) { return tag.category; }),
         __metadata("design:type", Tag_1.Tag)
@@ -60,12 +60,12 @@ var Category = /** @class */ (function () {
         __metadata("design:type", Tag_1.Tag)
     ], Category.prototype, "tagWithOptions", void 0);
     __decorate([
-        OneToOne_1.OneToOne(function (type) { return Tag_1.Tag; }, function (tag) { return tag.categoryWithNonPrimaryColumns; }),
+        OneToOne_1.OneToOne(function (type) { return Tag_1.Tag; }, function (tag) { return tag.categoryWithNonPKColumns; }),
         __metadata("design:type", Tag_1.Tag)
-    ], Category.prototype, "tagWithNonPrimaryColumns", void 0);
+    ], Category.prototype, "tagWithNonPKColumns", void 0);
     Category = __decorate([
         Entity_1.Entity(),
-        Index_1.Index(["code", "version", "description"], { unique: true })
+        src_1.Unique(["code", "version", "description"])
     ], Category);
     return Category;
 }());

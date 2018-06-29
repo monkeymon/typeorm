@@ -51,8 +51,6 @@ describe("query builder > joins", function () {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        schemaCreate: true,
-                        dropSchema: true,
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -444,8 +442,8 @@ describe("query builder > joins", function () {
                                 .createQueryBuilder(Post_1.Post, "post")
                                 .leftJoinAndMapOne("post.tag", Tag_1.Tag, "tag", "tag.id = :tagId")
                                 .leftJoinAndMapOne("post.author", User_1.User, "user", "user.id = :userId")
-                                .leftJoinAndMapMany("post.categories", Category_1.Category, "categories", "categories.id IN (:categoryIds)")
-                                .leftJoinAndMapMany("categories.images", Image_1.Image, "image", "image.id IN (:imageIds)")
+                                .leftJoinAndMapMany("post.categories", Category_1.Category, "categories", "categories.id IN (:...categoryIds)")
+                                .leftJoinAndMapMany("categories.images", Image_1.Image, "image", "image.id IN (:...imageIds)")
                                 .where("post.id = :id", { id: post.id })
                                 .setParameters({ tagId: 1, userId: 1, categoryIds: [1, 2], imageIds: [1, 2] })
                                 .getOne()];
@@ -510,8 +508,8 @@ describe("query builder > joins", function () {
                                 .createQueryBuilder(Post_1.Post, "post")
                                 .leftJoinAndMapOne("post.tag", "tag", "tag", "tag.id = :tagId")
                                 .leftJoinAndMapOne("post.author", "user", "user", "user.id = :userId")
-                                .leftJoinAndMapMany("post.categories", "category", "categories", "categories.id IN (:categoryIds)")
-                                .leftJoinAndMapMany("categories.images", "image", "image", "image.id IN (:imageIds)")
+                                .leftJoinAndMapMany("post.categories", "category", "categories", "categories.id IN (:...categoryIds)")
+                                .leftJoinAndMapMany("categories.images", "image", "image", "image.id IN (:...imageIds)")
                                 .where("post.id = :id", { id: post.id })
                                 .setParameters({ tagId: 1, userId: 1, categoryIds: [1, 2], imageIds: [1, 2] })
                                 .getOne()];
@@ -557,8 +555,8 @@ describe("query builder > joins", function () {
                         _a.sent();
                         return [4 /*yield*/, connection.manager
                                 .createQueryBuilder(Post_1.Post, "post")
-                                .leftJoinAndMapMany("post.categories", Category_1.Category, "categories", "categories.id IN (:categoryIds)")
-                                .leftJoinAndMapMany("post.subcategories", Category_1.Category, "subcategories", "subcategories.id IN (:subcategoryIds)")
+                                .leftJoinAndMapMany("post.categories", Category_1.Category, "categories", "categories.id IN (:...categoryIds)")
+                                .leftJoinAndMapMany("post.subcategories", Category_1.Category, "subcategories", "subcategories.id IN (:...subcategoryIds)")
                                 .where("post.id = :id", { id: post.id })
                                 .setParameters({ categoryIds: [1, 2], subcategoryIds: [3] })
                                 .getOne()];
@@ -639,9 +637,9 @@ describe("query builder > joins", function () {
                         _a.sent();
                         return [4 /*yield*/, connection.manager
                                 .createQueryBuilder(Post_1.Post, "post")
-                                .leftJoinAndMapMany("post.removedCategories", "post.categories", "removedCategories", "removedCategories.isRemoved = :isRemoved")
-                                .leftJoinAndMapMany("removedCategories.removedImages", "removedCategories.images", "removedImages", "removedImages.isRemoved = :isRemoved")
-                                .leftJoinAndMapMany("post.subcategories", "post.categories", "subcategories", "subcategories.id IN (:subcategoryIds)")
+                                .leftJoinAndMapMany("post.removedCategories", "post.categories", "rc", "rc.isRemoved = :isRemoved")
+                                .leftJoinAndMapMany("rc.removedImages", "rc.images", "removedImages", "removedImages.isRemoved = :isRemoved")
+                                .leftJoinAndMapMany("post.subcategories", "post.categories", "subcategories", "subcategories.id IN (:...subcategoryIds)")
                                 .leftJoinAndMapOne("subcategories.titleImage", "subcategories.images", "titleImage", "titleImage.id = :titleImageId")
                                 .setParameters({ isRemoved: true, subcategoryIds: [1, 2], titleImageId: 1 })
                                 .getMany()];
@@ -669,9 +667,9 @@ describe("query builder > joins", function () {
                         chai_1.expect(loadedPosts[1].subcategories[0].titleImage.id).to.be.equal(1);
                         return [4 /*yield*/, connection.manager
                                 .createQueryBuilder(Post_1.Post, "post")
-                                .leftJoinAndMapMany("post.removedCategories", "post.categories", "removedCategories", "removedCategories.isRemoved = :isRemoved")
-                                .leftJoinAndMapMany("removedCategories.removedImages", "removedCategories.images", "removedImages", "removedImages.isRemoved = :isRemoved")
-                                .leftJoinAndMapMany("post.subcategories", "post.categories", "subcategories", "subcategories.id IN (:subcategoryIds)")
+                                .leftJoinAndMapMany("post.removedCategories", "post.categories", "rc", "rc.isRemoved = :isRemoved")
+                                .leftJoinAndMapMany("rc.removedImages", "rc.images", "removedImages", "removedImages.isRemoved = :isRemoved")
+                                .leftJoinAndMapMany("post.subcategories", "post.categories", "subcategories", "subcategories.id IN (:...subcategoryIds)")
                                 .leftJoinAndMapOne("subcategories.titleImage", "subcategories.images", "titleImage", "titleImage.id = :titleImageId")
                                 .setParameters({ isRemoved: true, subcategoryIds: [1, 2], titleImageId: 1 })
                                 .where("post.id = :id", { id: post.id })
@@ -740,8 +738,8 @@ describe("query builder > joins", function () {
                                 .createQueryBuilder(Post_1.Post, "post")
                                 .innerJoinAndMapOne("post.tag", Tag_1.Tag, "tag", "tag.id = :tagId")
                                 .innerJoinAndMapOne("post.author", User_1.User, "user", "user.id = :userId")
-                                .innerJoinAndMapMany("post.categories", Category_1.Category, "categories", "categories.id IN (:categoryIds)")
-                                .innerJoinAndMapMany("categories.images", Image_1.Image, "image", "image.id IN (:imageIds)")
+                                .innerJoinAndMapMany("post.categories", Category_1.Category, "categories", "categories.id IN (:...categoryIds)")
+                                .innerJoinAndMapMany("categories.images", Image_1.Image, "image", "image.id IN (:...imageIds)")
                                 .where("post.id = :id", { id: post.id })
                                 .setParameters({ tagId: 1, userId: 1, categoryIds: [1, 2], imageIds: [1, 2] })
                                 .getOne()];
@@ -806,8 +804,8 @@ describe("query builder > joins", function () {
                                 .createQueryBuilder(Post_1.Post, "post")
                                 .innerJoinAndMapOne("post.tag", "tag", "tag", "tag.id = :tagId")
                                 .innerJoinAndMapOne("post.author", "user", "user", "user.id = :userId")
-                                .innerJoinAndMapMany("post.categories", "category", "categories", "categories.id IN (:categoryIds)")
-                                .innerJoinAndMapMany("categories.images", "image", "image", "image.id IN (:imageIds)")
+                                .innerJoinAndMapMany("post.categories", "category", "categories", "categories.id IN (:...categoryIds)")
+                                .innerJoinAndMapMany("categories.images", "image", "image", "image.id IN (:...imageIds)")
                                 .where("post.id = :id", { id: post.id })
                                 .setParameters({ tagId: 1, userId: 1, categoryIds: [1, 2], imageIds: [1, 2] })
                                 .getOne()];
@@ -853,8 +851,8 @@ describe("query builder > joins", function () {
                         _a.sent();
                         return [4 /*yield*/, connection.manager
                                 .createQueryBuilder(Post_1.Post, "post")
-                                .innerJoinAndMapMany("post.categories", Category_1.Category, "categories", "categories.id IN (:categoryIds)")
-                                .innerJoinAndMapMany("post.subcategories", Category_1.Category, "subcategories", "subcategories.id IN (:subcategoryIds)")
+                                .innerJoinAndMapMany("post.categories", Category_1.Category, "categories", "categories.id IN (:...categoryIds)")
+                                .innerJoinAndMapMany("post.subcategories", Category_1.Category, "subcategories", "subcategories.id IN (:...subcategoryIds)")
                                 .where("post.id = :id", { id: post.id })
                                 .setParameters({ categoryIds: [1, 2], subcategoryIds: [3] })
                                 .getOne()];
@@ -935,9 +933,9 @@ describe("query builder > joins", function () {
                         _a.sent();
                         return [4 /*yield*/, connection.manager
                                 .createQueryBuilder(Post_1.Post, "post")
-                                .leftJoinAndMapMany("post.removedCategories", "post.categories", "removedCategories", "removedCategories.isRemoved = :isRemoved")
-                                .leftJoinAndMapMany("removedCategories.removedImages", "removedCategories.images", "removedImages", "removedImages.isRemoved = :isRemoved")
-                                .leftJoinAndMapMany("post.subcategories", "post.categories", "subcategories", "subcategories.id IN (:subcategoryIds)")
+                                .leftJoinAndMapMany("post.removedCategories", "post.categories", "rc", "rc.isRemoved = :isRemoved")
+                                .leftJoinAndMapMany("rc.removedImages", "rc.images", "removedImages", "removedImages.isRemoved = :isRemoved")
+                                .leftJoinAndMapMany("post.subcategories", "post.categories", "subcategories", "subcategories.id IN (:...subcategoryIds)")
                                 .leftJoinAndMapOne("subcategories.titleImage", "subcategories.images", "titleImage", "titleImage.id = :titleImageId")
                                 .setParameters({ isRemoved: true, subcategoryIds: [1, 2], titleImageId: 1 })
                                 .getMany()];
@@ -965,9 +963,9 @@ describe("query builder > joins", function () {
                         chai_1.expect(loadedPosts[1].subcategories[0].titleImage.id).to.be.equal(1);
                         return [4 /*yield*/, connection.manager
                                 .createQueryBuilder(Post_1.Post, "post")
-                                .innerJoinAndMapMany("post.removedCategories", "post.categories", "removedCategories", "removedCategories.isRemoved = :isRemoved")
-                                .innerJoinAndMapMany("removedCategories.removedImages", "removedCategories.images", "removedImages", "removedImages.isRemoved = :isRemoved")
-                                .innerJoinAndMapMany("post.subcategories", "post.categories", "subcategories", "subcategories.id IN (:subcategoryIds)")
+                                .innerJoinAndMapMany("post.removedCategories", "post.categories", "rc", "rc.isRemoved = :isRemoved")
+                                .innerJoinAndMapMany("rc.removedImages", "rc.images", "removedImages", "removedImages.isRemoved = :isRemoved")
+                                .innerJoinAndMapMany("post.subcategories", "post.categories", "subcategories", "subcategories.id IN (:...subcategoryIds)")
                                 .innerJoinAndMapOne("subcategories.titleImage", "subcategories.images", "titleImage", "titleImage.id = :titleImageId")
                                 .setParameters({ isRemoved: true, subcategoryIds: [1, 2], titleImageId: 1 })
                                 .where("post.id = :id", { id: post.id })

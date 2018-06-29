@@ -112,6 +112,10 @@ var Post = /** @class */ (function () {
         __metadata("design:type", Buffer)
     ], Post.prototype, "image", void 0);
     __decorate([
+        Column_1.Column("rowversion"),
+        __metadata("design:type", Buffer)
+    ], Post.prototype, "rowversion", void 0);
+    __decorate([
         Column_1.Column("date"),
         __metadata("design:type", Date)
     ], Post.prototype, "dateObj", void 0);
@@ -144,9 +148,25 @@ var Post = /** @class */ (function () {
         __metadata("design:type", Date)
     ], Post.prototype, "datetimeoffset", void 0);
     __decorate([
+        Column_1.Column("geometry"),
+        __metadata("design:type", String)
+    ], Post.prototype, "geometry1", void 0);
+    __decorate([
+        Column_1.Column("geometry"),
+        __metadata("design:type", String)
+    ], Post.prototype, "geometry2", void 0);
+    __decorate([
+        Column_1.Column("geometry"),
+        __metadata("design:type", String)
+    ], Post.prototype, "geometry3", void 0);
+    __decorate([
         Column_1.Column("simple-array"),
         __metadata("design:type", Array)
     ], Post.prototype, "simpleArray", void 0);
+    __decorate([
+        Column_1.Column("simple-json"),
+        __metadata("design:type", Object)
+    ], Post.prototype, "simpleJson", void 0);
     Post = __decorate([
         Entity_1.Entity()
     ], Post);

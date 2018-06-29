@@ -23,6 +23,16 @@ var Post = /** @class */ (function () {
         Column_1.Column(),
         __metadata("design:type", String)
     ], Post.prototype, "title", void 0);
+    __decorate([
+        Column_1.Column({
+            type: "date",
+            transformer: {
+                from: function (value) { return new Date(value); },
+                to: function (value) { return value.toISOString(); },
+            }
+        }),
+        __metadata("design:type", Date)
+    ], Post.prototype, "dateAdded", void 0);
     Post = __decorate([
         Entity_1.Entity()
     ], Post);

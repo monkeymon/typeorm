@@ -22,6 +22,7 @@ export declare class Post {
     characterVarying: string;
     text: string;
     citext: string;
+    hstore: string;
     bytea: Buffer;
     date: string;
     interval: any;
@@ -33,6 +34,7 @@ export declare class Post {
     timestamptz: Date;
     boolean: boolean;
     bool: boolean;
+    enum: string;
     point: string | Object;
     line: string;
     lseg: string | string[];
@@ -49,6 +51,16 @@ export declare class Post {
     uuid: string;
     xml: string;
     json: Object;
+    jsonb: Object;
+    int4range: string;
+    int8range: string;
+    numrange: string;
+    tsrange: string;
+    tstzrange: string;
+    daterange: string;
     array: number[];
     simpleArray: string[];
+    simpleJson: {
+        param: string;
+    };
 }

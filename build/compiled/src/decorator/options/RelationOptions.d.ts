@@ -1,25 +1,17 @@
 import { OnDeleteType } from "../../metadata/types/OnDeleteType";
+import { OnUpdateType } from "../../metadata/types/OnUpdateType";
 /**
  * Describes all relation's options.
  */
 export interface RelationOptions {
     /**
-     * If set to true then it means that related object can be allowed to be inserted / updated / removed to the db.
-     * This is option a shortcut if you would like to set cascadeInsert, cascadeUpdate and cascadeRemove to true.
+     * Sets cascades options for the given relation.
+     * If set to true then it means that related object can be allowed to be inserted or updated in the database.
+     * You can separately restrict cascades to insertion or updation using following syntax:
+     *
+     * cascade: ["insert", "update"] // include or exclude one of them
      */
-    cascadeAll?: boolean;
-    /**
-     * If set to true then it means that related object can be allowed to be inserted to the db.
-     */
-    cascadeInsert?: boolean;
-    /**
-     * If set to true then it means that related object can be allowed to be updated in the db.
-     */
-    cascadeUpdate?: boolean;
-    /**
-     * If set to true then it means that related object can be allowed to be remove from the db.
-     */
-    cascadeRemove?: boolean;
+    cascade?: boolean | ("insert" | "update" | "remove")[];
     /**
      * Indicates if relation column value can be nullable or not.
      */
@@ -28,6 +20,10 @@ export interface RelationOptions {
      * Database cascade action on delete.
      */
     onDelete?: OnDeleteType;
+    /**
+     * Database cascade action on update.
+     */
+    onUpdate?: OnUpdateType;
     /**
      * Indicates if this relation will be a primary key.
      * Can be used only for many-to-one and owner one-to-one relations.
@@ -45,4 +41,11 @@ export interface RelationOptions {
      * Eager flag cannot be set from both sides of relation - you can eager load only one side of the relationship.
      */
     eager?: boolean;
+    /**
+     * Indicates if persistence is enabled for the relation.
+     * By default its enabled, but if you want to avoid any changes in the relation to be reflected in the database you can disable it.
+     * If its disabled you can only change a relation from inverse side of a relation or using relation query builder functionality.
+     * This is useful for performance optimization since its disabling avoid multiple extra queries during entity save.
+     */
+    persistence?: boolean;
 }

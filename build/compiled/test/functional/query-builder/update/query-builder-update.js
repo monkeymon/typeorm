@@ -40,7 +40,9 @@ require("reflect-metadata");
 var chai_1 = require("chai");
 var test_utils_1 = require("../../../utils/test-utils");
 var User_1 = require("./entity/User");
+var MysqlDriver_1 = require("../../../../src/driver/mysql/MysqlDriver");
 var SqlServerDriver_1 = require("../../../../src/driver/sqlserver/SqlServerDriver");
+var LimitOnUpdateNotSupportedError_1 = require("../../../../src/error/LimitOnUpdateNotSupportedError");
 var Photo_1 = require("./entity/Photo");
 describe("query builder > update", function () {
     var connections;
@@ -49,8 +51,6 @@ describe("query builder > update", function () {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        schemaCreate: true,
-                        dropSchema: true,
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -138,6 +138,7 @@ describe("query builder > update", function () {
                     return [4 /*yield*/, qb
                             .update(User_1.User)
                             .set({ likesCount: function () { return qb.escape("likesCount") + " + 1"; } })
+                            // .set({ likesCount: 2 })
                             .where("likesCount = 1")
                             .execute()];
                 case 2:
@@ -223,6 +224,48 @@ describe("query builder > update", function () {
                         }
                     });
                     return [2 /*return*/];
+            }
+        });
+    }); })); });
+    it("should perform update with limit correctly", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
+        var user1, user2, user3, limitNum, nameToFind, loadedUsers;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    user1 = new User_1.User();
+                    user1.name = "Alex Messer";
+                    user2 = new User_1.User();
+                    user2.name = "Muhammad Mirzoev";
+                    user3 = new User_1.User();
+                    user3.name = "Brad Porter";
+                    return [4 /*yield*/, connection.manager.save([user1, user2, user3])];
+                case 1:
+                    _a.sent();
+                    limitNum = 2;
+                    nameToFind = "Dima Zotov";
+                    if (!(connection.driver instanceof MysqlDriver_1.MysqlDriver)) return [3 /*break*/, 4];
+                    return [4 /*yield*/, connection.createQueryBuilder()
+                            .update(User_1.User)
+                            .set({ name: nameToFind })
+                            .limit(limitNum)
+                            .execute()];
+                case 2:
+                    _a.sent();
+                    return [4 /*yield*/, connection.getRepository(User_1.User).find({ name: nameToFind })];
+                case 3:
+                    loadedUsers = _a.sent();
+                    chai_1.expect(loadedUsers).to.exist;
+                    loadedUsers.length.should.be.equal(limitNum);
+                    return [3 /*break*/, 6];
+                case 4: return [4 /*yield*/, connection.createQueryBuilder()
+                        .update(User_1.User)
+                        .set({ name: nameToFind })
+                        .limit(limitNum)
+                        .execute().should.be.rejectedWith(LimitOnUpdateNotSupportedError_1.LimitOnUpdateNotSupportedError)];
+                case 5:
+                    _a.sent();
+                    _a.label = 6;
+                case 6: return [2 /*return*/];
             }
         });
     }); })); });

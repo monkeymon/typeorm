@@ -35,6 +35,8 @@ export declare class EntityMetadataBuilder {
      * Creates column, relation, etc. metadatas for everything this entity metadata owns.
      */
     protected createEntityMetadata(tableArgs: TableMetadataArgs): EntityMetadata;
+    protected computeParentEntityMetadata(allEntityMetadatas: EntityMetadata[], entityMetadata: EntityMetadata): void;
+    protected computeEntityMetadataStep1(allEntityMetadatas: EntityMetadata[], entityMetadata: EntityMetadata): void;
     /**
      * Creates from the given embedded metadata args real embedded metadatas with its columns and relations,
      * and does the same for all its sub-embeddeds (goes recursively).
@@ -43,7 +45,7 @@ export declare class EntityMetadataBuilder {
     /**
      * Computes all entity metadata's computed properties, and all its sub-metadatas (relations, columns, embeds, etc).
      */
-    protected computeEntityMetadata(entityMetadata: EntityMetadata): void;
+    protected computeEntityMetadataStep2(entityMetadata: EntityMetadata): void;
     /**
      * Computes entity metadata's relations inverse side properties.
      */

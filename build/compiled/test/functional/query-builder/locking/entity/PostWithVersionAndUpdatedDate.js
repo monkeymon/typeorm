@@ -34,7 +34,7 @@ var PostWithVersionAndUpdatedDate = /** @class */ (function () {
         __metadata("design:type", Date)
     ], PostWithVersionAndUpdatedDate.prototype, "updateDate", void 0);
     PostWithVersionAndUpdatedDate = __decorate([
-        Entity_1.Entity()
+        Entity_1.Entity("post_with_v_ud")
     ], PostWithVersionAndUpdatedDate);
     return PostWithVersionAndUpdatedDate;
 }());

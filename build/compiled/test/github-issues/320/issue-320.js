@@ -47,8 +47,6 @@ describe("github issues > #320 Bug in getManyAndCount", function () {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
                         enabledDrivers: ["mysql"],
-                        schemaCreate: true,
-                        dropSchema: true,
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -73,7 +71,7 @@ describe("github issues > #320 Bug in getManyAndCount", function () {
                         "FROM tile " +
                         "INNER JOIN tile_activities_activity " +
                         "ON tile.id = tile_activities_activity.tileId " +
-                        "WHERE tile.id IN (:tiles) " +
+                        "WHERE tile.id IN (:...tiles) " +
                         "GROUP BY activityId)", "b", "b.activityId = activity.id")
                         .addSelect("b.matchedTileCount")
                         .addSelect("COUNT(activity.id) as tileCount")

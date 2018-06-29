@@ -30,15 +30,13 @@ var Image = /** @class */ (function () {
     ], Image.prototype, "post", void 0);
     __decorate([
         index_1.ManyToOne(function (type) { return Post_1.Post; }, function (post) { return post.secondaryImages; }, {
-            cascadeInsert: true
+            cascade: ["insert"]
         }),
         __metadata("design:type", Post_1.Post)
     ], Image.prototype, "secondaryPost", void 0);
     __decorate([
         index_1.OneToOne(function (type) { return ImageDetails_1.ImageDetails; }, function (details) { return details.image; }, {
-            cascadeInsert: true,
-            cascadeUpdate: true,
-            cascadeRemove: true
+            cascade: true
         }),
         JoinColumn_1.JoinColumn(),
         __metadata("design:type", ImageDetails_1.ImageDetails)

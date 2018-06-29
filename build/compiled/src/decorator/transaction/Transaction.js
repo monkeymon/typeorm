@@ -1,18 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var index_1 = require("../../index");
-/**
- * Wraps some method into the transaction.
- * Note, method result will return a promise if this decorator applied.
- * Note, all database operations in the wrapped method should be executed using entity managed passed as a first parameter
- * into the wrapped method.
- * If you want to control at what position in your method parameters entity manager should be injected,
- * then use @TransactionEntityManager() decorator.
- * If you want to use repositories instead of bare entity manager,
- * then use @TransactionRepository() decorator.
- */
-function Transaction(connectionName) {
-    if (connectionName === void 0) { connectionName = "default"; }
+var _1 = require("../../");
+function Transaction(connectionOrOptions) {
     return function (target, methodName, descriptor) {
         // save original method - we gonna need it
         var originalMethod = descriptor.value;
@@ -23,22 +12,30 @@ function Transaction(connectionName) {
             for (var _i = 0; _i < arguments.length; _i++) {
                 args[_i] = arguments[_i];
             }
-            return index_1.getConnection(connectionName)
-                .manager
-                .transaction(function (entityManager) {
+            var connectionName = "default";
+            var isolationLevel = undefined;
+            if (connectionOrOptions) {
+                if (typeof connectionOrOptions === "string") {
+                    connectionName = connectionOrOptions;
+                }
+                else {
+                    if (connectionOrOptions.hasOwnProperty("connectionName") && connectionOrOptions.connectionName) {
+                        connectionName = connectionOrOptions.connectionName;
+                    }
+                    if (connectionOrOptions.hasOwnProperty("isolation") && connectionOrOptions.isolationLevel) {
+                        isolationLevel = connectionOrOptions.isolationLevel;
+                    }
+                }
+            }
+            var transactionCallback = function (entityManager) {
                 var argsWithInjectedTransactionManagerAndRepositories;
-                // gets all @TransactionEntityManager() decorator usages for this method
-                var transactionEntityManagerMetadatas = index_1.getMetadataArgsStorage()
-                    .filterTransactionEntityManagers(target.constructor)
-                    .filter(function (transactionEntityManagerMetadata) {
-                    return transactionEntityManagerMetadata.methodName === methodName;
-                });
-                // gets all @TransactionRepository() decorator usages for this method
-                var transactionRepositoryMetadatas = index_1.getMetadataArgsStorage()
-                    .filterTransactionRepository(target.constructor)
-                    .filter(function (transactionRepositoryMetadata) {
-                    return transactionRepositoryMetadata.methodName === methodName;
-                });
+                // filter all @TransactionEntityManager() and @TransactionRepository() decorator usages for this method
+                var transactionEntityManagerMetadatas = _1.getMetadataArgsStorage()
+                    .filterTransactionEntityManagers(target.constructor, methodName)
+                    .reverse();
+                var transactionRepositoryMetadatas = _1.getMetadataArgsStorage()
+                    .filterTransactionRepository(target.constructor, methodName)
+                    .reverse();
                 // if there are @TransactionEntityManager() decorator usages the inject them
                 if (transactionEntityManagerMetadatas.length > 0) {
                     argsWithInjectedTransactionManagerAndRepositories = args.slice();
@@ -47,7 +44,7 @@ function Transaction(connectionName) {
                         argsWithInjectedTransactionManagerAndRepositories.splice(metadata.index, 0, entityManager);
                     });
                 }
-                else if (transactionRepositoryMetadatas.length === 0) {
+                else if (transactionRepositoryMetadatas.length === 0) { // otherwise if there's no transaction repositories in use, inject it as a first parameter
                     argsWithInjectedTransactionManagerAndRepositories = [entityManager].concat(args);
                 }
                 else {
@@ -58,13 +55,13 @@ function Transaction(connectionName) {
                     var repositoryInstance;
                     // detect type of the repository and get instance from transaction entity manager
                     switch (metadata.repositoryType) {
-                        case index_1.Repository:
+                        case _1.Repository:
                             repositoryInstance = entityManager.getRepository(metadata.entityType);
                             break;
-                        case index_1.MongoRepository:
+                        case _1.MongoRepository:
                             repositoryInstance = entityManager.getMongoRepository(metadata.entityType);
                             break;
-                        case index_1.TreeRepository:
+                        case _1.TreeRepository:
                             repositoryInstance = entityManager.getTreeRepository(metadata.entityType);
                             break;
                         // if not the TypeORM's ones, there must be custom repository classes
@@ -72,10 +69,16 @@ function Transaction(connectionName) {
                             repositoryInstance = entityManager.getCustomRepository(metadata.repositoryType);
                     }
                     // replace method param with injection of repository instance
-                    argsWithInjectedTransactionManagerAndRepositories.splice(metadata.index, 0, repositoryInstance);
+                    argsWithInjectedTransactionManagerAndRepositories.splice(metadata.index, 1, repositoryInstance);
                 });
                 return originalMethod.apply(_this, argsWithInjectedTransactionManagerAndRepositories);
-            });
+            };
+            if (isolationLevel) {
+                return _1.getConnection(connectionName).manager.transaction(isolationLevel, transactionCallback);
+            }
+            else {
+                return _1.getConnection(connectionName).manager.transaction(transactionCallback);
+            }
         };
     };
 }

@@ -41,9 +41,7 @@ var BaseObject = /** @class */ (function (_super) {
     ], BaseObject.prototype, "title", void 0);
     __decorate([
         ManyToOne_1.ManyToOne(function (type) { return PostAuthor_1.PostAuthor; }, function (post) { return post.posts; }, {
-            cascadeInsert: true,
-            cascadeUpdate: true,
-            cascadeRemove: true
+            cascade: true
         }),
         __metadata("design:type", PostAuthor_1.PostAuthor)
     ], BaseObject.prototype, "author", void 0);

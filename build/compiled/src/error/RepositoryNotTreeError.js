@@ -10,17 +10,27 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
+var index_1 = require("../index");
 /**
  * Thrown when repository for the given class is not found.
  */
 var RepositoryNotTreeError = /** @class */ (function (_super) {
     __extends(RepositoryNotTreeError, _super);
-    function RepositoryNotTreeError(entityClass) {
+    function RepositoryNotTreeError(target) {
         var _this = _super.call(this) || this;
         _this.name = "RepositoryNotTreeError";
-        var targetName = typeof entityClass === "function" && entityClass.name ? entityClass.name : entityClass;
-        _this.message = "Repository of the \"" + targetName + "\" class is not a TreeRepository. Try to use @ClosureEntity decorator instead of @Entity.";
-        _this.stack = new Error().stack;
+        Object.setPrototypeOf(_this, RepositoryNotTreeError.prototype);
+        var targetName;
+        if (target instanceof index_1.EntitySchema) {
+            targetName = target.options.name;
+        }
+        else if (typeof target === "function") {
+            targetName = target.name;
+        }
+        else {
+            targetName = target;
+        }
+        _this.message = "Repository of the \"" + targetName + "\" class is not a TreeRepository. Try to apply @Tree decorator on your entity.";
         return _this;
     }
     return RepositoryNotTreeError;

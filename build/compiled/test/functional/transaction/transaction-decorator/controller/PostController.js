@@ -104,6 +104,21 @@ var PostController = /** @class */ (function () {
             });
         });
     };
+    PostController.prototype.saveWithNonDefaultIsolation = function (post, category, entityManager) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, entityManager.save(post)];
+                    case 1:
+                        _a.sent();
+                        return [4 /*yield*/, entityManager.save(category)];
+                    case 2:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
     __decorate([
         Transaction_1.Transaction("mysql") // "mysql" is a connection name. you can not pass it if you are using default connection.
         ,
@@ -124,6 +139,14 @@ var PostController = /** @class */ (function () {
             CategoryRepository_1.CategoryRepository]),
         __metadata("design:returntype", Promise)
     ], PostController.prototype, "saveWithRepository", null);
+    __decorate([
+        Transaction_1.Transaction({ connectionName: "mysql", isolationLevel: "SERIALIZABLE" }) // "mysql" is a connection name. you can not pass it if you are using default connection.
+        ,
+        __param(2, TransactionManager_1.TransactionManager()),
+        __metadata("design:type", Function),
+        __metadata("design:paramtypes", [Post_1.Post, Category_1.Category, EntityManager_1.EntityManager]),
+        __metadata("design:returntype", Promise)
+    ], PostController.prototype, "saveWithNonDefaultIsolation", null);
     return PostController;
 }());
 exports.PostController = PostController;

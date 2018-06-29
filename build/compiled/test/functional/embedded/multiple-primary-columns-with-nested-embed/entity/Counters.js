@@ -32,7 +32,7 @@ var Counters = /** @class */ (function () {
         __metadata("design:type", Number)
     ], Counters.prototype, "favorites", void 0);
     __decorate([
-        Column_1.Column(function () { return Subcounters_1.Subcounters; }),
+        Column_1.Column(function () { return Subcounters_1.Subcounters; }, { prefix: "subcnt" }),
         __metadata("design:type", Subcounters_1.Subcounters)
     ], Counters.prototype, "subcounters", void 0);
     return Counters;

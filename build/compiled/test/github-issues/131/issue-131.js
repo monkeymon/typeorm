@@ -41,15 +41,13 @@ var test_utils_1 = require("../../utils/test-utils");
 var chai_1 = require("chai");
 var Student_1 = require("./entity/Student");
 var Employee_1 = require("./entity/Employee");
-describe.skip("github issues > #131 Error with single table inheritance query without additional conditions", function () {
+describe("github issues > #131 Error with single table inheritance query without additional conditions", function () {
     var connections;
     before(function () { return __awaiter(_this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        schemaCreate: true,
-                        dropSchema: true,
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }

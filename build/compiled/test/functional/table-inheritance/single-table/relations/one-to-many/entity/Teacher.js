@@ -19,7 +19,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var SingleEntityChild_1 = require("../../../../../../../src/decorator/entity/SingleEntityChild");
+var ChildEntity_1 = require("../../../../../../../src/decorator/entity/ChildEntity");
 var OneToMany_1 = require("../../../../../../../src/decorator/relations/OneToMany");
 var Employee_1 = require("./Employee");
 var Specialization_1 = require("./Specialization");
@@ -33,7 +33,7 @@ var Teacher = /** @class */ (function (_super) {
         __metadata("design:type", Array)
     ], Teacher.prototype, "specializations", void 0);
     Teacher = __decorate([
-        SingleEntityChild_1.SingleEntityChild()
+        ChildEntity_1.ChildEntity()
     ], Teacher);
     return Teacher;
 }(Employee_1.Employee));

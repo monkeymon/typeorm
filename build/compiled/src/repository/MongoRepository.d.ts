@@ -2,7 +2,7 @@ import { ObjectLiteral } from "../common/ObjectLiteral";
 import { Repository } from "./Repository";
 import { FindManyOptions } from "../find-options/FindManyOptions";
 import { FindOneOptions } from "../find-options/FindOneOptions";
-import { AggregationCursor, BulkWriteOpResultObject, Code, Collection, CollectionAggregationOptions, CollectionBluckWriteOptions, CollectionInsertManyOptions, CollectionInsertOneOptions, CollectionOptions, CollStats, CommandCursor, Cursor, DeleteWriteOpResultObject, FindAndModifyWriteOpResultObject, FindOneAndReplaceOption, GeoHaystackSearchOptions, GeoNearOptions, InsertOneWriteOpResult, InsertWriteOpResult, MapReduceOptions, MongoCountPreferences, MongodbIndexOptions, OrderedBulkOperation, ParallelCollectionScanOptions, ReadPreference, ReplaceOneOptions, UnorderedBulkOperation, UpdateWriteOpResult } from "../driver/mongodb/typings";
+import { AggregationCursor, BulkWriteOpResultObject, Code, Collection, CollectionAggregationOptions, CollectionBluckWriteOptions, CollectionInsertManyOptions, CollectionInsertOneOptions, CollectionOptions, CollStats, CommandCursor, Cursor, DeleteWriteOpResultObject, FindAndModifyWriteOpResultObject, FindOneAndReplaceOption, GeoHaystackSearchOptions, GeoNearOptions, InsertOneWriteOpResult, InsertWriteOpResult, MapReduceOptions, MongoCountPreferences, MongodbIndexOptions, ObjectID, OrderedBulkOperation, ParallelCollectionScanOptions, ReadPreference, ReplaceOneOptions, UnorderedBulkOperation, UpdateWriteOpResult } from "../driver/mongodb/typings";
 import { MongoEntityManager } from "../entity-manager/MongoEntityManager";
 import { QueryRunner } from "../query-runner/QueryRunner";
 import { SelectQueryBuilder } from "../query-builder/SelectQueryBuilder";
@@ -42,16 +42,11 @@ export declare class MongoRepository<Entity extends ObjectLiteral> extends Repos
     /**
      * Finds first entity that matches given conditions and/or find options.
      */
-    findOne(optionsOrConditions?: FindOneOptions<Entity> | Partial<Entity>): Promise<Entity | undefined>;
-    /**
-     * Finds entity by given id.
-     * Optionally find options or conditions can be applied.
-     */
-    findOneById(id: any, optionsOrConditions?: FindOneOptions<Entity> | Partial<Entity>): Promise<Entity | undefined>;
+    findOne(optionsOrConditions?: string | number | Date | ObjectID | FindOneOptions<Entity> | Partial<Entity>, maybeOptions?: FindOneOptions<Entity>): Promise<Entity | undefined>;
     /**
      * Creates a cursor for a query that can be used to iterate over results from MongoDB.
      */
-    createCursor(query?: ObjectLiteral): Cursor<Entity>;
+    createCursor<T = any>(query?: ObjectLiteral): Cursor<T>;
     /**
      * Creates a cursor for a query that can be used to iterate over results from MongoDB.
      * This returns modified version of cursor that transforms each result into Entity model.
@@ -60,7 +55,12 @@ export declare class MongoRepository<Entity extends ObjectLiteral> extends Repos
     /**
      * Execute an aggregation framework pipeline against the collection.
      */
-    aggregate(pipeline: ObjectLiteral[], options?: CollectionAggregationOptions): AggregationCursor<Entity>;
+    aggregate<R = any>(pipeline: ObjectLiteral[], options?: CollectionAggregationOptions): AggregationCursor<R>;
+    /**
+     * Execute an aggregation framework pipeline against the collection.
+     * This returns modified version of cursor that transforms each result into Entity model.
+     */
+    aggregateEntity(pipeline: ObjectLiteral[], options?: CollectionAggregationOptions): AggregationCursor<Entity>;
     /**
      * Perform a bulkWrite operation without a fluent API.
      */
@@ -68,7 +68,7 @@ export declare class MongoRepository<Entity extends ObjectLiteral> extends Repos
     /**
      * Count number of matching documents in the db to a query.
      */
-    count(query?: ObjectLiteral, options?: MongoCountPreferences): Promise<any>;
+    count(query?: ObjectLiteral, options?: MongoCountPreferences): Promise<number>;
     /**
      * Creates an index on the db and collection.
      */

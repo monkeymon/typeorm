@@ -19,7 +19,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var SingleEntityChild_1 = require("../../../../../../../src/decorator/entity/SingleEntityChild");
+var ChildEntity_1 = require("../../../../../../../src/decorator/entity/ChildEntity");
 var ManyToMany_1 = require("../../../../../../../src/decorator/relations/ManyToMany");
 var JoinTable_1 = require("../../../../../../../src/decorator/relations/JoinTable");
 var Employee_1 = require("./Employee");
@@ -35,7 +35,7 @@ var Accountant = /** @class */ (function (_super) {
         __metadata("design:type", Array)
     ], Accountant.prototype, "departments", void 0);
     Accountant = __decorate([
-        SingleEntityChild_1.SingleEntityChild()
+        ChildEntity_1.ChildEntity()
     ], Accountant);
     return Accountant;
 }(Employee_1.Employee));

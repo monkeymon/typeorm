@@ -49,8 +49,6 @@ describe("query builder > order-by", function () {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        schemaCreate: true,
-                        dropSchema: true,
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -108,7 +106,7 @@ describe("query builder > order-by", function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    if (!(connection.driver instanceof PostgresDriver_1.PostgresDriver))
+                    if (!(connection.driver instanceof PostgresDriver_1.PostgresDriver)) // NULLS FIRST / LAST only supported by postgres
                         return [2 /*return*/];
                     post1 = new Post_1.Post();
                     post1.myOrder = 1;
@@ -127,6 +125,38 @@ describe("query builder > order-by", function () {
                     return [4 /*yield*/, connection.manager
                             .createQueryBuilder(Post_1.Post, "post")
                             .addOrderBy("post.myOrder", "ASC", "NULLS LAST")
+                            .getOne()];
+                case 3:
+                    loadedPost2 = _a.sent();
+                    chai_1.expect(loadedPost2.myOrder).to.be.equal(1);
+                    return [2 /*return*/];
+            }
+        });
+    }); })); });
+    it("should be always in right order(custom order)", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
+        var post1, post2, loadedPost1, loadedPost2;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    if (!(connection.driver instanceof MysqlDriver_1.MysqlDriver)) // IS NULL / IS NOT NULL only supported by mysql
+                        return [2 /*return*/];
+                    post1 = new Post_1.Post();
+                    post1.myOrder = 1;
+                    post2 = new Post_1.Post();
+                    post2.myOrder = 2;
+                    return [4 /*yield*/, connection.manager.save([post1, post2])];
+                case 1:
+                    _a.sent();
+                    return [4 /*yield*/, connection.manager
+                            .createQueryBuilder(Post_1.Post, "post")
+                            .addOrderBy("post.myOrder IS NULL", "ASC")
+                            .getOne()];
+                case 2:
+                    loadedPost1 = _a.sent();
+                    chai_1.expect(loadedPost1.myOrder).to.be.equal(1);
+                    return [4 /*yield*/, connection.manager
+                            .createQueryBuilder(Post_1.Post, "post")
+                            .addOrderBy("post.myOrder IS NOT NULL", "ASC")
                             .getOne()];
                 case 3:
                     loadedPost2 = _a.sent();

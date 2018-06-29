@@ -51,8 +51,6 @@ describe("query builder > relation-id > many-to-many > embedded-with-multiple-pk
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        schemaCreate: true,
-                        dropSchema: true,
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -117,10 +115,10 @@ describe("query builder > relation-id > many-to-many > embedded-with-multiple-pk
                         post1.counters.comments = 2;
                         post1.counters.favorites = 3;
                         post1.counters.categories = [category1, category2];
-                        post1.counters.subcounters = new Subcounters_1.Subcounters();
-                        post1.counters.subcounters.version = 1;
-                        post1.counters.subcounters.watches = 2;
-                        post1.counters.subcounters.watchedUsers = [user1, user2];
+                        post1.counters.subcntrs = new Subcounters_1.Subcounters();
+                        post1.counters.subcntrs.version = 1;
+                        post1.counters.subcntrs.watches = 2;
+                        post1.counters.subcntrs.watchedUsers = [user1, user2];
                         return [4 /*yield*/, connection.manager.save(post1)];
                     case 8:
                         _a.sent();
@@ -133,17 +131,17 @@ describe("query builder > relation-id > many-to-many > embedded-with-multiple-pk
                         post2.counters.comments = 4;
                         post2.counters.favorites = 5;
                         post2.counters.categories = [category3, category4];
-                        post2.counters.subcounters = new Subcounters_1.Subcounters();
-                        post2.counters.subcounters.version = 1;
-                        post2.counters.subcounters.watches = 1;
-                        post2.counters.subcounters.watchedUsers = [user3];
+                        post2.counters.subcntrs = new Subcounters_1.Subcounters();
+                        post2.counters.subcntrs.version = 1;
+                        post2.counters.subcntrs.watches = 1;
+                        post2.counters.subcntrs.watchedUsers = [user3];
                         return [4 /*yield*/, connection.manager.save(post2)];
                     case 9:
                         _a.sent();
                         return [4 /*yield*/, connection.manager
                                 .createQueryBuilder(Post_1.Post, "post")
                                 .loadRelationIdAndMap("post.counters.categoryIds", "post.counters.categories")
-                                .loadRelationIdAndMap("post.counters.subcounters.watchedUserIds", "post.counters.subcounters.watchedUsers")
+                                .loadRelationIdAndMap("post.counters.subcntrs.watchedUserIds", "post.counters.subcntrs.watchedUsers")
                                 .orderBy("post.id")
                                 .getMany()];
                     case 10:
@@ -160,7 +158,7 @@ describe("query builder > relation-id > many-to-many > embedded-with-multiple-pk
                                     { id: 1, name: "cars" },
                                     { id: 2, name: "BMW" }
                                 ],
-                                subcounters: {
+                                subcntrs: {
                                     version: 1,
                                     watches: 2,
                                     watchedUserIds: [
@@ -182,7 +180,7 @@ describe("query builder > relation-id > many-to-many > embedded-with-multiple-pk
                                     { id: 3, name: "airplanes" },
                                     { id: 4, name: "Boeing" }
                                 ],
-                                subcounters: {
+                                subcntrs: {
                                     version: 1,
                                     watches: 1,
                                     watchedUserIds: [
@@ -194,10 +192,10 @@ describe("query builder > relation-id > many-to-many > embedded-with-multiple-pk
                         return [4 /*yield*/, connection.manager
                                 .createQueryBuilder(Post_1.Post, "post")
                                 .loadRelationIdAndMap("post.counters.categoryIds", "post.counters.categories")
-                                .loadRelationIdAndMap("post.counters.subcounters.watchedUserIds", "post.counters.subcounters.watchedUsers")
+                                .loadRelationIdAndMap("post.counters.subcntrs.watchedUserIds", "post.counters.subcntrs.watchedUsers")
                                 .where("post.id = :id", { id: 1 })
                                 .andWhere("post.counters.code = :code", { code: 111 })
-                                .andWhere("post.counters.subcounters.version = :version", { version: 1 })
+                                .andWhere("post.counters.subcntrs.version = :version", { version: 1 })
                                 .getOne()];
                     case 11:
                         loadedPost = _a.sent();
@@ -213,7 +211,7 @@ describe("query builder > relation-id > many-to-many > embedded-with-multiple-pk
                                     { id: 1, name: "cars" },
                                     { id: 2, name: "BMW" }
                                 ],
-                                subcounters: {
+                                subcntrs: {
                                     version: 1,
                                     watches: 2,
                                     watchedUserIds: [
@@ -242,9 +240,9 @@ describe("query builder > relation-id > many-to-many > embedded-with-multiple-pk
                         post1.counters.likes = 1;
                         post1.counters.comments = 2;
                         post1.counters.favorites = 3;
-                        post1.counters.subcounters = new Subcounters_1.Subcounters();
-                        post1.counters.subcounters.version = 1;
-                        post1.counters.subcounters.watches = 2;
+                        post1.counters.subcntrs = new Subcounters_1.Subcounters();
+                        post1.counters.subcntrs.version = 1;
+                        post1.counters.subcntrs.watches = 2;
                         return [4 /*yield*/, connection.manager.save(post1)];
                     case 1:
                         _a.sent();
@@ -256,9 +254,9 @@ describe("query builder > relation-id > many-to-many > embedded-with-multiple-pk
                         post2.counters.likes = 3;
                         post2.counters.comments = 4;
                         post2.counters.favorites = 5;
-                        post2.counters.subcounters = new Subcounters_1.Subcounters();
-                        post2.counters.subcounters.version = 1;
-                        post2.counters.subcounters.watches = 5;
+                        post2.counters.subcntrs = new Subcounters_1.Subcounters();
+                        post2.counters.subcntrs.version = 1;
+                        post2.counters.subcntrs.watches = 5;
                         return [4 /*yield*/, connection.manager.save(post2)];
                     case 2:
                         _a.sent();
@@ -270,9 +268,9 @@ describe("query builder > relation-id > many-to-many > embedded-with-multiple-pk
                         post3.counters.likes = 6;
                         post3.counters.comments = 7;
                         post3.counters.favorites = 8;
-                        post3.counters.subcounters = new Subcounters_1.Subcounters();
-                        post3.counters.subcounters.version = 2;
-                        post3.counters.subcounters.watches = 10;
+                        post3.counters.subcntrs = new Subcounters_1.Subcounters();
+                        post3.counters.subcntrs.version = 2;
+                        post3.counters.subcntrs.watches = 10;
                         return [4 /*yield*/, connection.manager.save(post3)];
                     case 3:
                         _a.sent();
@@ -284,9 +282,9 @@ describe("query builder > relation-id > many-to-many > embedded-with-multiple-pk
                         post4.counters.likes = 9;
                         post4.counters.comments = 10;
                         post4.counters.favorites = 11;
-                        post4.counters.subcounters = new Subcounters_1.Subcounters();
-                        post4.counters.subcounters.version = 3;
-                        post4.counters.subcounters.watches = 10;
+                        post4.counters.subcntrs = new Subcounters_1.Subcounters();
+                        post4.counters.subcntrs.version = 3;
+                        post4.counters.subcntrs.watches = 10;
                         return [4 /*yield*/, connection.manager.save(post4)];
                     case 4:
                         _a.sent();
@@ -327,12 +325,12 @@ describe("query builder > relation-id > many-to-many > embedded-with-multiple-pk
                         loadedCategories = _a.sent();
                         chai_1.expect(loadedCategories[0].postIds).to.not.be.empty;
                         chai_1.expect(loadedCategories[0].postIds.length).to.be.equal(2);
-                        chai_1.expect(loadedCategories[0].postIds[0]).to.be.eql({ id: 1, counters: { code: 111, subcounters: { version: 1 } } });
-                        chai_1.expect(loadedCategories[0].postIds[1]).to.be.eql({ id: 2, counters: { code: 222, subcounters: { version: 1 } } });
+                        chai_1.expect(loadedCategories[0].postIds[0]).to.be.eql({ id: 1, counters: { code: 111, subcntrs: { version: 1 } } });
+                        chai_1.expect(loadedCategories[0].postIds[1]).to.be.eql({ id: 2, counters: { code: 222, subcntrs: { version: 1 } } });
                         chai_1.expect(loadedCategories[1].postIds).to.not.be.empty;
                         chai_1.expect(loadedCategories[1].postIds.length).to.be.equal(2);
-                        chai_1.expect(loadedCategories[1].postIds[0]).to.be.eql({ id: 3, counters: { code: 333, subcounters: { version: 2 } } });
-                        chai_1.expect(loadedCategories[1].postIds[1]).to.be.eql({ id: 4, counters: { code: 444, subcounters: { version: 3 } } });
+                        chai_1.expect(loadedCategories[1].postIds[0]).to.be.eql({ id: 3, counters: { code: 333, subcntrs: { version: 2 } } });
+                        chai_1.expect(loadedCategories[1].postIds[1]).to.be.eql({ id: 4, counters: { code: 444, subcntrs: { version: 3 } } });
                         return [4 /*yield*/, connection.manager
                                 .createQueryBuilder(Category_1.Category, "category")
                                 .loadRelationIdAndMap("category.postIds", "category.posts")
@@ -343,8 +341,8 @@ describe("query builder > relation-id > many-to-many > embedded-with-multiple-pk
                         loadedCategory = _a.sent();
                         chai_1.expect(loadedCategory.postIds).to.not.be.empty;
                         chai_1.expect(loadedCategory.postIds.length).to.be.equal(2);
-                        chai_1.expect(loadedCategory.postIds[0]).to.be.eql({ id: 1, counters: { code: 111, subcounters: { version: 1 } } });
-                        chai_1.expect(loadedCategory.postIds[1]).to.be.eql({ id: 2, counters: { code: 222, subcounters: { version: 1 } } });
+                        chai_1.expect(loadedCategory.postIds[0]).to.be.eql({ id: 1, counters: { code: 111, subcntrs: { version: 1 } } });
+                        chai_1.expect(loadedCategory.postIds[1]).to.be.eql({ id: 2, counters: { code: 222, subcntrs: { version: 1 } } });
                         return [4 /*yield*/, connection.manager
                                 .createQueryBuilder(User_1.User, "user")
                                 .loadRelationIdAndMap("user.postIds", "user.posts")
@@ -354,12 +352,12 @@ describe("query builder > relation-id > many-to-many > embedded-with-multiple-pk
                         loadedUsers = _a.sent();
                         chai_1.expect(loadedUsers[0].postIds).to.not.be.empty;
                         chai_1.expect(loadedUsers[0].postIds.length).to.be.equal(2);
-                        chai_1.expect(loadedUsers[0].postIds[0]).to.be.eql({ id: 1, counters: { code: 111, subcounters: { version: 1 } } });
-                        chai_1.expect(loadedUsers[0].postIds[1]).to.be.eql({ id: 2, counters: { code: 222, subcounters: { version: 1 } } });
+                        chai_1.expect(loadedUsers[0].postIds[0]).to.be.eql({ id: 1, counters: { code: 111, subcntrs: { version: 1 } } });
+                        chai_1.expect(loadedUsers[0].postIds[1]).to.be.eql({ id: 2, counters: { code: 222, subcntrs: { version: 1 } } });
                         chai_1.expect(loadedUsers[1].postIds).to.not.be.empty;
                         chai_1.expect(loadedUsers[1].postIds.length).to.be.equal(2);
-                        chai_1.expect(loadedUsers[1].postIds[0]).to.be.eql({ id: 3, counters: { code: 333, subcounters: { version: 2 } } });
-                        chai_1.expect(loadedUsers[1].postIds[1]).to.be.eql({ id: 4, counters: { code: 444, subcounters: { version: 3 } } });
+                        chai_1.expect(loadedUsers[1].postIds[0]).to.be.eql({ id: 3, counters: { code: 333, subcntrs: { version: 2 } } });
+                        chai_1.expect(loadedUsers[1].postIds[1]).to.be.eql({ id: 4, counters: { code: 444, subcntrs: { version: 3 } } });
                         return [4 /*yield*/, connection.manager
                                 .createQueryBuilder(User_1.User, "user")
                                 .loadRelationIdAndMap("user.postIds", "user.posts")
@@ -370,8 +368,8 @@ describe("query builder > relation-id > many-to-many > embedded-with-multiple-pk
                         loadedUser = _a.sent();
                         chai_1.expect(loadedUser.postIds).to.not.be.empty;
                         chai_1.expect(loadedUser.postIds.length).to.be.equal(2);
-                        chai_1.expect(loadedUser.postIds[0]).to.be.eql({ id: 1, counters: { code: 111, subcounters: { version: 1 } } });
-                        chai_1.expect(loadedUser.postIds[1]).to.be.eql({ id: 2, counters: { code: 222, subcounters: { version: 1 } } });
+                        chai_1.expect(loadedUser.postIds[0]).to.be.eql({ id: 1, counters: { code: 111, subcntrs: { version: 1 } } });
+                        chai_1.expect(loadedUser.postIds[1]).to.be.eql({ id: 2, counters: { code: 222, subcntrs: { version: 1 } } });
                         return [2 /*return*/];
                 }
             });

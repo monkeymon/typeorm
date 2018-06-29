@@ -36,6 +36,7 @@ var JunctionEntityMetadataBuilder = /** @class */ (function () {
                 schema: joinTable.schema || relation.entityMetadata.schema,
             }
         });
+        entityMetadata.build();
         // create original side junction columns
         var junctionColumns = referencedColumns.map(function (referencedColumn) {
             var joinColumn = joinTable.joinColumns ? joinTable.joinColumns.find(function (joinColumnArgs) {
@@ -55,7 +56,14 @@ var JunctionEntityMetadataBuilder = /** @class */ (function () {
                     options: {
                         name: columnName,
                         length: referencedColumn.length,
+                        width: referencedColumn.width,
                         type: referencedColumn.type,
+                        precision: referencedColumn.precision,
+                        scale: referencedColumn.scale,
+                        charset: referencedColumn.charset,
+                        collation: referencedColumn.collation,
+                        zerofill: referencedColumn.zerofill,
+                        unsigned: referencedColumn.zerofill ? true : referencedColumn.unsigned,
                         nullable: false,
                         primary: true,
                     }
@@ -81,6 +89,12 @@ var JunctionEntityMetadataBuilder = /** @class */ (function () {
                     options: {
                         length: inverseReferencedColumn.length,
                         type: inverseReferencedColumn.type,
+                        precision: inverseReferencedColumn.precision,
+                        scale: inverseReferencedColumn.scale,
+                        charset: inverseReferencedColumn.charset,
+                        collation: inverseReferencedColumn.collation,
+                        zerofill: inverseReferencedColumn.zerofill,
+                        unsigned: inverseReferencedColumn.zerofill ? true : inverseReferencedColumn.unsigned,
                         name: columnName,
                         nullable: false,
                         primary: true,
@@ -100,13 +114,15 @@ var JunctionEntityMetadataBuilder = /** @class */ (function () {
                 entityMetadata: entityMetadata,
                 referencedEntityMetadata: relation.entityMetadata,
                 columns: junctionColumns,
-                referencedColumns: referencedColumns
+                referencedColumns: referencedColumns,
+                onDelete: "CASCADE"
             }),
             new ForeignKeyMetadata_1.ForeignKeyMetadata({
                 entityMetadata: entityMetadata,
                 referencedEntityMetadata: relation.inverseEntityMetadata,
                 columns: inverseJunctionColumns,
-                referencedColumns: inverseReferencedColumns
+                referencedColumns: inverseReferencedColumns,
+                onDelete: "CASCADE"
             }),
         ];
         // create junction table indices

@@ -19,7 +19,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var SingleEntityChild_1 = require("../../../../../../../src/decorator/entity/SingleEntityChild");
+var ChildEntity_1 = require("../../../../../../../src/decorator/entity/ChildEntity");
 var ManyToMany_1 = require("../../../../../../../src/decorator/relations/ManyToMany");
 var Person_1 = require("./Person");
 var Faculty_1 = require("./Faculty");
@@ -35,7 +35,7 @@ var Student = /** @class */ (function (_super) {
         __metadata("design:type", Array)
     ], Student.prototype, "faculties", void 0);
     Student = __decorate([
-        SingleEntityChild_1.SingleEntityChild()
+        ChildEntity_1.ChildEntity()
     ], Student);
     return Student;
 }(Person_1.Person));

@@ -2,6 +2,7 @@ import { ColumnMetadata } from "./ColumnMetadata";
 import { EntityMetadata } from "./EntityMetadata";
 import { NamingStrategyInterface } from "../naming-strategy/NamingStrategyInterface";
 import { OnDeleteType } from "./types/OnDeleteType";
+import { OnUpdateType } from "./types/OnUpdateType";
 /**
  * Contains all information about entity's foreign key.
  */
@@ -27,13 +28,13 @@ export declare class ForeignKeyMetadata {
      */
     onDelete?: OnDeleteType;
     /**
-     * Gets the table name to which this foreign key is applied.
+     * What to do with a relation on update of the row containing a foreign key.
      */
-    tableName: string;
+    onUpdate?: OnUpdateType;
     /**
      * Gets the table name to which this foreign key is referenced.
      */
-    referencedTableName: string;
+    referencedTablePath: string;
     /**
      * Gets foreign key name.
      */
@@ -53,6 +54,7 @@ export declare class ForeignKeyMetadata {
         columns: ColumnMetadata[];
         referencedColumns: ColumnMetadata[];
         onDelete?: OnDeleteType;
+        onUpdate?: OnUpdateType;
     });
     /**
      * Builds some depend foreign key properties.

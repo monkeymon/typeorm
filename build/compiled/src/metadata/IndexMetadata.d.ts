@@ -20,6 +20,20 @@ export declare class IndexMetadata {
      */
     isUnique: boolean;
     /**
+     * The SPATIAL modifier indexes the entire column and does not allow indexed columns to contain NULL values.
+     * Works only in MySQL.
+     */
+    isSpatial: boolean;
+    /**
+     * The FULLTEXT modifier indexes the entire column and does not allow prefixing.
+     * Works only in MySQL.
+     */
+    isFulltext: boolean;
+    /**
+     * Indicates if this index must synchronize with database index.
+     */
+    synchronize: boolean;
+    /**
      * If true, the index only references documents with the specified field.
      * These indexes use less space but behave differently in some situations (particularly sorts).
      * This option is only supported for mongodb database.
@@ -50,9 +64,9 @@ export declare class IndexMetadata {
      */
     name: string;
     /**
-     * Gets the table name on which index is applied.
+     * Index filter condition.
      */
-    tableName: string;
+    where?: string;
     /**
      * Map of column names with order set.
      * Used only by MongoDB driver.

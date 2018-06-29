@@ -27,7 +27,7 @@ var Post = /** @class */ (function () {
     ], Post.prototype, "title", void 0);
     __decorate([
         ManyToOne_1.ManyToOne(function () { return Category_1.Category; }, function (category) { return category.posts; }, {
-            cascadeInsert: true
+            cascade: ["insert"]
         }),
         __metadata("design:type", Promise)
     ], Post.prototype, "category", void 0);

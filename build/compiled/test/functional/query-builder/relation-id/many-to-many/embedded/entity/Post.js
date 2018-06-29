@@ -20,7 +20,7 @@ var Post = /** @class */ (function () {
         __metadata("design:type", String)
     ], Post.prototype, "title", void 0);
     __decorate([
-        Column_1.Column(function () { return Counters_1.Counters; }),
+        Column_1.Column(function () { return Counters_1.Counters; }, { prefix: "cnt" }),
         __metadata("design:type", Counters_1.Counters)
     ], Post.prototype, "counters", void 0);
     Post = __decorate([

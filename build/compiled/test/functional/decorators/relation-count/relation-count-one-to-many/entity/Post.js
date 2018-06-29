@@ -35,7 +35,7 @@ var Post = /** @class */ (function () {
         __metadata("design:type", Number)
     ], Post.prototype, "categoryCount", void 0);
     __decorate([
-        RelationCount_1.RelationCount(function (post) { return post.categories; }, "removedCategories", function (qb) { return qb.andWhere("removedCategories.isRemoved = :isRemoved", { isRemoved: true }); }),
+        RelationCount_1.RelationCount(function (post) { return post.categories; }, "rc", function (qb) { return qb.andWhere("rc.isRemoved = :isRemoved", { isRemoved: true }); }),
         __metadata("design:type", Number)
     ], Post.prototype, "removedCategoryCount", void 0);
     Post = __decorate([

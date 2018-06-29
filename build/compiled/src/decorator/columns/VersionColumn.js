@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var index_1 = require("../../index");
+var _1 = require("../../");
 /**
  * This column will store a number - version of the entity.
  * Every time your entity will be persisted, this number will be increased by one -
@@ -8,17 +8,12 @@ var index_1 = require("../../index");
  */
 function VersionColumn(options) {
     return function (object, propertyName) {
-        // if column options are not given then create a new empty options
-        if (!options)
-            options = {};
-        // create and register a new column metadata
-        var args = {
+        _1.getMetadataArgsStorage().columns.push({
             target: object.constructor,
             propertyName: propertyName,
             mode: "version",
-            options: options
-        };
-        index_1.getMetadataArgsStorage().columns.push(args);
+            options: options || {}
+        });
     };
 }
 exports.VersionColumn = VersionColumn;

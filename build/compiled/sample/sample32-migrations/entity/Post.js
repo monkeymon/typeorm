@@ -24,7 +24,7 @@ var Post = /** @class */ (function () {
     ], Post.prototype, "title", void 0);
     __decorate([
         index_1.ManyToOne(function (type) { return Author_1.Author; }, {
-            cascadeInsert: true
+            cascade: ["insert"]
         }),
         __metadata("design:type", Author_1.Author)
     ], Post.prototype, "author", void 0);

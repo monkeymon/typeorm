@@ -17,7 +17,7 @@ var Dog = /** @class */ (function () {
     function Dog() {
     }
     __decorate([
-        PrimaryColumn_1.PrimaryColumn({ unique: true }),
+        PrimaryColumn_1.PrimaryColumn(),
         __metadata("design:type", String)
     ], Dog.prototype, "DogID", void 0);
     __decorate([

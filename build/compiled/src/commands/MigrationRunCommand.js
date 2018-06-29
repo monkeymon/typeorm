@@ -44,7 +44,7 @@ var chalk = require("chalk");
  */
 var MigrationRunCommand = /** @class */ (function () {
     function MigrationRunCommand() {
-        this.command = "migrations:run";
+        this.command = "migration:run";
         this.describe = "Runs all pending migrations.";
     }
     MigrationRunCommand.prototype.builder = function (yargs) {
@@ -54,6 +54,11 @@ var MigrationRunCommand = /** @class */ (function () {
             default: "default",
             describe: "Name of the connection on which run a query."
         })
+            .option("transaction", {
+            alias: "t",
+            default: "default",
+            describe: "Indicates if transaction should be used or not for migration run. Enabled by default."
+        })
             .option("config", {
             alias: "f",
             default: "ormconfig",
@@ -62,7 +67,7 @@ var MigrationRunCommand = /** @class */ (function () {
     };
     MigrationRunCommand.prototype.handler = function (argv) {
         return __awaiter(this, void 0, void 0, function () {
-            var connection, connectionOptionsReader, connectionOptions, err_1;
+            var connection, connectionOptionsReader, connectionOptions, options, err_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -79,17 +84,22 @@ var MigrationRunCommand = /** @class */ (function () {
                             synchronize: false,
                             migrationsRun: false,
                             dropSchema: false,
-                            logging: ["schema"]
+                            logging: ["query", "error", "schema"]
                         });
                         return [4 /*yield*/, index_1.createConnection(connectionOptions)];
                     case 3:
                         connection = _a.sent();
-                        return [4 /*yield*/, connection.runMigrations()];
+                        options = {
+                            transaction: argv["t"] === "false" ? false : true
+                        };
+                        return [4 /*yield*/, connection.runMigrations(options)];
                     case 4:
                         _a.sent();
                         return [4 /*yield*/, connection.close()];
                     case 5:
                         _a.sent();
+                        // exit process if no errors
+                        process.exit(0);
                         return [3 /*break*/, 9];
                     case 6:
                         err_1 = _a.sent();

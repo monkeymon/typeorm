@@ -14,7 +14,7 @@ var Information = /** @class */ (function () {
     function Information() {
     }
     __decorate([
-        Column_1.Column(),
+        Column_1.Column({ name: "descr" }),
         __metadata("design:type", String)
     ], Information.prototype, "description", void 0);
     return Information;

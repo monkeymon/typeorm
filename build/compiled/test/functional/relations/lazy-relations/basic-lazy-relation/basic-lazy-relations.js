@@ -40,16 +40,17 @@ require("reflect-metadata");
 var test_utils_1 = require("../../../../utils/test-utils");
 var Post_1 = require("./entity/Post");
 var Category_1 = require("./entity/Category");
+var src_1 = require("../../../../../src");
 /**
  * Because lazy relations are overriding prototype is impossible to run these tests on multiple connections.
  * So we run tests only for mysql.
  */
 describe("basic-lazy-relations", function () {
-    var userSchema, profileSchema;
+    var UserSchema, ProfileSchema;
     var appRoot = require("app-root-path");
     var resourceDir = appRoot + "/test/functional/relations/lazy-relations/basic-lazy-relation/";
-    userSchema = require(resourceDir + "schema/user.json");
-    profileSchema = require(resourceDir + "schema/profile.json");
+    UserSchema = new src_1.EntitySchema(require(resourceDir + "schema/user.json"));
+    ProfileSchema = new src_1.EntitySchema(require(resourceDir + "schema/profile.json"));
     var connections;
     before(function () { return __awaiter(_this, void 0, void 0, function () {
         return __generator(this, function (_a) {
@@ -58,10 +59,9 @@ describe("basic-lazy-relations", function () {
                         entities: [
                             Post_1.Post,
                             Category_1.Category,
+                            UserSchema,
+                            ProfileSchema
                         ],
-                        entitySchemas: [userSchema, profileSchema],
-                        schemaCreate: true,
-                        dropSchema: true,
                         enabledDrivers: ["postgres"] // we can properly test lazy-relations only on one platform
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
@@ -101,20 +101,21 @@ describe("basic-lazy-relations", function () {
                     return [4 /*yield*/, postRepository.save(savedPost)];
                 case 4:
                     _a.sent();
-                    savedPost.categories.should.eventually.be.eql([savedCategory1, savedCategory2, savedCategory3]);
-                    return [4 /*yield*/, postRepository.findOneById(1)];
+                    return [4 /*yield*/, savedPost.categories.should.eventually.be.eql([savedCategory1, savedCategory2, savedCategory3])];
                 case 5:
+                    _a.sent();
+                    return [4 /*yield*/, postRepository.findOne(1)];
+                case 6:
                     post = (_a.sent());
                     post.title.should.be.equal("Hello post");
                     post.text.should.be.equal("This is post about post");
-                    post.categories.should.be.instanceOf(Promise);
                     return [4 /*yield*/, post.categories];
-                case 6:
+                case 7:
                     categories = _a.sent();
                     categories.length.should.be.equal(3);
-                    categories.should.contain(savedCategory1);
-                    categories.should.contain(savedCategory2);
-                    categories.should.contain(savedCategory3);
+                    categories.should.contain({ id: 1, name: "kids" });
+                    categories.should.contain({ id: 2, name: "people" });
+                    categories.should.contain({ id: 3, name: "animals" });
                     return [2 /*return*/];
             }
         });
@@ -150,26 +151,27 @@ describe("basic-lazy-relations", function () {
                     return [4 /*yield*/, postRepository.save(savedPost)];
                 case 4:
                     _a.sent();
-                    savedPost.twoSideCategories.should.eventually.be.eql([savedCategory1, savedCategory2, savedCategory3]);
-                    return [4 /*yield*/, postRepository.findOneById(1)];
+                    return [4 /*yield*/, savedPost.twoSideCategories.should.eventually.be.eql([savedCategory1, savedCategory2, savedCategory3])];
                 case 5:
+                    _a.sent();
+                    return [4 /*yield*/, postRepository.findOne(1)];
+                case 6:
                     post = (_a.sent());
                     post.title.should.be.equal("Hello post");
                     post.text.should.be.equal("This is post about post");
-                    post.twoSideCategories.should.be.instanceOf(Promise);
                     return [4 /*yield*/, post.twoSideCategories];
-                case 6:
+                case 7:
                     categories = _a.sent();
                     categories.length.should.be.equal(3);
-                    categories.should.contain(savedCategory1);
-                    categories.should.contain(savedCategory2);
-                    categories.should.contain(savedCategory3);
-                    return [4 /*yield*/, categoryRepository.findOneById(1)];
-                case 7:
+                    categories.should.contain({ id: 1, name: "kids" });
+                    categories.should.contain({ id: 2, name: "people" });
+                    categories.should.contain({ id: 3, name: "animals" });
+                    return [4 /*yield*/, categoryRepository.findOne(1)];
+                case 8:
                     category = (_a.sent());
                     category.name.should.be.equal("kids");
                     return [4 /*yield*/, category.twoSidePosts];
-                case 8:
+                case 9:
                     twoSidePosts = _a.sent();
                     likePost = new Post_1.Post();
                     likePost.id = 1;
@@ -199,15 +201,16 @@ describe("basic-lazy-relations", function () {
                     return [4 /*yield*/, userRepository.save(newUser)];
                 case 2:
                     _a.sent();
-                    newUser.profile.should.eventually.be.eql(profile);
-                    return [4 /*yield*/, userRepository.findOneById(1)];
+                    return [4 /*yield*/, newUser.profile.should.eventually.be.eql(profile)];
                 case 3:
+                    _a.sent();
+                    return [4 /*yield*/, userRepository.findOne(1)];
+                case 4:
                     loadedUser = _a.sent();
                     loadedUser.firstName.should.be.equal("Umed");
                     loadedUser.secondName.should.be.equal("San");
-                    loadedUser.profile.should.be.instanceOf(Promise);
                     return [4 /*yield*/, loadedUser.profile];
-                case 4:
+                case 5:
                     lazyLoadedProfile = _a.sent();
                     lazyLoadedProfile.country.should.be.equal("Japan");
                     return [2 /*return*/];
@@ -443,6 +446,81 @@ describe("basic-lazy-relations", function () {
                     loadedCategory = _a.sent();
                     return [4 /*yield*/, loadedCategory.onePost];
                 case 6:
+                    loadedPost = _a.sent();
+                    loadedPost.title.should.be.equal("post with great category");
+                    return [2 /*return*/];
+            }
+        });
+    }); })); });
+    it("should successfully load relations within a transaction", function () { return Promise.all(connections.filter(function (connection) { return (new Set(["mysql", "sqlite", "postgres"])).has(connection.options.type); }).map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
+        var _this = this;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, connection.manager.transaction(function (manager) { return __awaiter(_this, void 0, void 0, function () {
+                        var category, post, loadedCategory, loadedPost;
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0:
+                                    category = new Category_1.Category();
+                                    category.name = "category of great post";
+                                    return [4 /*yield*/, manager.save(category)];
+                                case 1:
+                                    _a.sent();
+                                    post = new Post_1.Post();
+                                    post.title = "post with great category";
+                                    post.text = "post with great category and great text";
+                                    post.oneCategory = Promise.resolve(category);
+                                    return [4 /*yield*/, manager.save(post)];
+                                case 2:
+                                    _a.sent();
+                                    return [4 /*yield*/, manager.findOne(Category_1.Category, { where: { name: "category of great post" } })];
+                                case 3:
+                                    loadedCategory = _a.sent();
+                                    return [4 /*yield*/, loadedCategory.onePost];
+                                case 4:
+                                    loadedPost = _a.sent();
+                                    loadedPost.title.should.be.equal("post with great category");
+                                    return [2 /*return*/];
+                            }
+                        });
+                    }); })];
+                case 1:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
+        });
+    }); })); });
+    it("should successfully load relations outside a transaction with entity generated within a transaction", function () { return Promise.all(connections.filter(function (connection) { return (new Set(["mysql", "sqlite", "postgres"])).has(connection.options.type); }).map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
+        var _this = this;
+        var loadedCategory, loadedPost;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, connection.manager.transaction(function (manager) { return __awaiter(_this, void 0, void 0, function () {
+                        var category, post;
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0:
+                                    category = new Category_1.Category();
+                                    category.name = "category of great post";
+                                    return [4 /*yield*/, manager.save(category)];
+                                case 1:
+                                    _a.sent();
+                                    post = new Post_1.Post();
+                                    post.title = "post with great category";
+                                    post.text = "post with great category and great text";
+                                    post.oneCategory = Promise.resolve(category);
+                                    return [4 /*yield*/, manager.save(post)];
+                                case 2:
+                                    _a.sent();
+                                    return [4 /*yield*/, manager.findOne(Category_1.Category, { where: { name: "category of great post" } })];
+                                case 3: return [2 /*return*/, _a.sent()];
+                            }
+                        });
+                    }); })];
+                case 1:
+                    loadedCategory = _a.sent();
+                    return [4 /*yield*/, loadedCategory.onePost];
+                case 2:
                     loadedPost = _a.sent();
                     loadedPost.title.should.be.equal("post with great category");
                     return [2 /*return*/];

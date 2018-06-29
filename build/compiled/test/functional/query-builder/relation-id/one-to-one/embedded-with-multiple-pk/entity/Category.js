@@ -11,7 +11,6 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var Entity_1 = require("../../../../../../../src/decorator/entity/Entity");
 var PrimaryColumn_1 = require("../../../../../../../src/decorator/columns/PrimaryColumn");
-var Index_1 = require("../../../../../../../src/decorator/Index");
 var Category = /** @class */ (function () {
     function Category() {
     }
@@ -24,8 +23,7 @@ var Category = /** @class */ (function () {
         __metadata("design:type", String)
     ], Category.prototype, "name", void 0);
     Category = __decorate([
-        Entity_1.Entity(),
-        Index_1.Index(["id", "name"])
+        Entity_1.Entity()
     ], Category);
     return Category;
 }());

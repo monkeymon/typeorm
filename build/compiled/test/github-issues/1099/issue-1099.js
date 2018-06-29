@@ -74,7 +74,11 @@ describe("github issues > #1099 BUG - QueryBuilder MySQL skip sql is wrong", fun
                     _i++;
                     return [3 /*break*/, 1];
                 case 4:
-                    qb = connection.getRepository(Animal_1.Animal).createQueryBuilder("a").leftJoinAndSelect("a.categories", "categories").skip(1);
+                    qb = connection.getRepository(Animal_1.Animal)
+                        .createQueryBuilder("a")
+                        .leftJoinAndSelect("a.categories", "categories")
+                        .orderBy("a.id")
+                        .skip(1);
                     if (!(connection.driver instanceof MysqlDriver_1.MysqlDriver)) return [3 /*break*/, 6];
                     return [4 /*yield*/, qb.getManyAndCount().should.be.rejectedWith(OffsetWithoutLimitNotSupportedError_1.OffsetWithoutLimitNotSupportedError)];
                 case 5:
