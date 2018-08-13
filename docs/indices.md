@@ -84,8 +84,7 @@ import {Entity, PrimaryGeneratedColumn, Column, Index} from "typeorm";
 
 @Entity()
 @Index(["firstName", "lastName"])
-@Index(["lastName", "middleName"])
-@Index(["firstName", "lastName", "middleName"], { unique: true })
+@Index(["firstName", "middleName", "lastName"], { unique: true })
 export class User {
     
     @PrimaryGeneratedColumn()
@@ -93,11 +92,44 @@ export class User {
     
     @Column()
     firstName: string;
-    
+
+    @Column()
+    middleName: string;
+
     @Column()
     lastName: string;
     
-    @Column()
-    middleName: string;
 }
 ```
+
+## Disabling synchronization
+
+TypeORM does not support some index options and definitions (e.g. `lower`, `pg_trgm`) because of lot of different database specifics and multiple
+issues with getting information about exist database indices and synchronizing them automatically. In such cases you should create index manually
+(for example in the migrations) with any index signature you want. To make TypeORM ignore these indices during synchronization use `synchronize: false`
+option on `@Index` decorator.
+
+For example, you create an index with case-insensitive comparison:
+
+```sql
+CREATE INDEX "POST_NAME_INDEX" ON "post" (lower("name"))
+```
+
+after that, you should disable synchronization for this index to avoid deletion on next schema sync:
+
+```ts
+@Entity()
+@Index("POST_NAME_INDEX", { synchronize: false })
+export class Post {
+
+    @PrimaryGeneratedColumn()
+    id: number;
+    
+    @Column()
+    name: string;
+
+}
+```
+
+
+
