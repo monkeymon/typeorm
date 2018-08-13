@@ -64,7 +64,7 @@ describe("decorators > embedded", function () {
                         return [4 /*yield*/, postRepository.save(post)];
                     case 1:
                         _a.sent();
-                        return [4 /*yield*/, postRepository.findOneById(1)];
+                        return [4 /*yield*/, postRepository.findOne(1)];
                     case 2:
                         loadedPost = (_a.sent());
                         loadedPost.id.should.be.equal(1);

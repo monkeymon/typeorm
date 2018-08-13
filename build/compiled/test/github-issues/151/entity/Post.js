@@ -28,12 +28,12 @@ var Post = /** @class */ (function () {
         __metadata("design:type", String)
     ], Post.prototype, "title", void 0);
     __decorate([
-        OneToOne_1.OneToOne(function (type) { return Category_1.Category; }, { cascadeAll: true }),
+        OneToOne_1.OneToOne(function (type) { return Category_1.Category; }, { cascade: true }),
         JoinColumn_1.JoinColumn(),
         __metadata("design:type", Object)
     ], Post.prototype, "category", void 0);
     __decorate([
-        OneToOne_1.OneToOne(function (type) { return PostMetadata_1.PostMetadata; }, function (metadata) { return metadata.post; }, { cascadeAll: true }),
+        OneToOne_1.OneToOne(function (type) { return PostMetadata_1.PostMetadata; }, function (metadata) { return metadata.post; }, { cascade: true }),
         JoinColumn_1.JoinColumn(),
         __metadata("design:type", Object)
     ], Post.prototype, "metadata", void 0);

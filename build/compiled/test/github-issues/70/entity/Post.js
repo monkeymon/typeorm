@@ -27,7 +27,7 @@ var Post = /** @class */ (function () {
     ], Post.prototype, "title", void 0);
     __decorate([
         OneToMany_1.OneToMany(function () { return Category_1.Category; }, function (category) { return category.post; }, {
-            cascadeInsert: true
+            cascade: ["insert"]
         }),
         __metadata("design:type", Array)
     ], Post.prototype, "categories", void 0);

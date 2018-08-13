@@ -24,6 +24,7 @@ export declare class Post {
     binary: Buffer;
     varbinary: Buffer;
     image: Buffer;
+    rowversion: Buffer;
     dateObj: Date;
     date: string;
     datetime: Date;
@@ -32,5 +33,11 @@ export declare class Post {
     timeObj: Date;
     time: string;
     datetimeoffset: Date;
+    geometry1: string;
+    geometry2: string;
+    geometry3: string;
     simpleArray: string[];
+    simpleJson: {
+        param: string;
+    };
 }

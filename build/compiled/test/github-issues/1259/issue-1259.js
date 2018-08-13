@@ -85,6 +85,7 @@ describe("github issues > #1259 Can't sort by fields added with addSelect", func
                             .addSelect("ts_rank_cd(to_tsvector(post.name), to_tsquery(:query))", "rank")
                             .leftJoinAndSelect("post.categories", "categories")
                             .orderBy("rank", "DESC")
+                            // .addOrderBy("post.id")
                             .take(5)
                             .setParameter("query", "timber")
                             .getMany()];

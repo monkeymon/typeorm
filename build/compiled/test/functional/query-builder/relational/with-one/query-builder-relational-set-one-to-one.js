@@ -48,7 +48,6 @@ describe("query builder > relational query builder > set operation > one-to-one 
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        dropSchema: true,
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -98,18 +97,18 @@ describe("query builder > relational query builder > set operation > one-to-one 
                             .set(image1)];
                 case 7:
                     _a.sent();
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 1, { relations: ["image"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 1, { relations: ["image"] })];
                 case 8:
                     loadedPost1 = _a.sent();
                     chai_1.expect(loadedPost1.image).to.be.eql({ id: 1, url: "image #1" });
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 2, { relations: ["image"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 2, { relations: ["image"] })];
                 case 9:
                     loadedPost2 = _a.sent();
-                    chai_1.expect(loadedPost2.image).to.be.undefined;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 3, { relations: ["image"] })];
+                    chai_1.expect(loadedPost2.image).to.be.null;
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 3, { relations: ["image"] })];
                 case 10:
                     loadedPost3 = _a.sent();
-                    chai_1.expect(loadedPost3.image).to.be.undefined;
+                    chai_1.expect(loadedPost3.image).to.be.null;
                     return [4 /*yield*/, connection
                             .createQueryBuilder()
                             .relation(Post_1.Post, "image")
@@ -117,18 +116,18 @@ describe("query builder > relational query builder > set operation > one-to-one 
                             .set(null)];
                 case 11:
                     _a.sent();
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 1, { relations: ["image"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 1, { relations: ["image"] })];
                 case 12:
                     loadedPost1 = _a.sent();
-                    chai_1.expect(loadedPost1.image).to.be.undefined;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 2, { relations: ["image"] })];
+                    chai_1.expect(loadedPost1.image).to.be.null;
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 2, { relations: ["image"] })];
                 case 13:
                     loadedPost2 = _a.sent();
-                    chai_1.expect(loadedPost2.image).to.be.undefined;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 3, { relations: ["image"] })];
+                    chai_1.expect(loadedPost2.image).to.be.null;
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 3, { relations: ["image"] })];
                 case 14:
                     loadedPost3 = _a.sent();
-                    chai_1.expect(loadedPost3.image).to.be.undefined;
+                    chai_1.expect(loadedPost3.image).to.be.null;
                     return [2 /*return*/];
             }
         });
@@ -175,18 +174,18 @@ describe("query builder > relational query builder > set operation > one-to-one 
                             .set(2)];
                 case 7:
                     _a.sent();
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 1, { relations: ["image"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 1, { relations: ["image"] })];
                 case 8:
                     loadedPost1 = _a.sent();
-                    chai_1.expect(loadedPost1.image).to.be.undefined;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 2, { relations: ["image"] })];
+                    chai_1.expect(loadedPost1.image).to.be.null;
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 2, { relations: ["image"] })];
                 case 9:
                     loadedPost2 = _a.sent();
                     chai_1.expect(loadedPost2.image).to.be.eql({ id: 2, url: "image #2" });
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 3, { relations: ["image"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 3, { relations: ["image"] })];
                 case 10:
                     loadedPost3 = _a.sent();
-                    chai_1.expect(loadedPost3.image).to.be.undefined;
+                    chai_1.expect(loadedPost3.image).to.be.null;
                     return [4 /*yield*/, connection
                             .createQueryBuilder()
                             .relation(Post_1.Post, "image")
@@ -194,18 +193,18 @@ describe("query builder > relational query builder > set operation > one-to-one 
                             .set(null)];
                 case 11:
                     _a.sent();
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 1, { relations: ["image"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 1, { relations: ["image"] })];
                 case 12:
                     loadedPost1 = _a.sent();
-                    chai_1.expect(loadedPost1.image).to.be.undefined;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 2, { relations: ["image"] })];
+                    chai_1.expect(loadedPost1.image).to.be.null;
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 2, { relations: ["image"] })];
                 case 13:
                     loadedPost2 = _a.sent();
-                    chai_1.expect(loadedPost2.image).to.be.undefined;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 3, { relations: ["image"] })];
+                    chai_1.expect(loadedPost2.image).to.be.null;
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 3, { relations: ["image"] })];
                 case 14:
                     loadedPost3 = _a.sent();
-                    chai_1.expect(loadedPost3.image).to.be.undefined;
+                    chai_1.expect(loadedPost3.image).to.be.null;
                     return [2 /*return*/];
             }
         });
@@ -252,15 +251,15 @@ describe("query builder > relational query builder > set operation > one-to-one 
                             .set({ id: 3 })];
                 case 7:
                     _a.sent();
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 1, { relations: ["image"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 1, { relations: ["image"] })];
                 case 8:
                     loadedPost1 = _a.sent();
-                    chai_1.expect(loadedPost1.image).to.be.undefined;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 2, { relations: ["image"] })];
+                    chai_1.expect(loadedPost1.image).to.be.null;
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 2, { relations: ["image"] })];
                 case 9:
                     loadedPost2 = _a.sent();
-                    chai_1.expect(loadedPost2.image).to.be.undefined;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 3, { relations: ["image"] })];
+                    chai_1.expect(loadedPost2.image).to.be.null;
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 3, { relations: ["image"] })];
                 case 10:
                     loadedPost3 = _a.sent();
                     chai_1.expect(loadedPost3.image).to.be.eql({ id: 3, url: "image #3" });
@@ -271,24 +270,24 @@ describe("query builder > relational query builder > set operation > one-to-one 
                             .set(null)];
                 case 11:
                     _a.sent();
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 1, { relations: ["image"] })];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 1, { relations: ["image"] })];
                 case 12:
                     loadedPost1 = _a.sent();
-                    chai_1.expect(loadedPost1.image).to.be.undefined;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 2, { relations: ["image"] })];
+                    chai_1.expect(loadedPost1.image).to.be.null;
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 2, { relations: ["image"] })];
                 case 13:
                     loadedPost2 = _a.sent();
-                    chai_1.expect(loadedPost2.image).to.be.undefined;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 3, { relations: ["image"] })];
+                    chai_1.expect(loadedPost2.image).to.be.null;
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 3, { relations: ["image"] })];
                 case 14:
                     loadedPost3 = _a.sent();
-                    chai_1.expect(loadedPost3.image).to.be.undefined;
+                    chai_1.expect(loadedPost3.image).to.be.null;
                     return [2 /*return*/];
             }
         });
     }); })); });
-    it("should set entity relation of a multiple entities", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
-        var image1, image2, image3, post1, post2, post3, loadedPost1, loadedPost2, loadedPost3;
+    it("should raise error when setting entity relation of a multiple entities", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
+        var image1, image2, image3, post1, post2, post3, error, e_1, loadedPost1, loadedPost2, loadedPost3;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -322,44 +321,36 @@ describe("query builder > relational query builder > set operation > one-to-one 
                     return [4 /*yield*/, connection.manager.save(post3)];
                 case 6:
                     _a.sent();
+                    error = null;
+                    _a.label = 7;
+                case 7:
+                    _a.trys.push([7, 9, , 10]);
                     return [4 /*yield*/, connection
                             .createQueryBuilder()
                             .relation(Post_1.Post, "image")
                             .of([{ id: 1 }, { id: 3 }])
                             .set({ id: 3 })];
-                case 7:
-                    _a.sent();
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 1, { relations: ["image"] })];
                 case 8:
-                    loadedPost1 = _a.sent();
-                    chai_1.expect(loadedPost1.image).to.be.eql({ id: 3, url: "image #3" });
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 2, { relations: ["image"] })];
-                case 9:
-                    loadedPost2 = _a.sent();
-                    chai_1.expect(loadedPost2.image).to.be.undefined;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 3, { relations: ["image"] })];
-                case 10:
-                    loadedPost3 = _a.sent();
-                    chai_1.expect(loadedPost3.image).to.be.eql({ id: 3, url: "image #3" });
-                    return [4 /*yield*/, connection
-                            .createQueryBuilder()
-                            .relation(Post_1.Post, "image")
-                            .of([{ id: 1 }, { id: 3 }])
-                            .set(null)];
-                case 11:
                     _a.sent();
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 1, { relations: ["image"] })];
-                case 12:
+                    return [3 /*break*/, 10];
+                case 9:
+                    e_1 = _a.sent();
+                    error = e_1;
+                    return [3 /*break*/, 10];
+                case 10:
+                    chai_1.expect(error).to.be.instanceof(Error);
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 1, { relations: ["image"] })];
+                case 11:
                     loadedPost1 = _a.sent();
-                    chai_1.expect(loadedPost1.image).to.be.undefined;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 2, { relations: ["image"] })];
-                case 13:
+                    chai_1.expect(loadedPost1.image).to.be.null;
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 2, { relations: ["image"] })];
+                case 12:
                     loadedPost2 = _a.sent();
-                    chai_1.expect(loadedPost2.image).to.be.undefined;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 3, { relations: ["image"] })];
-                case 14:
+                    chai_1.expect(loadedPost2.image).to.be.null;
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 3, { relations: ["image"] })];
+                case 13:
                     loadedPost3 = _a.sent();
-                    chai_1.expect(loadedPost3.image).to.be.undefined;
+                    chai_1.expect(loadedPost3.image).to.be.null;
                     return [2 /*return*/];
             }
         });

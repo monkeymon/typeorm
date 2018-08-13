@@ -63,9 +63,9 @@ describe("github issues > #1034 Issue using setter with promises", function () {
                 case 0:
                     users = [];
                     user = new User_1.User();
-                    user.setId(1);
+                    user.setId("1");
                     circle = new Circle_1.Circle();
-                    circle.setId(1);
+                    circle.setId("1");
                     // Entities persistance
                     return [4 /*yield*/, connection.manager.save(user)];
                 case 1:
@@ -75,7 +75,7 @@ describe("github issues > #1034 Issue using setter with promises", function () {
                 case 2:
                     _c.sent();
                     users.push(user);
-                    return [4 /*yield*/, connection.manager.findOneById(Circle_1.Circle, circle.getId())];
+                    return [4 /*yield*/, connection.manager.findOne(Circle_1.Circle, circle.getId())];
                 case 3:
                     circleFromDB = _c.sent();
                     chai_1.expect(circleFromDB).is.not.undefined;

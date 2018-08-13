@@ -51,8 +51,6 @@ describe("query builder > sub-query", function () {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        schemaCreate: true,
-                        dropSchema: true,
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -251,7 +249,7 @@ describe("query builder > sub-query", function () {
                     userQb = _a.sent();
                     return [4 /*yield*/, connection
                             .createQueryBuilder()
-                            .select("usr.name", "name")
+                            .select(connection.driver.escape("usr") + "." + connection.driver.escape("name"), "name")
                             .from("(" + userQb.getQuery() + ")", "usr")
                             .setParameters(userQb.getParameters())
                             .getRawMany()];
@@ -280,7 +278,7 @@ describe("query builder > sub-query", function () {
                     userQb = _a.sent();
                     return [4 /*yield*/, connection
                             .createQueryBuilder()
-                            .select("usr.name", "name")
+                            .select(connection.driver.escape("usr") + "." + connection.driver.escape("name"), "name")
                             .from(function (subQuery) {
                             return subQuery
                                 .select("usr.name", "name")
@@ -314,7 +312,7 @@ describe("query builder > sub-query", function () {
                     userQb = _a.sent();
                     return [4 /*yield*/, connection
                             .createQueryBuilder()
-                            .select("usr.name", "name")
+                            .select(connection.driver.escape("usr") + "." + connection.driver.escape("name"), "name")
                             .from(function (subQuery) {
                             return subQuery
                                 .select("usr.name", "name")
@@ -350,7 +348,7 @@ describe("query builder > sub-query", function () {
                                 .from(User_1.User, "usr")
                                 .where("usr.registered = :registered", { registered: true });
                         }, "usr")
-                            .where("post.title = usr.name")
+                            .where(connection.driver.escape("post") + "." + connection.driver.escape("title") + " = " + connection.driver.escape("usr") + "." + connection.driver.escape("name"))
                             .orderBy("post.id")
                             .getMany()];
                 case 2:
@@ -441,14 +439,14 @@ describe("query builder > sub-query", function () {
                     return [4 /*yield*/, connection
                             .getRepository(Post_1.Post)
                             .createQueryBuilder("post")
-                            .innerJoin("post.categories", "category", "category.name IN (" + subQuery + ")")
+                            .innerJoin("post.categories", "category", connection.driver.escape("category") + "." + connection.driver.escape("name") + " IN (" + subQuery + ")")
                             .orderBy("post.id")
                             .getMany()];
                 case 2:
                     posts = _a.sent();
                     posts.should.be.eql([
-                        { id: 1, title: "Alex Messer", categories: [] },
-                        { id: 2, title: "Dima Zotov", categories: [] },
+                        { id: 1, title: "Alex Messer" },
+                        { id: 2, title: "Dima Zotov" },
                     ]);
                     return [2 /*return*/];
             }
@@ -471,7 +469,7 @@ describe("query builder > sub-query", function () {
                             .createQueryBuilder("post")
                             .innerJoin(function (subQuery) {
                             return subQuery.select().from("category", "category");
-                        }, "category", "category.name IN (" + joinConditionSubQuery + ")")
+                        }, "category", connection.driver.escape("category") + "." + connection.driver.escape("name") + " IN (" + joinConditionSubQuery + ")")
                             .orderBy("post.id")
                             .getMany()];
                 case 2:
@@ -505,7 +503,7 @@ describe("query builder > sub-query", function () {
                     return [4 /*yield*/, connection
                             .getRepository(Post_1.Post)
                             .createQueryBuilder("post")
-                            .innerJoin("(" + joinSubQuery + ")", "category", "category.name IN (" + joinConditionSubQuery + ")")
+                            .innerJoin("(" + joinSubQuery + ")", "category", connection.driver.escape("category") + "." + connection.driver.escape("name") + " IN (" + joinConditionSubQuery + ")")
                             .orderBy("post.id")
                             .getMany()];
                 case 2:

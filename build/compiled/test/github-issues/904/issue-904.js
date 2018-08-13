@@ -46,7 +46,6 @@ describe("github issues > #904 Using closure tables without @TreeLevelColumn wil
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        dropSchema: true,
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -72,12 +71,8 @@ describe("github issues > #904 Using closure tables without @TreeLevelColumn wil
                     c12.name = "c12";
                     c11.parentCategory = c1;
                     c12.parentCategory = c1;
-                    // todo: this case is not working:
-                    // c1.childCategories = [c11, c12];
                     return [4 /*yield*/, categoryRepository.save(a1)];
                 case 1:
-                    // todo: this case is not working:
-                    // c1.childCategories = [c11, c12];
                     _a.sent();
                     return [4 /*yield*/, categoryRepository.save(b1)];
                 case 2:

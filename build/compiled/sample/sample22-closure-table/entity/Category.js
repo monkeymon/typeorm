@@ -11,9 +11,10 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var index_1 = require("../../../src/index");
 var TreeLevelColumn_1 = require("../../../src/decorator/tree/TreeLevelColumn");
-var ClosureEntity_1 = require("../../../src/decorator/entity/ClosureEntity");
 var TreeParent_1 = require("../../../src/decorator/tree/TreeParent");
 var TreeChildren_1 = require("../../../src/decorator/tree/TreeChildren");
+var Tree_1 = require("../../../src/decorator/tree/Tree");
+var Entity_1 = require("../../../src/decorator/entity/Entity");
 var Category = /** @class */ (function () {
     function Category() {
     }
@@ -30,7 +31,7 @@ var Category = /** @class */ (function () {
         __metadata("design:type", Category)
     ], Category.prototype, "parentCategory", void 0);
     __decorate([
-        TreeChildren_1.TreeChildren({ cascadeInsert: true, cascadeUpdate: true }),
+        TreeChildren_1.TreeChildren({ cascade: true }),
         __metadata("design:type", Array)
     ], Category.prototype, "childCategories", void 0);
     __decorate([
@@ -38,7 +39,8 @@ var Category = /** @class */ (function () {
         __metadata("design:type", Number)
     ], Category.prototype, "level", void 0);
     Category = __decorate([
-        ClosureEntity_1.ClosureEntity("sample22_category")
+        Entity_1.Entity("sample22_category"),
+        Tree_1.Tree("closure-table")
     ], Category);
     return Category;
 }());

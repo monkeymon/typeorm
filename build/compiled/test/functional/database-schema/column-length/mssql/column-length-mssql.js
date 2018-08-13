@@ -48,8 +48,6 @@ describe("database schema > column length > mssql", function () {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [Post_1.Post],
                         enabledDrivers: ["mssql"],
-                        schemaCreate: true,
-                        dropSchema: true,
                     })];
                 case 1:
                     connections = _a.sent();
@@ -93,7 +91,7 @@ describe("database schema > column length > mssql", function () {
                     metadata.findColumnWithPropertyName("nvarchar").length = "100";
                     metadata.findColumnWithPropertyName("binary").length = "100";
                     metadata.findColumnWithPropertyName("varbinary").length = "100";
-                    return [4 /*yield*/, connection.synchronize(false)];
+                    return [4 /*yield*/, connection.synchronize()];
                 case 1:
                     _a.sent();
                     queryRunner = connection.createQueryRunner();
@@ -122,7 +120,7 @@ describe("database schema > column length > mssql", function () {
                     metadata.findColumnWithPropertyName("varchar").length = "MAX";
                     metadata.findColumnWithPropertyName("nvarchar").length = "MAX";
                     metadata.findColumnWithPropertyName("varbinary").length = "MAX";
-                    return [4 /*yield*/, connection.synchronize(false)];
+                    return [4 /*yield*/, connection.synchronize()];
                 case 1:
                     _a.sent();
                     queryRunner = connection.createQueryRunner();

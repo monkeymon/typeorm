@@ -38,17 +38,14 @@ var Post = /** @class */ (function () {
     ], Post.prototype, "text", void 0);
     __decorate([
         index_1.OneToOne(function (type) { return PostDetails_1.PostDetails; }, function (details) { return details.post; }, {
-            cascadeInsert: true,
-            cascadeUpdate: true,
-            cascadeRemove: true
+            cascade: true
         }),
         JoinColumn_1.JoinColumn(),
         __metadata("design:type", PostDetails_1.PostDetails)
     ], Post.prototype, "details", void 0);
     __decorate([
         index_1.OneToMany(function (type) { return Image_1.Image; }, function (image) { return image.post; }, {
-            cascadeInsert: true,
-            cascadeUpdate: true
+            cascade: true
         }),
         __metadata("design:type", Array)
     ], Post.prototype, "images", void 0);
@@ -58,8 +55,7 @@ var Post = /** @class */ (function () {
     ], Post.prototype, "secondaryImages", void 0);
     __decorate([
         index_1.ManyToOne(function (type) { return Cover_1.Cover; }, function (cover) { return cover.posts; }, {
-            cascadeInsert: true,
-            cascadeRemove: true
+            cascade: ["insert"]
         }),
         JoinColumn_1.JoinColumn({ name: "coverId" }),
         __metadata("design:type", Cover_1.Cover)
@@ -72,8 +68,7 @@ var Post = /** @class */ (function () {
     ], Post.prototype, "coverId", void 0);
     __decorate([
         index_1.ManyToMany(function (type) { return Category_1.Category; }, function (category) { return category.posts; }, {
-            cascadeInsert: true,
-            cascadeUpdate: true
+            cascade: true
         }),
         JoinTable_1.JoinTable(),
         __metadata("design:type", Array)

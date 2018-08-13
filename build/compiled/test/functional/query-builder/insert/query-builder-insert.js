@@ -43,6 +43,7 @@ var User_1 = require("./entity/User");
 var SqlServerDriver_1 = require("../../../../src/driver/sqlserver/SqlServerDriver");
 var Photo_1 = require("./entity/Photo");
 var AbstractSqliteDriver_1 = require("../../../../src/driver/sqlite-abstract/AbstractSqliteDriver");
+var OracleDriver_1 = require("../../../../src/driver/oracle/OracleDriver");
 describe("query builder > insert", function () {
     var connections;
     before(function () { return __awaiter(_this, void 0, void 0, function () {
@@ -81,6 +82,33 @@ describe("query builder > insert", function () {
                             .execute()];
                 case 2:
                     _a.sent();
+                    return [4 /*yield*/, connection.getRepository(User_1.User)
+                            .createQueryBuilder("user")
+                            .insert()
+                            .values({ name: "Muhammad Mirzoev" })
+                            .execute()];
+                case 3:
+                    _a.sent();
+                    return [4 /*yield*/, connection.getRepository(User_1.User).find()];
+                case 4:
+                    users = _a.sent();
+                    users.should.be.eql([
+                        { id: 1, name: "Alex Messer" },
+                        { id: 2, name: "Dima Zotov" },
+                        { id: 3, name: "Muhammad Mirzoev" }
+                    ]);
+                    return [2 /*return*/];
+            }
+        });
+    }); })); });
+    it("should perform bulk insertion correctly", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
+        var users;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    // it is skipped for Oracle because it does not support bulk insertion
+                    if (connection.driver instanceof OracleDriver_1.OracleDriver)
+                        return [2 /*return*/];
                     return [4 /*yield*/, connection.createQueryBuilder()
                             .insert()
                             .into(User_1.User)
@@ -90,25 +118,15 @@ describe("query builder > insert", function () {
                             { name: "Bakhodur Kandikov" },
                         ])
                             .execute()];
-                case 3:
-                    _a.sent();
-                    return [4 /*yield*/, connection.getRepository(User_1.User)
-                            .createQueryBuilder("user")
-                            .insert()
-                            .values({ name: "Muhammad Mirzoev" })
-                            .execute()];
-                case 4:
+                case 1:
                     _a.sent();
                     return [4 /*yield*/, connection.getRepository(User_1.User).find()];
-                case 5:
+                case 2:
                     users = _a.sent();
                     users.should.be.eql([
-                        { id: 1, name: "Alex Messer" },
-                        { id: 2, name: "Dima Zotov" },
-                        { id: 3, name: "Umed Khudoiberdiev" },
-                        { id: 4, name: "Bakhrom Baubekov" },
-                        { id: 5, name: "Bakhodur Kandikov" },
-                        { id: 6, name: "Muhammad Mirzoev" },
+                        { id: 1, name: "Umed Khudoiberdiev" },
+                        { id: 2, name: "Bakhrom Baubekov" },
+                        { id: 3, name: "Bakhodur Kandikov" }
                     ]);
                     return [2 /*return*/];
             }
@@ -141,7 +159,9 @@ describe("query builder > insert", function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    if (connection.driver instanceof AbstractSqliteDriver_1.AbstractSqliteDriver)
+                    // this test is skipped for sqlite based drivers because it does not support DEFAULT values in insertions,
+                    // also it is skipped for Oracle because it does not support bulk insertion
+                    if (connection.driver instanceof AbstractSqliteDriver_1.AbstractSqliteDriver || connection.driver instanceof OracleDriver_1.OracleDriver)
                         return [2 /*return*/];
                     return [4 /*yield*/, connection
                             .createQueryBuilder()

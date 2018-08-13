@@ -72,7 +72,7 @@ index_1.createConnection(options).then(function (connection) {
         return postRepository.save(entity);
     })
         .then(function (entity) {
-        return postRepository.findOneById(entity.id);
+        return postRepository.findOne(entity.id);
     })
         .then(function (entity) {
         console.log("Entity is loaded: ", entity);

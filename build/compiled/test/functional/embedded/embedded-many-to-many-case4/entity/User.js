@@ -14,7 +14,6 @@ var Entity_1 = require("../../../../../src/decorator/entity/Entity");
 var ManyToMany_1 = require("../../../../../src/decorator/relations/ManyToMany");
 var Post_1 = require("./Post");
 var PrimaryColumn_1 = require("../../../../../src/decorator/columns/PrimaryColumn");
-var Index_1 = require("../../../../../src/decorator/Index");
 var User = /** @class */ (function () {
     function User() {
     }
@@ -35,8 +34,7 @@ var User = /** @class */ (function () {
         __metadata("design:type", Array)
     ], User.prototype, "likedPosts", void 0);
     User = __decorate([
-        Entity_1.Entity(),
-        Index_1.Index(["id", "personId"])
+        Entity_1.Entity()
     ], User);
     return User;
 }());

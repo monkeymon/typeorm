@@ -6,6 +6,6 @@ export declare class Counters {
     comments: number;
     favorites: number;
     categories: Category[];
-    subcounters: Subcounters;
+    subcntrs: Subcounters;
     categoryIds: number[];
 }

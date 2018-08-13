@@ -43,6 +43,7 @@ var DateUtils_1 = require("../../util/DateUtils");
 var PlatformTools_1 = require("../../platform/PlatformTools");
 var RdbmsSchemaBuilder_1 = require("../../schema-builder/RdbmsSchemaBuilder");
 var MssqlParameter_1 = require("./MssqlParameter");
+var OrmUtils_1 = require("../../util/OrmUtils");
 /**
  * Organizes communication with SQL Server DBMS.
  */
@@ -70,10 +71,10 @@ var SqlServerDriver = /** @class */ (function () {
          * @see https://docs.microsoft.com/en-us/sql/t-sql/data-types/data-types-transact-sql
          */
         this.supportedDataTypes = [
+            "int",
             "bigint",
             "bit",
             "decimal",
-            "int",
             "money",
             "numeric",
             "smallint",
@@ -88,21 +89,29 @@ var SqlServerDriver = /** @class */ (function () {
             "smalldatetime",
             "time",
             "char",
-            "text",
             "varchar",
+            "text",
             "nchar",
-            "ntext",
             "nvarchar",
+            "ntext",
             "binary",
             "image",
             "varbinary",
-            "cursor",
             "hierarchyid",
             "sql_variant",
-            "table",
             "timestamp",
             "uniqueidentifier",
-            "xml"
+            "xml",
+            "geometry",
+            "geography",
+            "rowversion"
+        ];
+        /**
+         * Gets list of spatial column data types.
+         */
+        this.spatialTypes = [
+            "geometry",
+            "geography"
         ];
         /**
          * Gets list of column data types that support length by a driver.
@@ -116,6 +125,23 @@ var SqlServerDriver = /** @class */ (function () {
             "varbinary"
         ];
         /**
+         * Gets list of column data types that support precision by a driver.
+         */
+        this.withPrecisionColumnTypes = [
+            "decimal",
+            "numeric",
+            "time",
+            "datetime2",
+            "datetimeoffset"
+        ];
+        /**
+         * Gets list of column data types that support scale by a driver.
+         */
+        this.withScaleColumnTypes = [
+            "decimal",
+            "numeric"
+        ];
+        /**
          * Orm has special columns and we need to know what database column types should be for those types.
          * Column types are driver dependant.
          */
@@ -126,6 +152,7 @@ var SqlServerDriver = /** @class */ (function () {
             updateDateDefault: "getdate()",
             version: "int",
             treeLevel: "int",
+            migrationId: "int",
             migrationName: "varchar",
             migrationTimestamp: "bigint",
             cacheId: "int",
@@ -140,8 +167,17 @@ var SqlServerDriver = /** @class */ (function () {
          * Used in the cases when length/precision/scale is not specified by user.
          */
         this.dataTypeDefaults = {
-            varchar: { length: 255 },
-            nvarchar: { length: 255 }
+            "char": { length: 1 },
+            "nchar": { length: 1 },
+            "varchar": { length: 255 },
+            "nvarchar": { length: 255 },
+            "binary": { length: 1 },
+            "varbinary": { length: 1 },
+            "decimal": { precision: 18, scale: 0 },
+            "numeric": { precision: 18, scale: 0 },
+            "time": { precision: 7 },
+            "datetime2": { precision: 7 },
+            "datetimeoffset": { precision: 7 }
         };
         this.connection = connection;
         this.options = connection.options;
@@ -236,14 +272,22 @@ var SqlServerDriver = /** @class */ (function () {
      * Replaces parameters in the given sql with special escaping character
      * and an array of parameter names to be passed to a query.
      */
-    SqlServerDriver.prototype.escapeQueryWithParameters = function (sql, parameters) {
+    SqlServerDriver.prototype.escapeQueryWithParameters = function (sql, parameters, nativeParameters) {
+        var escapedParameters = Object.keys(nativeParameters).map(function (key) { return nativeParameters[key]; });
         if (!parameters || !Object.keys(parameters).length)
-            return [sql, []];
-        var escapedParameters = [];
-        var keys = Object.keys(parameters).map(function (parameter) { return "(:" + parameter + "\\b)"; }).join("|");
+            return [sql, escapedParameters];
+        var keys = Object.keys(parameters).map(function (parameter) { return "(:(\\.\\.\\.)?" + parameter + "\\b)"; }).join("|");
         sql = sql.replace(new RegExp(keys, "g"), function (key) {
-            var value = parameters[key.substr(1)];
-            if (value instanceof Array) {
+            var value;
+            var isArray = false;
+            if (key.substr(0, 4) === ":...") {
+                isArray = true;
+                value = parameters[key.substr(4)];
+            }
+            else {
+                value = parameters[key.substr(1)];
+            }
+            if (isArray) {
                 return value.map(function (v) {
                     escapedParameters.push(v);
                     return "@" + (escapedParameters.length - 1);
@@ -266,6 +310,24 @@ var SqlServerDriver = /** @class */ (function () {
         return "\"" + columnName + "\"";
     };
     /**
+     * Build full table name with database name, schema name and table name.
+     * E.g. "myDB"."mySchema"."myTable"
+     */
+    SqlServerDriver.prototype.buildTableName = function (tableName, schema, database) {
+        var fullName = tableName;
+        if (schema)
+            fullName = schema + "." + tableName;
+        if (database) {
+            if (!schema) {
+                fullName = database + ".." + tableName;
+            }
+            else {
+                fullName = database + "." + fullName;
+            }
+        }
+        return fullName;
+    };
+    /**
      * Prepares given value to a value to be persisted, based on its column type and metadata.
      */
     SqlServerDriver.prototype.preparePersistentValue = function (value, columnMetadata) {
@@ -285,14 +347,17 @@ var SqlServerDriver = /** @class */ (function () {
         else if (columnMetadata.type === "datetime"
             || columnMetadata.type === "smalldatetime"
             || columnMetadata.type === Date) {
-            return DateUtils_1.DateUtils.mixedDateToDate(value, true, false);
+            return DateUtils_1.DateUtils.mixedDateToDate(value, false, false);
         }
         else if (columnMetadata.type === "datetime2"
             || columnMetadata.type === "datetimeoffset") {
-            return DateUtils_1.DateUtils.mixedDateToDate(value, true, true);
+            return DateUtils_1.DateUtils.mixedDateToDate(value, false, true);
         }
         else if (columnMetadata.type === "simple-array") {
             return DateUtils_1.DateUtils.simpleArrayToString(value);
+        }
+        else if (columnMetadata.type === "simple-json") {
+            return DateUtils_1.DateUtils.simpleJsonToString(value);
         }
         return value;
     };
@@ -300,36 +365,39 @@ var SqlServerDriver = /** @class */ (function () {
      * Prepares given value to a value to be persisted, based on its column type or metadata.
      */
     SqlServerDriver.prototype.prepareHydratedValue = function (value, columnMetadata) {
-        if (columnMetadata.transformer)
-            value = columnMetadata.transformer.from(value);
         if (value === null || value === undefined)
             return value;
         if (columnMetadata.type === Boolean) {
-            return value ? true : false;
+            value = value ? true : false;
         }
         else if (columnMetadata.type === "datetime"
             || columnMetadata.type === Date
             || columnMetadata.type === "datetime2"
             || columnMetadata.type === "smalldatetime"
             || columnMetadata.type === "datetimeoffset") {
-            return DateUtils_1.DateUtils.normalizeHydratedDate(value);
+            value = DateUtils_1.DateUtils.normalizeHydratedDate(value);
         }
         else if (columnMetadata.type === "date") {
-            return DateUtils_1.DateUtils.mixedDateToDateString(value);
+            value = DateUtils_1.DateUtils.mixedDateToDateString(value);
         }
         else if (columnMetadata.type === "time") {
-            return DateUtils_1.DateUtils.mixedTimeToString(value);
+            value = DateUtils_1.DateUtils.mixedTimeToString(value);
         }
         else if (columnMetadata.type === "simple-array") {
-            return DateUtils_1.DateUtils.stringToSimpleArray(value);
+            value = DateUtils_1.DateUtils.stringToSimpleArray(value);
         }
+        else if (columnMetadata.type === "simple-json") {
+            value = DateUtils_1.DateUtils.stringToSimpleJson(value);
+        }
+        if (columnMetadata.transformer)
+            value = columnMetadata.transformer.from(value);
         return value;
     };
     /**
      * Creates a database type from a given column metadata.
      */
     SqlServerDriver.prototype.normalizeType = function (column) {
-        if (column.type === Number) {
+        if (column.type === Number || column.type === "integer") {
             return "int";
         }
         else if (column.type === String) {
@@ -347,20 +415,17 @@ var SqlServerDriver = /** @class */ (function () {
         else if (column.type === "uuid") {
             return "uniqueidentifier";
         }
-        else if (column.type === "simple-array") {
+        else if (column.type === "simple-array" || column.type === "simple-json") {
             return "ntext";
-        }
-        else if (column.type === "integer") {
-            return "int";
         }
         else if (column.type === "dec") {
             return "decimal";
         }
-        else if (column.type === "float" && (column.precision && (column.precision >= 1 && column.precision < 25))) {
-            return "real";
-        }
         else if (column.type === "double precision") {
             return "float";
+        }
+        else if (column.type === "rowversion") {
+            return "timestamp"; // the rowversion type's name in SQL server metadata is timestamp            
         }
         else {
             return column.type || "";
@@ -369,56 +434,54 @@ var SqlServerDriver = /** @class */ (function () {
     /**
      * Normalizes "default" value of the column.
      */
-    SqlServerDriver.prototype.normalizeDefault = function (column) {
-        if (typeof column.default === "number") {
-            return "" + column.default;
+    SqlServerDriver.prototype.normalizeDefault = function (columnMetadata) {
+        var defaultValue = columnMetadata.default;
+        if (typeof defaultValue === "number") {
+            return "" + defaultValue;
         }
-        else if (typeof column.default === "boolean") {
-            return column.default === true ? "1" : "0";
+        else if (typeof defaultValue === "boolean") {
+            return defaultValue === true ? "1" : "0";
         }
-        else if (typeof column.default === "function") {
-            return "(" + column.default() + ")";
+        else if (typeof defaultValue === "function") {
+            return /*"(" + */ defaultValue() /* + ")"*/;
         }
-        else if (typeof column.default === "string") {
-            return "'" + column.default + "'";
+        else if (typeof defaultValue === "string") {
+            return "'" + defaultValue + "'";
         }
         else {
-            return column.default;
+            return defaultValue;
         }
     };
     /**
      * Normalizes "isUnique" value of the column.
      */
     SqlServerDriver.prototype.normalizeIsUnique = function (column) {
-        return column.isUnique;
+        return column.entityMetadata.uniques.some(function (uq) { return uq.columns.length === 1 && uq.columns[0] === column; });
     };
     /**
-     * Calculates column length taking into account the default length values.
+     * Returns default column lengths, which is required on column creation.
      */
     SqlServerDriver.prototype.getColumnLength = function (column) {
         if (column.length)
-            return column.length;
-        var normalizedType = this.normalizeType(column);
-        if (this.dataTypeDefaults && this.dataTypeDefaults[normalizedType] && this.dataTypeDefaults[normalizedType].length)
-            return this.dataTypeDefaults[normalizedType].length.toString();
+            return column.length.toString();
+        if (column.type === "varchar" || column.type === "nvarchar" || column.type === String)
+            return "255";
         return "";
     };
+    /**
+     * Creates column type definition including length, precision and scale
+     */
     SqlServerDriver.prototype.createFullType = function (column) {
         var type = column.type;
-        if (column.length) {
-            type += "(" + column.length + ")";
+        // used 'getColumnLength()' method, because SqlServer sets `varchar` and `nvarchar` length to 1 by default.
+        if (this.getColumnLength(column)) {
+            type += "(" + this.getColumnLength(column) + ")";
         }
-        else if (column.precision && column.scale) {
+        else if (column.precision !== null && column.precision !== undefined && column.scale !== null && column.scale !== undefined) {
             type += "(" + column.precision + "," + column.scale + ")";
         }
-        else if (column.precision && column.type !== "real") {
+        else if (column.precision !== null && column.precision !== undefined) {
             type += "(" + column.precision + ")";
-        }
-        else if (column.scale) {
-            type += "(" + column.scale + ")";
-        }
-        else if (this.dataTypeDefaults && this.dataTypeDefaults[column.type] && this.dataTypeDefaults[column.type].length) {
-            type += "(" + this.dataTypeDefaults[column.type].length.toString() + ")";
         }
         if (column.isArray)
             type += " array";
@@ -443,6 +506,61 @@ var SqlServerDriver = /** @class */ (function () {
         var random = Math.floor(Math.random() * this.slaves.length);
         return Promise.resolve(this.slaves[random]);
     };
+    /**
+     * Creates generated map of values generated or returned by database after INSERT query.
+     */
+    SqlServerDriver.prototype.createGeneratedMap = function (metadata, insertResult) {
+        if (!insertResult)
+            return undefined;
+        return Object.keys(insertResult).reduce(function (map, key) {
+            var column = metadata.findColumnWithDatabaseName(key);
+            if (column) {
+                OrmUtils_1.OrmUtils.mergeDeep(map, column.createValueMap(insertResult[key]));
+            }
+            return map;
+        }, {});
+    };
+    /**
+     * Differentiate columns of this table and columns from the given column metadatas columns
+     * and returns only changed.
+     */
+    SqlServerDriver.prototype.findChangedColumns = function (tableColumns, columnMetadatas) {
+        var _this = this;
+        return columnMetadatas.filter(function (columnMetadata) {
+            var tableColumn = tableColumns.find(function (c) { return c.name === columnMetadata.databaseName; });
+            if (!tableColumn)
+                return false; // we don't need new columns, we only need exist and changed
+            return tableColumn.name !== columnMetadata.databaseName
+                || tableColumn.type !== _this.normalizeType(columnMetadata)
+                || tableColumn.length !== columnMetadata.length
+                || tableColumn.precision !== columnMetadata.precision
+                || tableColumn.scale !== columnMetadata.scale
+                // || tableColumn.comment !== columnMetadata.comment || // todo
+                || (!tableColumn.isGenerated && _this.normalizeDefault(columnMetadata) !== tableColumn.default) // we included check for generated here, because generated columns already can have default values
+                || tableColumn.isPrimary !== columnMetadata.isPrimary
+                || tableColumn.isNullable !== columnMetadata.isNullable
+                || tableColumn.isUnique !== _this.normalizeIsUnique(columnMetadata)
+                || tableColumn.isGenerated !== columnMetadata.isGenerated;
+        });
+    };
+    /**
+     * Returns true if driver supports RETURNING / OUTPUT statement.
+     */
+    SqlServerDriver.prototype.isReturningSqlSupported = function () {
+        return true;
+    };
+    /**
+     * Returns true if driver supports uuid values generation on its own.
+     */
+    SqlServerDriver.prototype.isUUIDGenerationSupported = function () {
+        return true;
+    };
+    /**
+     * Creates an escaped parameter.
+     */
+    SqlServerDriver.prototype.createParameter = function (parameterName, index) {
+        return "@" + index;
+    };
     // -------------------------------------------------------------------------
     // Public Methods
     // -------------------------------------------------------------------------
@@ -458,13 +576,13 @@ var SqlServerDriver = /** @class */ (function () {
         if (column.length) {
             return new MssqlParameter_1.MssqlParameter(value, normalizedType, column.length);
         }
-        else if (column.precision && column.scale) {
+        else if (column.precision !== null && column.precision !== undefined && column.scale !== null && column.scale !== undefined) {
             return new MssqlParameter_1.MssqlParameter(value, normalizedType, column.precision, column.scale);
         }
-        else if (column.precision) {
+        else if (column.precision !== null && column.precision !== undefined) {
             return new MssqlParameter_1.MssqlParameter(value, normalizedType, column.precision);
         }
-        else if (column.scale) {
+        else if (column.scale !== null && column.scale !== undefined) {
             return new MssqlParameter_1.MssqlParameter(value, normalizedType, column.scale);
         }
         return new MssqlParameter_1.MssqlParameter(value, normalizedType);
@@ -476,14 +594,14 @@ var SqlServerDriver = /** @class */ (function () {
     SqlServerDriver.prototype.parametrizeMap = function (tablePath, map) {
         var _this = this;
         // find metadata for the given table
-        if (!this.connection.hasMetadata(tablePath))
+        if (!this.connection.hasMetadata(tablePath)) // if no metadata found then we can't proceed because we don't have columns and their types
             return map;
         var metadata = this.connection.getMetadata(tablePath);
         return Object.keys(map).reduce(function (newMap, key) {
             var value = map[key];
             // find column metadata
             var column = metadata.findColumnWithDatabaseName(key);
-            if (!column)
+            if (!column) // if we didn't find a column then we can't proceed because we don't have a column type
                 return value;
             newMap[key] = _this.parametrizeValue(column, value);
             return newMap;
@@ -499,7 +617,7 @@ var SqlServerDriver = /** @class */ (function () {
         try {
             this.mssql = PlatformTools_1.PlatformTools.load("mssql");
         }
-        catch (e) {
+        catch (e) { // todo: better error for browser env
             throw new DriverPackageNotInstalledError_1.DriverPackageNotInstalledError("SQL Server", "mssql");
         }
     };
@@ -532,7 +650,14 @@ var SqlServerDriver = /** @class */ (function () {
         // pooling is enabled either when its set explicitly to true,
         // either when its not defined at all (e.g. enabled by default)
         return new Promise(function (ok, fail) {
-            var connection = new _this.mssql.ConnectionPool(connectionOptions).connect(function (err) {
+            var pool = new _this.mssql.ConnectionPool(connectionOptions);
+            var logger = _this.connection.logger;
+            /*
+              Attaching an error handler to pool errors is essential, as, otherwise, errors raised will go unhandled and
+              cause the hosting app to crash.
+             */
+            pool.on("error", function (error) { return logger.log("warn", "MSSQL pool raised an error. " + error); });
+            var connection = pool.connect(function (err) {
                 if (err)
                     return fail(err);
                 ok(connection);

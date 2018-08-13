@@ -21,10 +21,6 @@ var Post = /** @class */ (function () {
         __metadata("design:type", Number)
     ], Post.prototype, "id", void 0);
     __decorate([
-        Column_1.Column(),
-        __metadata("design:type", String)
-    ], Post.prototype, "name", void 0);
-    __decorate([
         Column_1.Column("int"),
         __metadata("design:type", Number)
     ], Post.prototype, "int", void 0);
@@ -42,7 +38,7 @@ var Post = /** @class */ (function () {
     ], Post.prototype, "mediumint", void 0);
     __decorate([
         Column_1.Column("bigint"),
-        __metadata("design:type", Number)
+        __metadata("design:type", String)
     ], Post.prototype, "bigint", void 0);
     __decorate([
         Column_1.Column("float"),
@@ -54,8 +50,56 @@ var Post = /** @class */ (function () {
     ], Post.prototype, "double", void 0);
     __decorate([
         Column_1.Column("decimal"),
-        __metadata("design:type", Number)
+        __metadata("design:type", String)
     ], Post.prototype, "decimal", void 0);
+    __decorate([
+        Column_1.Column("char"),
+        __metadata("design:type", String)
+    ], Post.prototype, "char", void 0);
+    __decorate([
+        Column_1.Column("varchar"),
+        __metadata("design:type", String)
+    ], Post.prototype, "varchar", void 0);
+    __decorate([
+        Column_1.Column("text"),
+        __metadata("design:type", String)
+    ], Post.prototype, "text", void 0);
+    __decorate([
+        Column_1.Column("tinytext"),
+        __metadata("design:type", String)
+    ], Post.prototype, "tinytext", void 0);
+    __decorate([
+        Column_1.Column("mediumtext"),
+        __metadata("design:type", String)
+    ], Post.prototype, "mediumtext", void 0);
+    __decorate([
+        Column_1.Column("longtext"),
+        __metadata("design:type", String)
+    ], Post.prototype, "longtext", void 0);
+    __decorate([
+        Column_1.Column("binary"),
+        __metadata("design:type", Buffer)
+    ], Post.prototype, "binary", void 0);
+    __decorate([
+        Column_1.Column("varbinary"),
+        __metadata("design:type", Buffer)
+    ], Post.prototype, "varbinary", void 0);
+    __decorate([
+        Column_1.Column("blob"),
+        __metadata("design:type", Buffer)
+    ], Post.prototype, "blob", void 0);
+    __decorate([
+        Column_1.Column("tinyblob"),
+        __metadata("design:type", Buffer)
+    ], Post.prototype, "tinyblob", void 0);
+    __decorate([
+        Column_1.Column("mediumblob"),
+        __metadata("design:type", Buffer)
+    ], Post.prototype, "mediumblob", void 0);
+    __decorate([
+        Column_1.Column("longblob"),
+        __metadata("design:type", Buffer)
+    ], Post.prototype, "longblob", void 0);
     __decorate([
         Column_1.Column("date"),
         __metadata("design:type", String)
@@ -77,45 +121,37 @@ var Post = /** @class */ (function () {
         __metadata("design:type", Number)
     ], Post.prototype, "year", void 0);
     __decorate([
-        Column_1.Column("char"),
+        Column_1.Column("geometry"),
         __metadata("design:type", String)
-    ], Post.prototype, "char", void 0);
+    ], Post.prototype, "geometry", void 0);
     __decorate([
-        Column_1.Column("varchar"),
+        Column_1.Column("point"),
         __metadata("design:type", String)
-    ], Post.prototype, "varchar", void 0);
+    ], Post.prototype, "point", void 0);
     __decorate([
-        Column_1.Column("blob"),
-        __metadata("design:type", Buffer)
-    ], Post.prototype, "blob", void 0);
-    __decorate([
-        Column_1.Column("text"),
+        Column_1.Column("linestring"),
         __metadata("design:type", String)
-    ], Post.prototype, "text", void 0);
+    ], Post.prototype, "linestring", void 0);
     __decorate([
-        Column_1.Column("tinyblob"),
-        __metadata("design:type", Buffer)
-    ], Post.prototype, "tinyblob", void 0);
-    __decorate([
-        Column_1.Column("tinytext"),
+        Column_1.Column("polygon"),
         __metadata("design:type", String)
-    ], Post.prototype, "tinytext", void 0);
+    ], Post.prototype, "polygon", void 0);
     __decorate([
-        Column_1.Column("mediumblob"),
-        __metadata("design:type", Buffer)
-    ], Post.prototype, "mediumblob", void 0);
-    __decorate([
-        Column_1.Column("mediumtext"),
+        Column_1.Column("multipoint"),
         __metadata("design:type", String)
-    ], Post.prototype, "mediumtext", void 0);
+    ], Post.prototype, "multipoint", void 0);
     __decorate([
-        Column_1.Column("longblob"),
-        __metadata("design:type", Buffer)
-    ], Post.prototype, "longblob", void 0);
-    __decorate([
-        Column_1.Column("longtext"),
+        Column_1.Column("multilinestring"),
         __metadata("design:type", String)
-    ], Post.prototype, "longtext", void 0);
+    ], Post.prototype, "multilinestring", void 0);
+    __decorate([
+        Column_1.Column("multipolygon"),
+        __metadata("design:type", String)
+    ], Post.prototype, "multipolygon", void 0);
+    __decorate([
+        Column_1.Column("geometrycollection"),
+        __metadata("design:type", String)
+    ], Post.prototype, "geometrycollection", void 0);
     __decorate([
         Column_1.Column("enum", { enum: ["A", "B", "C"] }),
         __metadata("design:type", String)
@@ -132,6 +168,10 @@ var Post = /** @class */ (function () {
         Column_1.Column("simple-array"),
         __metadata("design:type", Array)
     ], Post.prototype, "simpleArray", void 0);
+    __decorate([
+        Column_1.Column("simple-json"),
+        __metadata("design:type", Object)
+    ], Post.prototype, "simpleJson", void 0);
     Post = __decorate([
         Entity_1.Entity()
     ], Post);

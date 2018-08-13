@@ -12,10 +12,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var Entity_1 = require("../../../../../../src/decorator/entity/Entity");
 var PrimaryColumn_1 = require("../../../../../../src/decorator/columns/PrimaryColumn");
 var Column_1 = require("../../../../../../src/decorator/columns/Column");
-var Index_1 = require("../../../../../../src/decorator/Index");
 var Post_1 = require("./Post");
 var ManyToMany_1 = require("../../../../../../src/decorator/relations/ManyToMany");
 var Tag_1 = require("./Tag");
+var src_1 = require("../../../../../../src");
 var Category = /** @class */ (function () {
     function Category() {
     }
@@ -48,9 +48,9 @@ var Category = /** @class */ (function () {
         __metadata("design:type", Array)
     ], Category.prototype, "postsWithOptions", void 0);
     __decorate([
-        ManyToMany_1.ManyToMany(function (type) { return Post_1.Post; }, function (post) { return post.categoriesWithNonPrimaryColumns; }),
+        ManyToMany_1.ManyToMany(function (type) { return Post_1.Post; }, function (post) { return post.categoriesWithNonPKColumns; }),
         __metadata("design:type", Array)
-    ], Category.prototype, "postsWithNonPrimaryColumns", void 0);
+    ], Category.prototype, "postsWithNonPKColumns", void 0);
     __decorate([
         ManyToMany_1.ManyToMany(function (type) { return Tag_1.Tag; }, function (tag) { return tag.categories; }),
         __metadata("design:type", Array)
@@ -60,12 +60,12 @@ var Category = /** @class */ (function () {
         __metadata("design:type", Array)
     ], Category.prototype, "tagsWithOptions", void 0);
     __decorate([
-        ManyToMany_1.ManyToMany(function (type) { return Tag_1.Tag; }, function (tag) { return tag.categoriesWithNonPrimaryColumns; }),
+        ManyToMany_1.ManyToMany(function (type) { return Tag_1.Tag; }, function (tag) { return tag.categoriesWithNonPKColumns; }),
         __metadata("design:type", Array)
-    ], Category.prototype, "tagsWithNonPrimaryColumns", void 0);
+    ], Category.prototype, "tagsWithNonPKColumns", void 0);
     Category = __decorate([
         Entity_1.Entity(),
-        Index_1.Index(["code", "version", "description"], { unique: true })
+        src_1.Unique(["code", "version", "description"])
     ], Category);
     return Category;
 }());

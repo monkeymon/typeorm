@@ -117,7 +117,6 @@ describe("Connection", function () {
                     password: "test",
                     database: "test",
                     entities: [],
-                    entitySchemas: [],
                     dropSchema: false,
                     schemaCreate: false,
                     enabledDrivers: ["mysql"],
@@ -197,14 +196,14 @@ describe("Connection", function () {
                         return [4 /*yield*/, postRepository.save(post)];
                     case 1:
                         _a.sent();
-                        return [4 /*yield*/, postRepository.findOneById(post.id)];
+                        return [4 /*yield*/, postRepository.findOne(post.id)];
                     case 2:
                         loadedPost = _a.sent();
                         chai_1.expect(loadedPost).to.be.eql(post);
                         return [4 /*yield*/, connection.synchronize(true)];
                     case 3:
                         _a.sent();
-                        return [4 /*yield*/, postRepository.findOneById(post.id)];
+                        return [4 /*yield*/, postRepository.findOne(post.id)];
                     case 4:
                         againLoadedPost = _a.sent();
                         chai_1.expect(againLoadedPost).to.be.empty;
@@ -252,7 +251,7 @@ describe("Connection", function () {
             connection.isConnected.should.be.false;
         }); });
     });
-    describe("skip schema generation when skipSync option is used", function () {
+    describe("skip schema generation when synchronize option is set to false", function () {
         var _this = this;
         var connections;
         beforeEach(function () { return test_utils_1.createTestingConnections({ entities: [View_1.View], dropSchema: true }).then(function (all) { return connections = all; }); });

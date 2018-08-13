@@ -1,4 +1,8 @@
+import { ColumnOptions } from "../../";
 /**
- * Sets what kind of table-inheritance table will use.
+ * Sets for entity to use table inheritance pattern.
  */
-export declare function TableInheritance(type: "single-table" | "class-table"): (target: Function) => void;
+export declare function TableInheritance(options?: {
+    pattern?: "STI";
+    column?: string | ColumnOptions;
+}): (target: Function) => void;

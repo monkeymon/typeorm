@@ -83,13 +83,13 @@ describe("sqljs driver > load", function () {
         });
     }); })); });
     it("should throw an error if the file doesn't exist", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
-        var manager, functionWithExecption;
+        var manager, functionWithException;
         return __generator(this, function (_a) {
             manager = index_1.getSqljsManager("sqljs");
-            functionWithExecption = function () {
+            functionWithException = function () {
                 manager.loadDatabase("test/functional/sqljs/sqlite/test2.sqlite");
             };
-            chai_1.expect(functionWithExecption).to.throw(/File .* does not exist/);
+            chai_1.expect(functionWithException).to.throw(/File .* does not exist/);
             return [2 /*return*/];
         });
     }); })); });

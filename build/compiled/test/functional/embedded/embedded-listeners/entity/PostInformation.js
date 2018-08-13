@@ -26,7 +26,7 @@ var PostInformation = /** @class */ (function () {
         __metadata("design:type", String)
     ], PostInformation.prototype, "description", void 0);
     __decorate([
-        Column_1.Column(function (type) { return PostCounter_1.PostCounter; }),
+        Column_1.Column(function (type) { return PostCounter_1.PostCounter; }, { prefix: "counters" }),
         __metadata("design:type", PostCounter_1.PostCounter)
     ], PostInformation.prototype, "counters", void 0);
     __decorate([

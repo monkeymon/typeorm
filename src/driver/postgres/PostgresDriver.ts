@@ -14,8 +14,10 @@ import {MappedColumnTypes} from "../types/MappedColumnTypes";
 import {ColumnType} from "../types/ColumnTypes";
 import {QueryRunner} from "../../query-runner/QueryRunner";
 import {DataTypeDefaults} from "../types/DataTypeDefaults";
-import {TableColumn} from "../../schema-builder/schema/TableColumn";
+import {TableColumn} from "../../schema-builder/table/TableColumn";
 import {PostgresConnectionCredentialsOptions} from "./PostgresConnectionCredentialsOptions";
+import {EntityMetadata} from "../../metadata/EntityMetadata";
+import {OrmUtils} from "../../util/OrmUtils";
 
 /**
  * Organizes communication with PostgreSQL DBMS.
@@ -83,12 +85,19 @@ export class PostgresDriver implements Driver {
      * @see https://www.postgresql.org/docs/9.2/static/datatype.html
      */
     supportedDataTypes: ColumnType[] = [
+        "int",
+        "int2",
+        "int4",
+        "int8",
         "smallint",
         "integer",
         "bigint",
         "decimal",
         "numeric",
         "real",
+        "float",
+        "float4",
+        "float8",
         "double precision",
         "money",
         "character varying",
@@ -97,9 +106,13 @@ export class PostgresDriver implements Driver {
         "char",
         "text",
         "citext",
+        "hstore",
         "bytea",
         "bit",
+        "varbit",
         "bit varying",
+        "timetz",
+        "timestamptz",
         "timestamp",
         "timestamp without time zone",
         "timestamp with time zone",
@@ -108,6 +121,7 @@ export class PostgresDriver implements Driver {
         "time without time zone",
         "time with time zone",
         "interval",
+        "bool",
         "boolean",
         "enum",
         "point",
@@ -125,8 +139,19 @@ export class PostgresDriver implements Driver {
         "uuid",
         "xml",
         "json",
-        "jsonb"
+        "jsonb",
+        "int4range",
+        "int8range",
+        "numrange",
+        "tsrange",
+        "tstzrange",
+        "daterange"
     ];
+
+    /**
+     * Gets list of spatial column data types.
+     */
+    spatialTypes: ColumnType[] = [];
 
     /**
      * Gets list of column data types that support length by a driver.
@@ -137,7 +162,29 @@ export class PostgresDriver implements Driver {
         "character",
         "char",
         "bit",
+        "varbit",
         "bit varying"
+    ];
+
+    /**
+     * Gets list of column data types that support precision by a driver.
+     */
+    withPrecisionColumnTypes: ColumnType[] = [
+        "numeric",
+        "decimal",
+        "interval",
+        "time without time zone",
+        "time with time zone",
+        "timestamp without time zone",
+        "timestamp with time zone"
+    ];
+
+    /**
+     * Gets list of column data types that support scale by a driver.
+     */
+    withScaleColumnTypes: ColumnType[] = [
+        "numeric",
+        "decimal"
     ];
 
     /**
@@ -149,14 +196,15 @@ export class PostgresDriver implements Driver {
         createDateDefault: "now()",
         updateDate: "timestamp",
         updateDateDefault: "now()",
-        version: "int",
-        treeLevel: "int",
+        version: "int4",
+        treeLevel: "int4",
+        migrationId: "int4",
         migrationName: "varchar",
-        migrationTimestamp: "bigint",
-        cacheId: "int",
+        migrationTimestamp: "int8",
+        cacheId: "int4",
         cacheIdentifier: "varchar",
-        cacheTime: "bigint",
-        cacheDuration: "int",
+        cacheTime: "int8",
+        cacheDuration: "int4",
         cacheQuery: "text",
         cacheResult: "text",
     };
@@ -165,7 +213,15 @@ export class PostgresDriver implements Driver {
      * Default values of length, precision and scale depends on column data type.
      * Used in the cases when length/precision/scale is not specified by user.
      */
-    dataTypeDefaults: DataTypeDefaults;
+    dataTypeDefaults: DataTypeDefaults = {
+        "character": { length: 1 },
+        "bit": { length: 1 },
+        "interval": { precision: 6 },
+        "time without time zone": { precision: 6 },
+        "time with time zone": { precision: 6 },
+        "timestamp without time zone": { precision: 6 },
+        "timestamp with time zone": { precision: 6 },
+    };
 
     // -------------------------------------------------------------------------
     // Constructor
@@ -224,17 +280,33 @@ export class PostgresDriver implements Driver {
         const hasCitextColumns = this.connection.entityMetadatas.some(metadata => {
             return metadata.columns.filter(column => column.type === "citext").length > 0;
         });
-
-        if (hasUuidColumns || hasCitextColumns) {
+        const hasHstoreColumns = this.connection.entityMetadatas.some(metadata => {
+            return metadata.columns.filter(column => column.type === "hstore").length > 0;
+        });
+        if (hasUuidColumns || hasCitextColumns || hasHstoreColumns) {
             await Promise.all([this.master, ...this.slaves].map(pool => {
                 return new Promise((ok, fail) => {
                     pool.connect(async (err: any, connection: any, release: Function) => {
+                        const { logger } = this.connection;
                         if (err) return fail(err);
                         if (hasUuidColumns)
-                            await this.executeQuery(connection, `CREATE extension IF NOT EXISTS "uuid-ossp"`);
+                            try {
+                                await this.executeQuery(connection, `CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`);
+                            } catch (_) {
+                                logger.log("warn", "At least one of the entities has uuid column, but the 'uuid-ossp' extension cannot be installed automatically. Please install it manually using superuser rights");
+                            }
                         if (hasCitextColumns)
-                            await this.executeQuery(connection, `CREATE extension IF NOT EXISTS "citext"`);
-
+                            try {
+                                await this.executeQuery(connection, `CREATE EXTENSION IF NOT EXISTS "citext"`);
+                            } catch (_) {
+                                logger.log("warn", "At least one of the entities has citext column, but the 'citext' extension cannot be installed automatically. Please install it manually using superuser rights");
+                            }
+                        if (hasHstoreColumns)
+                            try {
+                                await this.executeQuery(connection, `CREATE EXTENSION IF NOT EXISTS "hstore"`);
+                            } catch (_) {
+                                logger.log("warn", "At least one of the entities has hstore column, but the 'hstore' extension cannot be installed automatically. Please install it manually using superuser rights");
+                            }
                         release();
                         ok();
                     });
@@ -296,13 +368,25 @@ export class PostgresDriver implements Driver {
             || columnMetadata.type === "timestamp"
             || columnMetadata.type === "timestamp with time zone"
             || columnMetadata.type === "timestamp without time zone") {
-            return DateUtils.mixedDateToDate(value, true);
+            return DateUtils.mixedDateToDate(value);
 
         } else if (columnMetadata.type === "json" || columnMetadata.type === "jsonb") {
             return JSON.stringify(value);
 
+        } else if (columnMetadata.type === "hstore") {
+            if (typeof value === "string") {
+                return value;
+            } else {
+                return Object.keys(value).map(key => {
+                    return `"${key}"=>"${value[key]}"`;
+                }).join(", ");
+            }
+
         } else if (columnMetadata.type === "simple-array") {
             return DateUtils.simpleArrayToString(value);
+
+        } else if (columnMetadata.type === "simple-json") {
+            return DateUtils.simpleJsonToString(value);
         }
 
         return value;
@@ -312,31 +396,53 @@ export class PostgresDriver implements Driver {
      * Prepares given value to a value to be persisted, based on its column type or metadata.
      */
     prepareHydratedValue(value: any, columnMetadata: ColumnMetadata): any {
-        if (columnMetadata.transformer)
-            value = columnMetadata.transformer.from(value);
-
         if (value === null || value === undefined)
             return value;
 
         if (columnMetadata.type === Boolean) {
-            return value ? true : false;
+            value = value ? true : false;
 
         } else if (columnMetadata.type === "datetime"
             || columnMetadata.type === Date
             || columnMetadata.type === "timestamp"
             || columnMetadata.type === "timestamp with time zone"
             || columnMetadata.type === "timestamp without time zone") {
-            return DateUtils.normalizeHydratedDate(value);
+            value = DateUtils.normalizeHydratedDate(value);
 
         } else if (columnMetadata.type === "date") {
-            return DateUtils.mixedDateToDateString(value);
+            value = DateUtils.mixedDateToDateString(value);
 
         } else if (columnMetadata.type === "time") {
-            return DateUtils.mixedTimeToString(value);
+            value = DateUtils.mixedTimeToString(value);
+
+        } else if (columnMetadata.type === "hstore") {
+            if (columnMetadata.hstoreType === "object") {
+                const regexp = /"(.*?)"=>"(.*?[^\\"])"/gi;
+                const matchValue = value.match(regexp);
+                const object: ObjectLiteral = {};
+                let match;
+                while (match = regexp.exec(matchValue)) {
+                    object[match[1].replace(`\\"`, `"`)] = match[2].replace(`\\"`, `"`);
+                }
+                return object;
+
+            } else {
+                return value;
+            }
 
         } else if (columnMetadata.type === "simple-array") {
-            return DateUtils.stringToSimpleArray(value);
+            value = DateUtils.stringToSimpleArray(value);
+
+        } else if (columnMetadata.type === "simple-json") {
+            value = DateUtils.stringToSimpleJson(value);
         }
+
+        // manually convert enum array to array of values (pg does not support, see https://github.com/brianc/node-pg-types/issues/56)
+        if (columnMetadata.enum && columnMetadata.isArray)
+            value = (value as string).substr(1).substr(0, (value as string).length - 2).split(",");
+
+        if (columnMetadata.transformer)
+            value = columnMetadata.transformer.from(value);
 
         return value;
     }
@@ -345,15 +451,23 @@ export class PostgresDriver implements Driver {
      * Replaces parameters in the given sql with special escaping character
      * and an array of parameter names to be passed to a query.
      */
-    escapeQueryWithParameters(sql: string, parameters: ObjectLiteral): [string, any[]] {
+    escapeQueryWithParameters(sql: string, parameters: ObjectLiteral, nativeParameters: ObjectLiteral): [string, any[]] {
+        const builtParameters: any[] = Object.keys(nativeParameters).map(key => nativeParameters[key]);
         if (!parameters || !Object.keys(parameters).length)
-            return [sql, []];
+            return [sql, builtParameters];
 
-        const builtParameters: any[] = [];
-        const keys = Object.keys(parameters).map(parameter => "(:" + parameter + "\\b)").join("|");
+        const keys = Object.keys(parameters).map(parameter => "(:(\\.\\.\\.)?" + parameter + "\\b)").join("|");
         sql = sql.replace(new RegExp(keys, "g"), (key: string): string => {
-            const value = parameters[key.substr(1)];
-            if (value instanceof Array) {
+            let value: any;
+            let isArray = false;
+            if (key.substr(0, 4) === ":...") {
+                isArray = true;
+                value = parameters[key.substr(4)];
+            } else {
+                value = parameters[key.substr(1)];
+            }
+
+            if (isArray) {
                 return value.map((v: any) => {
                     builtParameters.push(v);
                     return "$" + builtParameters.length;
@@ -378,100 +492,94 @@ export class PostgresDriver implements Driver {
     }
 
     /**
+     * Build full table name with schema name and table name.
+     * E.g. "mySchema"."myTable"
+     */
+    buildTableName(tableName: string, schema?: string): string {
+        return schema ? `${schema}.${tableName}` : tableName;
+    }
+
+    /**
      * Creates a database type from a given column metadata.
      */
-    normalizeType(column: { type?: ColumnType, length?: number | string, precision?: number, scale?: number, isArray?: boolean }): string {
-        let type = "";
-        if (column.type === Number) {
-            type += "integer";
+    normalizeType(column: { type?: ColumnType, length?: number | string, precision?: number|null, scale?: number, isArray?: boolean }): string {
+        if (column.type === Number || column.type === "int" || column.type === "int4") {
+            return "integer";
 
-        } else if (column.type === String) {
-            type += "character varying";
+        } else if (column.type === String || column.type === "varchar") {
+            return "character varying";
 
-        } else if (column.type === Date) {
-            type += "timestamp";
+        } else if (column.type === Date || column.type === "timestamp") {
+            return "timestamp without time zone";
 
-        } else if (column.type === Boolean) {
-            type += "boolean";
+        } else if (column.type === "timestamptz") {
+            return "timestamp with time zone";
+
+        } else if (column.type === "time") {
+            return "time without time zone";
+
+        } else if (column.type === "timetz") {
+            return "time with time zone";
+
+        } else if (column.type === Boolean || column.type === "bool") {
+            return "boolean";
 
         } else if (column.type === "simple-array") {
-            type += "text";
+            return "text";
+
+        } else if (column.type === "simple-json") {
+            return "text";
+
+        } else if (column.type === "int2") {
+            return "smallint";
+
+        } else if (column.type === "int8") {
+            return "bigint";
+
+        } else if (column.type === "decimal") {
+            return "numeric";
+
+        } else if (column.type === "float8") {
+            return "double precision";
+
+        } else if (column.type === "float4") {
+            return "real";
+
+        } else if (column.type === "char") {
+            return "character";
+
+        } else if (column.type === "varbit") {
+            return "bit varying";
 
         } else {
-            type += column.type;
+            return column.type as string || "";
         }
-
-        // normalize shortcuts
-        if (type === "int" || type === "int4") {
-            type = "integer";
-
-        } else if (type === "int2") {
-            type = "smallint";
-
-        } else if (type === "int8") {
-            type = "bigint";
-
-        } else if (type === "decimal") {
-            type = "numeric";
-
-        } else if (type === "float8") {
-            type = "double precision";
-
-        } else if (type === "float4") {
-            type = "real";
-
-        } else if (type === "citext") {
-            type = "citext";
-
-        } else if (type === "char") {
-            type = "character";
-
-        } else if (type === "varchar") {
-            type = "character varying";
-
-        } else if (type === "time") {
-            type = "time without time zone";
-
-        } else if (type === "timetz") {
-            type = "time with time zone";
-
-        } else if (type === "timestamptz") {
-            type = "timestamp with time zone";
-
-        } else if (type === "bool") {
-            type = "boolean";
-
-        } else if (type === "varbit") {
-            type = "bit varying";
-
-        } else if (type === "timestamp") {
-            type = "timestamp without time zone";
-        }
-
-        return type;
     }
 
     /**
      * Normalizes "default" value of the column.
      */
-    normalizeDefault(column: ColumnMetadata): string {
-        if (typeof column.default === "number") {
-            return "" + column.default;
+    normalizeDefault(columnMetadata: ColumnMetadata): string {
+        const defaultValue = columnMetadata.default;
+        const arrayCast = columnMetadata.isArray ? `::${columnMetadata.type}[]` : "";
 
-        } else if (typeof column.default === "boolean") {
-            return column.default === true ? "true" : "false";
+        if (typeof defaultValue === "number") {
+            return "" + defaultValue;
 
-        } else if (typeof column.default === "function") {
-            return column.default();
+        } else if (typeof defaultValue === "boolean") {
+            return defaultValue === true ? "true" : "false";
 
-        } else if (typeof column.default === "string") {
-            return `'${column.default}'`;
+        } else if (typeof defaultValue === "function") {
+            return defaultValue();
 
-        } else if (typeof column.default === "object") {
-            return `'${JSON.stringify(column.default)}'`;
+        } else if (typeof defaultValue === "string") {
+            return `'${defaultValue}'${arrayCast}`;
+
+        } else if (typeof defaultValue === "object") {
+            return `'${JSON.stringify(defaultValue)}'`;
 
         } else {
-            return column.default;
+            return defaultValue;
         }
     }
 
@@ -479,53 +587,41 @@ export class PostgresDriver implements Driver {
      * Normalizes "isUnique" value of the column.
      */
     normalizeIsUnique(column: ColumnMetadata): boolean {
-        return column.isUnique;
+        return column.entityMetadata.uniques.some(uq => uq.columns.length === 1 && uq.columns[0] === column);
     }
 
     /**
-     * Calculates column length taking into account the default length values.
+     * Returns default column lengths, which is required on column creation.
      */
     getColumnLength(column: ColumnMetadata): string {
-        
-        if (column.length)
-            return column.length;
-
-        const normalizedType = this.normalizeType(column) as string;
-        if (this.dataTypeDefaults && this.dataTypeDefaults[normalizedType] && this.dataTypeDefaults[normalizedType].length)
-            return this.dataTypeDefaults[normalizedType].length!.toString();       
-
-        return "";
+        return column.length ? column.length.toString() : "";
     }
 
     /**
-     * Normalizes "default" value of the column.
+     * Creates column type definition including length, precision and scale
      */
     createFullType(column: TableColumn): string {
         let type = column.type;
 
         if (column.length) {
             type += "(" + column.length + ")";
-        } else if (column.precision && column.scale) {
+        } else if (column.precision !== null && column.precision !== undefined && column.scale !== null && column.scale !== undefined) {
             type += "(" + column.precision + "," + column.scale + ")";
-        } else if (column.precision) {
+        } else if (column.precision !== null && column.precision !== undefined) {
             type +=  "(" + column.precision + ")";
-        } else if (column.scale) {
-            type +=  "(" + column.scale + ")";
-        } else  if (this.dataTypeDefaults && this.dataTypeDefaults[column.type] && this.dataTypeDefaults[column.type].length) {
-            type +=  "(" + this.dataTypeDefaults[column.type].length!.toString() + ")";
         }
 
         if (column.type === "time without time zone") {
-            type = "TIME" + (column.precision ? "(" + column.precision + ")" : "");
+            type = "TIME" + (column.precision !== null && column.precision !== undefined ? "(" + column.precision + ")" : "");
 
         } else if (column.type === "time with time zone") {
-            type = "TIME" + (column.precision ? "(" + column.precision + ")" : "") + " WITH TIME ZONE";
+            type = "TIME" + (column.precision !== null && column.precision !== undefined ? "(" + column.precision + ")" : "") + " WITH TIME ZONE";
 
         } else if (column.type === "timestamp without time zone") {
-            type = "TIMESTAMP" + (column.precision ? "(" + column.precision + ")" : "");
+            type = "TIMESTAMP" + (column.precision !== null && column.precision !== undefined ? "(" + column.precision + ")" : "");
 
         } else if (column.type === "timestamp with time zone") {
-            type = "TIMESTAMP" + (column.precision ? "(" + column.precision + ")" : "") + " WITH TIME ZONE";
+            type = "TIMESTAMP" + (column.precision !== null && column.precision !== undefined ? "(" + column.precision + ")" : "") + " WITH TIME ZONE";
         }
 
         if (column.isArray)
@@ -564,6 +660,70 @@ export class PostgresDriver implements Driver {
         });
     }
 
+    /**
+     * Creates generated map of values generated or returned by database after INSERT query.
+     *
+     * todo: slow. optimize Object.keys(), OrmUtils.mergeDeep and column.createValueMap parts
+     */
+    createGeneratedMap(metadata: EntityMetadata, insertResult: ObjectLiteral) {
+        if (!insertResult)
+            return undefined;
+
+        return Object.keys(insertResult).reduce((map, key) => {
+            const column = metadata.findColumnWithDatabaseName(key);
+            if (column) {
+                OrmUtils.mergeDeep(map, column.createValueMap(insertResult[key]));
+            }
+            return map;
+        }, {} as ObjectLiteral);
+    }
+
+    /**
+     * Differentiate columns of this table and columns from the given column metadatas columns
+     * and returns only changed.
+     */
+    findChangedColumns(tableColumns: TableColumn[], columnMetadatas: ColumnMetadata[]): ColumnMetadata[] {
+        return columnMetadatas.filter(columnMetadata => {
+            const tableColumn = tableColumns.find(c => c.name === columnMetadata.databaseName);
+            if (!tableColumn)
+                return false; // we don't need new columns, we only need exist and changed
+
+            return  tableColumn.name !== columnMetadata.databaseName
+                || tableColumn.type !== this.normalizeType(columnMetadata)
+                || tableColumn.length !== columnMetadata.length
+                || tableColumn.precision !== columnMetadata.precision
+                || tableColumn.scale !== columnMetadata.scale
+                // || tableColumn.comment !== columnMetadata.comment // todo
+                || (!tableColumn.isGenerated && this.normalizeDefault(columnMetadata) !== tableColumn.default) // we included check for generated here, because generated columns already can have default values
+                || tableColumn.isPrimary !== columnMetadata.isPrimary
+                || tableColumn.isNullable !== columnMetadata.isNullable
+                || tableColumn.isUnique !== this.normalizeIsUnique(columnMetadata)
+                || (tableColumn.enum && columnMetadata.enum && !OrmUtils.isArraysEqual(tableColumn.enum, columnMetadata.enum))
+                || tableColumn.isGenerated !== columnMetadata.isGenerated;
+        });
+    }
+
+    /**
+     * Returns true if driver supports RETURNING / OUTPUT statement.
+     */
+    isReturningSqlSupported(): boolean {
+        return true;
+    }
+
+    /**
+     * Returns true if driver supports uuid values generation on its own.
+     */
+    isUUIDGenerationSupported(): boolean {
+        return true;
+    }
+
+    /**
+     * Creates an escaped parameter.
+     */
+    createParameter(parameterName: string, index: number): string {
+        return "$" + (index + 1);
+    }
+
     // -------------------------------------------------------------------------
     // Public Methods
     // -------------------------------------------------------------------------
@@ -593,7 +753,7 @@ export class PostgresDriver implements Driver {
             try {
                 const pgNative = PlatformTools.load("pg-native");
                 if (pgNative && this.postgres.native) this.postgres = this.postgres.native;
-                
+
             } catch (e) { }
 
         } catch (e) { // todo: better error for browser env
@@ -620,6 +780,12 @@ export class PostgresDriver implements Driver {
 
         // create a connection pool
         const pool = new this.postgres.Pool(connectionOptions);
+        const { logger } = this.connection;
+        /*
+          Attaching an error handler to pool errors is essential, as, otherwise, errors raised will go unhandled and
+          cause the hosting app to crash.
+         */
+        pool.on("error", (error: any) => logger.log("warn", `Postgres pool raised an error. ${error}`));
 
         return new Promise((ok, fail) => {
             pool.connect((err: any, connection: any, release: Function) => {

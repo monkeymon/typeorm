@@ -41,6 +41,7 @@ var test_utils_1 = require("../../utils/test-utils");
 var Parent_1 = require("./entity/Parent");
 var Child_1 = require("./entity/Child");
 var chai_1 = require("chai");
+var PromiseUtils_1 = require("../../../src/util/PromiseUtils");
 describe("github issues > #1055 ind with relations not working, correct syntax causes type error", function () {
     var connections;
     before(function () { return __awaiter(_this, void 0, void 0, function () {
@@ -48,7 +49,7 @@ describe("github issues > #1055 ind with relations not working, correct syntax c
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        enabledDrivers: ["mariadb"] // only one driver is enabled because this example uses lazy relations
+                        enabledDrivers: ["mysql"] // only one driver is enabled because this example uses lazy relations
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -56,7 +57,7 @@ describe("github issues > #1055 ind with relations not working, correct syntax c
     }); });
     beforeEach(function () { return test_utils_1.reloadTestingDatabases(connections); });
     after(function () { return test_utils_1.closeTestingConnections(connections); });
-    it.skip("should be able to find by object reference", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
+    it("should be able to find by object reference", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
         var manager, parent, loadedParent, child, foundChild;
         return __generator(this, function (_a) {
             switch (_a.label) {
@@ -67,38 +68,28 @@ describe("github issues > #1055 ind with relations not working, correct syntax c
                     return [4 /*yield*/, manager.save(parent)];
                 case 1:
                     _a.sent();
-                    return [4 /*yield*/, manager.findOneById(Parent_1.Parent, 1)];
+                    return [4 /*yield*/, manager.findOne(Parent_1.Parent, 1)];
                 case 2:
                     loadedParent = _a.sent();
                     chai_1.expect(loadedParent).not.to.be.empty;
                     if (!loadedParent)
                         return [2 /*return*/];
-                    child = new Child_1.Child();
-                    child.name = "Child";
-                    child.parent = Promise.resolve(loadedParent);
+                    child = connection.manager.create(Child_1.Child, {
+                        name: "Child",
+                        parent: loadedParent
+                    });
                     return [4 /*yield*/, manager.save(child)];
                 case 3:
                     _a.sent();
                     return [4 /*yield*/, manager.findOne(Child_1.Child, { parent: loadedParent })];
                 case 4:
                     foundChild = _a.sent();
-                    // SQL Error: QueryFailedError: ER_PARSE_ERROR: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ' `id` = 1' at line 1
-                    /**
-                     * TypeScript Error
-                     *
-                     * test/github-issues/1055/issue-1055.ts(35,57): error TS2345: Argument of type '{ parent: Parent; }' is not assignable to parameter of type 'Partial<Child> | undefined'.
-                     *  Type '{ parent: Parent; }' is not assignable to type 'Partial<Child>'.
-                     *   Types of property 'parent' are incompatible.
-                     *    Type 'Parent' is not assignable to type 'Promise<Parent> | undefined'.
-                     *     Type 'Parent' is not assignable to type 'Promise<Parent>'.
-                     *      Property '[Symbol.toStringTag]' is missing in type 'Parent'.
-                     */
                     chai_1.expect(foundChild).not.to.be.empty;
                     return [2 /*return*/];
             }
         });
     }); })); });
-    it.skip("should be able to lookup from promise as well", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
+    it("should be able to lookup from promise as well", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
         var manager, parent, loadedParent, child, foundChild;
         return __generator(this, function (_a) {
             switch (_a.label) {
@@ -109,7 +100,7 @@ describe("github issues > #1055 ind with relations not working, correct syntax c
                     return [4 /*yield*/, manager.save(parent)];
                 case 1:
                     _a.sent();
-                    return [4 /*yield*/, manager.findOneById(Parent_1.Parent, 1)];
+                    return [4 /*yield*/, manager.findOne(Parent_1.Parent, 1)];
                 case 2:
                     loadedParent = _a.sent();
                     chai_1.expect(loadedParent).not.to.be.empty;
@@ -121,10 +112,9 @@ describe("github issues > #1055 ind with relations not working, correct syntax c
                     return [4 /*yield*/, manager.save(child)];
                 case 3:
                     _a.sent();
-                    return [4 /*yield*/, manager.findOne(Child_1.Child, { parent: Promise.resolve(loadedParent) })];
+                    return [4 /*yield*/, manager.findOne(Child_1.Child, { parent: PromiseUtils_1.PromiseUtils.create(loadedParent) })];
                 case 4:
                     foundChild = _a.sent();
-                    // QueryFailedError: ER_BAD_FIELD_ERROR: Unknown column 'domain' in 'where clause'
                     chai_1.expect(foundChild).not.to.be.empty;
                     return [2 /*return*/];
             }
@@ -141,7 +131,7 @@ describe("github issues > #1055 ind with relations not working, correct syntax c
                     return [4 /*yield*/, manager.save(parent)];
                 case 1:
                     _a.sent();
-                    return [4 /*yield*/, manager.findOneById(Parent_1.Parent, 1)];
+                    return [4 /*yield*/, manager.findOne(Parent_1.Parent, 1)];
                 case 2:
                     loadedParent = _a.sent();
                     chai_1.expect(loadedParent).not.to.be.empty;
@@ -156,15 +146,6 @@ describe("github issues > #1055 ind with relations not working, correct syntax c
                     return [4 /*yield*/, manager.findOne(Child_1.Child, { parent: loadedParent.id })];
                 case 4:
                     foundChild = _a.sent();
-                    /**
-                     * TypeScript Error
-                     * test/github-issues/1055/issue-1055.ts(35,57): error TS2345: Argument of type '{ parent: Parent; }' is not assignable to parameter of type 'Partial<Child> | undefined'.
-                     *  Type '{ parent: Parent; }' is not assignable to type 'Partial<Child>'.
-                     *   Types of property 'parent' are incompatible.
-                     *     Type 'Parent' is not assignable to type 'Promise<Parent> | undefined'.
-                     *      Type 'Parent' is not assignable to type 'Promise<Parent>'.
-                     *       Property '[Symbol.toStringTag]' is missing in type 'Parent'.
-                     */
                     chai_1.expect(foundChild).not.to.be.empty;
                     return [2 /*return*/];
             }

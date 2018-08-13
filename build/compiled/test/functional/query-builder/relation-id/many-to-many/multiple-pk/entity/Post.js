@@ -14,7 +14,6 @@ var Entity_1 = require("../../../../../../../src/decorator/entity/Entity");
 var Column_1 = require("../../../../../../../src/decorator/columns/Column");
 var JoinTable_1 = require("../../../../../../../src/decorator/relations/JoinTable");
 var PrimaryColumn_1 = require("../../../../../../../src/decorator/columns/PrimaryColumn");
-var Index_1 = require("../../../../../../../src/decorator/Index");
 var Category_1 = require("./Category");
 var Post = /** @class */ (function () {
     function Post() {
@@ -47,8 +46,7 @@ var Post = /** @class */ (function () {
         __metadata("design:type", Array)
     ], Post.prototype, "subcategories", void 0);
     Post = __decorate([
-        Entity_1.Entity(),
-        Index_1.Index(["id", "authorId"])
+        Entity_1.Entity()
     ], Post);
     return Post;
 }());

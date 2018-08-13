@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+var _1 = require("../../");
 var ColumnTypeUndefinedError_1 = require("../../error/ColumnTypeUndefinedError");
-var index_1 = require("../../index");
 var PrimaryColumnCannotBeNullableError_1 = require("../../error/PrimaryColumnCannotBeNullableError");
 /**
  * Column decorator is used to mark a specific class property as a table column.
@@ -9,44 +9,39 @@ var PrimaryColumnCannotBeNullableError_1 = require("../../error/PrimaryColumnCan
  * Primary columns also creates a PRIMARY KEY for this column in a db.
  */
 function PrimaryColumn(typeOrOptions, options) {
-    var type;
-    if (typeof typeOrOptions === "string") {
-        type = typeOrOptions;
-    }
-    else {
-        options = typeOrOptions;
-    }
     return function (object, propertyName) {
-        // const reflectedType = ColumnTypes.typeToString((Reflect as any).getMetadata("design:type", object, propertyName));
-        // if type is not given implicitly then try to guess it
-        if (!type) {
-            var reflectMetadataType = Reflect && Reflect.getMetadata ? Reflect.getMetadata("design:type", object, propertyName) : undefined;
-            if (reflectMetadataType)
-                type = reflectMetadataType;
+        // normalize parameters
+        var type;
+        if (typeof typeOrOptions === "string") {
+            type = typeOrOptions;
         }
-        // if column options are not given then create a new empty options
+        else {
+            options = typeOrOptions;
+        }
         if (!options)
             options = {};
+        // if type is not given explicitly then try to guess it
+        var reflectMetadataType = Reflect && Reflect.getMetadata ? Reflect.getMetadata("design:type", object, propertyName) : undefined;
+        if (!type && reflectMetadataType)
+            type = reflectMetadataType;
         // check if there is no type in column options then set type from first function argument, or guessed one
         if (!options.type && type)
-            options = Object.assign({ type: type }, options);
+            options.type = type;
         // if we still don't have a type then we need to give error to user that type is required
         if (!options.type)
             throw new ColumnTypeUndefinedError_1.ColumnTypeUndefinedError(object, propertyName);
         // check if column is not nullable, because we cannot allow a primary key to be nullable
         if (options.nullable)
             throw new PrimaryColumnCannotBeNullableError_1.PrimaryColumnCannotBeNullableError(object, propertyName);
-        // implicitly set a primary to column options
-        options = Object.assign({ primary: true }, options);
+        // explicitly set a primary to column options
+        options.primary = true;
         // create and register a new column metadata
-        var args = {
+        _1.getMetadataArgsStorage().columns.push({
             target: object.constructor,
             propertyName: propertyName,
-            // propertyType: reflectedType,
             mode: "regular",
             options: options
-        };
-        index_1.getMetadataArgsStorage().columns.push(args);
+        });
     };
 }
 exports.PrimaryColumn = PrimaryColumn;

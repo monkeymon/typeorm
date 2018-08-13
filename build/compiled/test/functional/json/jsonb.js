@@ -89,7 +89,7 @@ describe("jsonb type", function () {
                     return [4 /*yield*/, recordRepo.save(record)];
                 case 2:
                     persistedRecord = _a.sent();
-                    return [4 /*yield*/, recordRepo.findOneById(persistedRecord.id)];
+                    return [4 /*yield*/, recordRepo.findOne(persistedRecord.id)];
                 case 3:
                     foundRecord = _a.sent();
                     chai_1.expect(foundRecord).to.be.not.undefined;
@@ -109,7 +109,7 @@ describe("jsonb type", function () {
                     return [4 /*yield*/, recordRepo.save(record)];
                 case 1:
                     persistedRecord = _a.sent();
-                    return [4 /*yield*/, recordRepo.findOneById(persistedRecord.id)];
+                    return [4 /*yield*/, recordRepo.findOne(persistedRecord.id)];
                 case 2:
                     foundRecord = _a.sent();
                     chai_1.expect(foundRecord).to.be.not.undefined;
@@ -130,7 +130,7 @@ describe("jsonb type", function () {
                     return [4 /*yield*/, recordRepo.save(record)];
                 case 1:
                     persistedRecord = _a.sent();
-                    return [4 /*yield*/, recordRepo.findOneById(persistedRecord.id)];
+                    return [4 /*yield*/, recordRepo.findOne(persistedRecord.id)];
                 case 2:
                     foundRecord = _a.sent();
                     chai_1.expect(foundRecord).to.be.not.undefined;

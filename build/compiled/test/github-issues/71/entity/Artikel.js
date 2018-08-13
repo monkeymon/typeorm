@@ -41,7 +41,7 @@ var Artikel = /** @class */ (function () {
         __metadata("design:type", String)
     ], Artikel.prototype, "saison", void 0);
     __decorate([
-        ManyToOne_1.ManyToOne(function (type) { return Kollektion_1.Kollektion; }, { cascadeAll: true }),
+        ManyToOne_1.ManyToOne(function (type) { return Kollektion_1.Kollektion; }, { cascade: true }),
         JoinColumn_1.JoinColumn({ name: "id_kollektion" }),
         __metadata("design:type", Kollektion_1.Kollektion)
     ], Artikel.prototype, "kollektion", void 0);

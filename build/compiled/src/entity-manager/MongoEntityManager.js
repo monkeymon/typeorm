@@ -49,6 +49,9 @@ var EntityManager_1 = require("./EntityManager");
 var DocumentToEntityTransformer_1 = require("../query-builder/transformer/DocumentToEntityTransformer");
 var FindOptionsUtils_1 = require("../find-options/FindOptionsUtils");
 var PlatformTools_1 = require("../platform/PlatformTools");
+var InsertResult_1 = require("../query-builder/result/InsertResult");
+var UpdateResult_1 = require("../query-builder/result/UpdateResult");
+var DeleteResult_1 = require("../query-builder/result/DeleteResult");
 /**
  * Entity manager supposed to work with any entity, automatically find its repository and call its methods,
  * whatever entity type are you passing.
@@ -177,13 +180,18 @@ var MongoEntityManager = /** @class */ (function (_super) {
     /**
      * Finds first entity that matches given conditions and/or find options.
      */
-    MongoEntityManager.prototype.findOne = function (entityClassOrName, optionsOrConditions) {
+    MongoEntityManager.prototype.findOne = function (entityClassOrName, optionsOrConditions, maybeOptions) {
         return __awaiter(this, void 0, void 0, function () {
-            var query, cursor, result;
+            var objectIdInstance, id, query, cursor, result;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        query = this.convertFindOneOptionsOrConditionsToMongodbQuery(optionsOrConditions);
+                        objectIdInstance = PlatformTools_1.PlatformTools.load("mongodb").ObjectID;
+                        id = (optionsOrConditions instanceof objectIdInstance) || typeof optionsOrConditions === "string" ? optionsOrConditions : undefined;
+                        query = this.convertFindOneOptionsOrConditionsToMongodbQuery((id ? maybeOptions : optionsOrConditions)) || {};
+                        if (id) {
+                            query["_id"] = (id instanceof objectIdInstance) ? id : new objectIdInstance(id);
+                        }
                         return [4 /*yield*/, this.createEntityCursor(entityClassOrName, query)];
                     case 1:
                         cursor = _a.sent();
@@ -200,31 +208,99 @@ var MongoEntityManager = /** @class */ (function (_super) {
         });
     };
     /**
-     * Finds entity by given id.
-     * Optionally find options or conditions can be applied.
+     * Inserts a given entity into the database.
+     * Unlike save method executes a primitive operation without cascades, relations and other operations included.
+     * Executes fast and efficient INSERT query.
+     * Does not check if entity exist in the database, so query will fail if duplicate entity is being inserted.
+     * You can execute bulk inserts using this method.
      */
-    MongoEntityManager.prototype.findOneById = function (entityClassOrName, id, optionsOrConditions) {
+    MongoEntityManager.prototype.insert = function (target, entity, options) {
         return __awaiter(this, void 0, void 0, function () {
-            var query, objectIdInstance, cursor, result;
+            var _this = this;
+            var result, _a, _b;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        result = new InsertResult_1.InsertResult();
+                        if (!(entity instanceof Array)) return [3 /*break*/, 2];
+                        _a = result;
+                        return [4 /*yield*/, this.insertMany(target, entity)];
+                    case 1:
+                        _a.raw = _c.sent();
+                        Object.keys(result.raw.insertedIds).forEach(function (key) {
+                            var insertedId = result.raw.insertedIds[key];
+                            result.generatedMaps.push(_this.connection.driver.createGeneratedMap(_this.connection.getMetadata(target), insertedId));
+                            result.identifiers.push(_this.connection.driver.createGeneratedMap(_this.connection.getMetadata(target), insertedId));
+                        });
+                        return [3 /*break*/, 4];
+                    case 2:
+                        _b = result;
+                        return [4 /*yield*/, this.insertOne(target, entity)];
+                    case 3:
+                        _b.raw = _c.sent();
+                        result.generatedMaps.push(this.connection.driver.createGeneratedMap(this.connection.getMetadata(target), result.raw.insertedId));
+                        result.identifiers.push(this.connection.driver.createGeneratedMap(this.connection.getMetadata(target), result.raw.insertedId));
+                        _c.label = 4;
+                    case 4: return [2 /*return*/, result];
+                }
+            });
+        });
+    };
+    /**
+     * Updates entity partially. Entity can be found by a given conditions.
+     * Unlike save method executes a primitive operation without cascades, relations and other operations included.
+     * Executes fast and efficient UPDATE query.
+     * Does not check if entity exist in the database.
+     */
+    MongoEntityManager.prototype.update = function (target, criteria, partialEntity, options) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            var metadata;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        query = this.convertFindOneOptionsOrConditionsToMongodbQuery(optionsOrConditions) || {};
-                        objectIdInstance = PlatformTools_1.PlatformTools.load("mongodb").ObjectID;
-                        query["_id"] = (id instanceof objectIdInstance)
-                            ? id
-                            : new objectIdInstance(id);
-                        return [4 /*yield*/, this.createEntityCursor(entityClassOrName, query)];
+                        if (!(criteria instanceof Array)) return [3 /*break*/, 2];
+                        return [4 /*yield*/, Promise.all(criteria.map(function (criteriaItem) {
+                                return _this.update(target, criteriaItem, partialEntity);
+                            }))];
                     case 1:
-                        cursor = _a.sent();
-                        if (FindOptionsUtils_1.FindOptionsUtils.isFindOneOptions(optionsOrConditions)) {
-                            if (optionsOrConditions.order)
-                                cursor.sort(this.convertFindOptionsOrderToOrderCriteria(optionsOrConditions.order));
-                        }
-                        return [4 /*yield*/, cursor.limit(1).toArray()];
+                        _a.sent();
+                        return [3 /*break*/, 4];
                     case 2:
-                        result = _a.sent();
-                        return [2 /*return*/, result.length > 0 ? result[0] : undefined];
+                        metadata = this.connection.getMetadata(target);
+                        return [4 /*yield*/, this.updateOne(target, this.convertMixedCriteria(metadata, criteria), { $set: partialEntity })];
+                    case 3:
+                        _a.sent();
+                        _a.label = 4;
+                    case 4: return [2 /*return*/, new UpdateResult_1.UpdateResult()];
+                }
+            });
+        });
+    };
+    /**
+     * Deletes entities by a given conditions.
+     * Unlike save method executes a primitive operation without cascades, relations and other operations included.
+     * Executes fast and efficient DELETE query.
+     * Does not check if entity exist in the database.
+     */
+    MongoEntityManager.prototype.delete = function (target, criteria, options) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (!(criteria instanceof Array)) return [3 /*break*/, 2];
+                        return [4 /*yield*/, Promise.all(criteria.map(function (criteriaItem) {
+                                return _this.delete(target, criteriaItem);
+                            }))];
+                    case 1:
+                        _a.sent();
+                        return [3 /*break*/, 4];
+                    case 2: return [4 /*yield*/, this.deleteOne(target, this.convertMixedCriteria(this.connection.getMetadata(target), criteria))];
+                    case 3:
+                        _a.sent();
+                        _a.label = 4;
+                    case 4: return [2 /*return*/, new DeleteResult_1.DeleteResult()];
                 }
             });
         });
@@ -246,45 +322,7 @@ var MongoEntityManager = /** @class */ (function (_super) {
     MongoEntityManager.prototype.createEntityCursor = function (entityClassOrName, query) {
         var metadata = this.connection.getMetadata(entityClassOrName);
         var cursor = this.createCursor(entityClassOrName, query);
-        var ParentCursor = PlatformTools_1.PlatformTools.load("mongodb").Cursor;
-        cursor.toArray = function (callback) {
-            if (callback) {
-                ParentCursor.prototype.toArray.call(this, function (error, results) {
-                    if (error) {
-                        callback(error, results);
-                        return;
-                    }
-                    var transformer = new DocumentToEntityTransformer_1.DocumentToEntityTransformer();
-                    return callback(error, transformer.transformAll(results, metadata));
-                });
-            }
-            else {
-                return ParentCursor.prototype.toArray.call(this).then(function (results) {
-                    var transformer = new DocumentToEntityTransformer_1.DocumentToEntityTransformer();
-                    return transformer.transformAll(results, metadata);
-                });
-            }
-        };
-        cursor.next = function (callback) {
-            if (callback) {
-                ParentCursor.prototype.next.call(this, function (error, result) {
-                    if (error || !result) {
-                        callback(error, result);
-                        return;
-                    }
-                    var transformer = new DocumentToEntityTransformer_1.DocumentToEntityTransformer();
-                    return callback(error, transformer.transform(result, metadata));
-                });
-            }
-            else {
-                return ParentCursor.prototype.next.call(this).then(function (result) {
-                    if (!result)
-                        return result;
-                    var transformer = new DocumentToEntityTransformer_1.DocumentToEntityTransformer();
-                    return transformer.transform(result, metadata);
-                });
-            }
-        };
+        this.applyEntityTransformationToCursor(metadata, cursor);
         return cursor;
     };
     /**
@@ -293,6 +331,16 @@ var MongoEntityManager = /** @class */ (function (_super) {
     MongoEntityManager.prototype.aggregate = function (entityClassOrName, pipeline, options) {
         var metadata = this.connection.getMetadata(entityClassOrName);
         return this.queryRunner.aggregate(metadata.tableName, pipeline, options);
+    };
+    /**
+     * Execute an aggregation framework pipeline against the collection.
+     * This returns modified version of cursor that transforms each result into Entity model.
+     */
+    MongoEntityManager.prototype.aggregateEntity = function (entityClassOrName, pipeline, options) {
+        var metadata = this.connection.getMetadata(entityClassOrName);
+        var cursor = this.queryRunner.aggregate(metadata.tableName, pipeline, options);
+        this.applyEntityTransformationToCursor(metadata, cursor);
+        return cursor;
     };
     /**
      * Perform a bulkWrite operation without a fluent API.
@@ -569,6 +617,68 @@ var MongoEntityManager = /** @class */ (function (_super) {
             }
             return orderCriteria;
         }, {});
+    };
+    /**
+     * Ensures given id is an id for query.
+     */
+    MongoEntityManager.prototype.convertMixedCriteria = function (metadata, idMap) {
+        if (idMap instanceof Object) {
+            return metadata.columns.reduce(function (query, column) {
+                var columnValue = column.getEntityValue(idMap);
+                if (columnValue !== undefined)
+                    query[column.databasePath] = columnValue;
+                return query;
+            }, {});
+        }
+        // means idMap is just object id
+        var objectIdInstance = PlatformTools_1.PlatformTools.load("mongodb").ObjectID;
+        return {
+            "_id": (idMap instanceof objectIdInstance) ? idMap : new objectIdInstance(idMap)
+        };
+    };
+    /**
+     * Overrides cursor's toArray and next methods to convert results to entity automatically.
+     */
+    MongoEntityManager.prototype.applyEntityTransformationToCursor = function (metadata, cursor) {
+        var ParentCursor = PlatformTools_1.PlatformTools.load("mongodb").Cursor;
+        cursor.toArray = function (callback) {
+            if (callback) {
+                ParentCursor.prototype.toArray.call(this, function (error, results) {
+                    if (error) {
+                        callback(error, results);
+                        return;
+                    }
+                    var transformer = new DocumentToEntityTransformer_1.DocumentToEntityTransformer();
+                    return callback(error, transformer.transformAll(results, metadata));
+                });
+            }
+            else {
+                return ParentCursor.prototype.toArray.call(this).then(function (results) {
+                    var transformer = new DocumentToEntityTransformer_1.DocumentToEntityTransformer();
+                    return transformer.transformAll(results, metadata);
+                });
+            }
+        };
+        cursor.next = function (callback) {
+            if (callback) {
+                ParentCursor.prototype.next.call(this, function (error, result) {
+                    if (error || !result) {
+                        callback(error, result);
+                        return;
+                    }
+                    var transformer = new DocumentToEntityTransformer_1.DocumentToEntityTransformer();
+                    return callback(error, transformer.transform(result, metadata));
+                });
+            }
+            else {
+                return ParentCursor.prototype.next.call(this).then(function (result) {
+                    if (!result)
+                        return result;
+                    var transformer = new DocumentToEntityTransformer_1.DocumentToEntityTransformer();
+                    return transformer.transform(result, metadata);
+                });
+            }
+        };
     };
     return MongoEntityManager;
 }(EntityManager_1.EntityManager));

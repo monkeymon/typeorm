@@ -24,7 +24,7 @@ var View = /** @class */ (function () {
         __metadata("design:type", String)
     ], View.prototype, "title", void 0);
     View = __decorate([
-        Entity_1.Entity("view", { skipSync: true })
+        Entity_1.Entity("view", { synchronize: false })
     ], View);
     return View;
 }());

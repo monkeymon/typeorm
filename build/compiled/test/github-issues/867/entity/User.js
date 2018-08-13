@@ -18,7 +18,6 @@ var User = /** @class */ (function () {
     }
     __decorate([
         PrimaryGeneratedColumn_1.PrimaryGeneratedColumn(),
-        Index_1.Index(),
         __metadata("design:type", Number)
     ], User.prototype, "id", void 0);
     __decorate([

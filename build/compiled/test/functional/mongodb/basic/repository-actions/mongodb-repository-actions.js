@@ -174,7 +174,7 @@ describe("mongodb > basic repository actions", function () {
                     return [4 /*yield*/, postRepository.save(posts)];
                 case 3:
                     _b.sent();
-                    return [4 /*yield*/, postRepository.findOneById(post1.id)];
+                    return [4 /*yield*/, postRepository.findOne(post1.id)];
                 case 4:
                     loadedPost1 = _b.sent();
                     chai_1.expect(loadedPost1.id).to.be.eql(post1.id);
@@ -319,7 +319,7 @@ describe("mongodb > basic repository actions", function () {
                     return [4 /*yield*/, postRepository.save(post2)];
                 case 2:
                     _b.sent();
-                    return [4 /*yield*/, postRepository.findOneById(post1.id)];
+                    return [4 /*yield*/, postRepository.findOne(post1.id)];
                 case 3:
                     loadedPost1 = _b.sent();
                     return [4 /*yield*/, postRepository.remove(loadedPost1)];

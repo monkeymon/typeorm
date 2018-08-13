@@ -4,7 +4,6 @@ export declare class PostWithOptions {
     decimal: number;
     dec: number;
     numeric: number;
-    float: number;
     char: string;
     varchar: string;
     nchar: string;

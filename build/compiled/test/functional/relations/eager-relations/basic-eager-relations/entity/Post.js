@@ -34,11 +34,11 @@ var Post = /** @class */ (function () {
         ManyToMany_1.ManyToMany(function (type) { return Category_1.Category; }, { eager: true }),
         JoinTable_1.JoinTable(),
         __metadata("design:type", Array)
-    ], Post.prototype, "primaryCategories", void 0);
+    ], Post.prototype, "categories1", void 0);
     __decorate([
-        ManyToMany_1.ManyToMany(function (type) { return Category_1.Category; }, function (category) { return category.secondaryPosts; }, { eager: true }),
+        ManyToMany_1.ManyToMany(function (type) { return Category_1.Category; }, function (category) { return category.posts2; }, { eager: true }),
         __metadata("design:type", Array)
-    ], Post.prototype, "secondaryCategories", void 0);
+    ], Post.prototype, "categories2", void 0);
     __decorate([
         ManyToOne_1.ManyToOne(function (type) { return User_1.User; }, { eager: true }),
         __metadata("design:type", User_1.User)

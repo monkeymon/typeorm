@@ -75,7 +75,7 @@ index_1.createConnection(options).then(function (connection) { return __awaiter(
                 _a.sent();
                 console.log("employee has been saved: ", employee);
                 console.log("now loading the employee: ");
-                return [4 /*yield*/, employeeRepository.findOneById(1)];
+                return [4 /*yield*/, employeeRepository.findOne(1)];
             case 2:
                 loadedEmployee = _a.sent();
                 console.log("loaded employee: ", loadedEmployee);
@@ -92,7 +92,7 @@ index_1.createConnection(options).then(function (connection) { return __awaiter(
                 _a.sent();
                 console.log("homesitter has been saved: ", homesitter);
                 console.log("now loading the homesitter: ");
-                return [4 /*yield*/, homesitterRepository.findOneById(2)];
+                return [4 /*yield*/, homesitterRepository.findOne(2)];
             case 4:
                 loadedHomesitter = _a.sent();
                 console.log("loaded homesitter: ", loadedHomesitter);
@@ -109,34 +109,34 @@ index_1.createConnection(options).then(function (connection) { return __awaiter(
                 _a.sent();
                 console.log("student has been saved: ", student);
                 console.log("now loading the student: ");
-                return [4 /*yield*/, studentRepository.findOneById(3)];
+                return [4 /*yield*/, studentRepository.findOne(3)];
             case 6:
                 loadedStudent = _a.sent();
                 console.log("loaded student: ", loadedStudent);
                 console.log("-----------------");
-                return [4 /*yield*/, employeeRepository.findOneById(2)];
+                return [4 /*yield*/, employeeRepository.findOne(2)];
             case 7:
                 secondEmployee = _a.sent();
                 console.log("Non exist employee: ", secondEmployee);
-                return [4 /*yield*/, employeeRepository.findOneById(3)];
+                return [4 /*yield*/, employeeRepository.findOne(3)];
             case 8:
                 thirdEmployee = _a.sent();
                 console.log("Non exist employee: ", thirdEmployee);
                 console.log("-----------------");
-                return [4 /*yield*/, homesitterRepository.findOneById(1)];
+                return [4 /*yield*/, homesitterRepository.findOne(1)];
             case 9:
                 secondHomesitter = _a.sent();
                 console.log("Non exist homesitter: ", secondHomesitter);
-                return [4 /*yield*/, homesitterRepository.findOneById(3)];
+                return [4 /*yield*/, homesitterRepository.findOne(3)];
             case 10:
                 thirdHomesitter = _a.sent();
                 console.log("Non exist homesitter: ", thirdHomesitter);
                 console.log("-----------------");
-                return [4 /*yield*/, studentRepository.findOneById(1)];
+                return [4 /*yield*/, studentRepository.findOne(1)];
             case 11:
                 secondStudent = _a.sent();
                 console.log("Non exist student: ", secondStudent);
-                return [4 /*yield*/, studentRepository.findOneById(2)];
+                return [4 /*yield*/, studentRepository.findOne(2)];
             case 12:
                 thirdStudent = _a.sent();
                 console.log("Non exist student: ", thirdStudent);

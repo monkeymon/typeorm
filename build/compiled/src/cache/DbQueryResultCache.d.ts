@@ -7,6 +7,7 @@ import { Connection } from "../connection/Connection";
  */
 export declare class DbQueryResultCache implements QueryResultCache {
     protected connection: Connection;
+    private queryResultCacheTable;
     constructor(connection: Connection);
     /**
      * Creates a connection with given cache provider.

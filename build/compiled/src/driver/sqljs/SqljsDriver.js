@@ -50,6 +50,7 @@ var SqljsQueryRunner_1 = require("./SqljsQueryRunner");
 var DriverPackageNotInstalledError_1 = require("../../error/DriverPackageNotInstalledError");
 var DriverOptionNotSetError_1 = require("../../error/DriverOptionNotSetError");
 var PlatformTools_1 = require("../../platform/PlatformTools");
+var OrmUtils_1 = require("../../util/OrmUtils");
 var SqljsDriver = /** @class */ (function (_super) {
     __extends(SqljsDriver, _super);
     // -------------------------------------------------------------------------
@@ -95,9 +96,14 @@ var SqljsDriver = /** @class */ (function (_super) {
             var _this = this;
             return __generator(this, function (_a) {
                 return [2 /*return*/, new Promise(function (ok, fail) {
-                        _this.queryRunner = undefined;
-                        _this.databaseConnection.close();
-                        ok();
+                        try {
+                            _this.queryRunner = undefined;
+                            _this.databaseConnection.close();
+                            ok();
+                        }
+                        catch (e) {
+                            fail(e);
+                        }
                     })];
             });
         });
@@ -115,7 +121,8 @@ var SqljsDriver = /** @class */ (function (_super) {
      * Loads a database from a given file (Node.js), local storage key (browser) or array.
      * This will delete the current database!
      */
-    SqljsDriver.prototype.load = function (fileNameOrLocalStorageOrData) {
+    SqljsDriver.prototype.load = function (fileNameOrLocalStorageOrData, checkIfFileOrLocalStorageExists) {
+        if (checkIfFileOrLocalStorageExists === void 0) { checkIfFileOrLocalStorageExists = true; }
         if (typeof fileNameOrLocalStorageOrData === "string") {
             // content has to be loaded
             if (PlatformTools_1.PlatformTools.type === "node") {
@@ -125,15 +132,33 @@ var SqljsDriver = /** @class */ (function (_super) {
                     var database = PlatformTools_1.PlatformTools.readFileSync(fileNameOrLocalStorageOrData);
                     return this.createDatabaseConnectionWithImport(database);
                 }
-                else {
+                else if (checkIfFileOrLocalStorageExists) {
                     throw new Error("File " + fileNameOrLocalStorageOrData + " does not exist");
+                }
+                else {
+                    // File doesn't exist and checkIfFileOrLocalStorageExists is set to false.
+                    // Therefore open a database without importing an existing file.
+                    // File will be written on first write operation.
+                    return this.createDatabaseConnectionWithImport();
                 }
             }
             else {
                 // browser
                 // fileNameOrLocalStorageOrData should be a local storage key
                 var localStorageContent = PlatformTools_1.PlatformTools.getGlobalVariable().localStorage.getItem(fileNameOrLocalStorageOrData);
-                return this.createDatabaseConnectionWithImport(JSON.parse(localStorageContent));
+                if (localStorageContent != null) {
+                    // localStorage value exists.
+                    return this.createDatabaseConnectionWithImport(JSON.parse(localStorageContent));
+                }
+                else if (checkIfFileOrLocalStorageExists) {
+                    throw new Error("File " + fileNameOrLocalStorageOrData + " does not exist");
+                }
+                else {
+                    // localStorage value doesn't exist and checkIfFileOrLocalStorageExists is set to false.
+                    // Therefore open a database without importing anything.
+                    // localStorage value will be written on first write operation.
+                    return this.createDatabaseConnectionWithImport();
+                }
             }
         }
         else {
@@ -214,6 +239,28 @@ var SqljsDriver = /** @class */ (function (_super) {
     SqljsDriver.prototype.export = function () {
         return this.databaseConnection.export();
     };
+    /**
+     * Creates generated map of values generated or returned by database after INSERT query.
+     */
+    SqljsDriver.prototype.createGeneratedMap = function (metadata, insertResult) {
+        var _this = this;
+        var generatedMap = metadata.generatedColumns.reduce(function (map, generatedColumn) {
+            // seems to be the only way to get the inserted id, see https://github.com/kripken/sql.js/issues/77
+            if (generatedColumn.isPrimary && generatedColumn.generationStrategy === "increment") {
+                var query = "SELECT last_insert_rowid()";
+                try {
+                    var result = _this.databaseConnection.exec(query);
+                    _this.connection.logger.logQuery(query);
+                    return OrmUtils_1.OrmUtils.mergeDeep(map, generatedColumn.createValueMap(result[0].values[0][0]));
+                }
+                catch (e) {
+                    _this.connection.logger.logQueryError(e, query, []);
+                }
+            }
+            return map;
+        }, {});
+        return Object.keys(generatedMap).length > 0 ? generatedMap : undefined;
+    };
     // -------------------------------------------------------------------------
     // Protected Methods
     // -------------------------------------------------------------------------
@@ -223,7 +270,7 @@ var SqljsDriver = /** @class */ (function (_super) {
      */
     SqljsDriver.prototype.createDatabaseConnection = function () {
         if (this.options.location) {
-            return this.load(this.options.location);
+            return this.load(this.options.location, false);
         }
         return this.createDatabaseConnectionWithImport(this.options.database);
     };
@@ -232,13 +279,27 @@ var SqljsDriver = /** @class */ (function (_super) {
      * If database is specified it is loaded, otherwise a new empty database is created.
      */
     SqljsDriver.prototype.createDatabaseConnectionWithImport = function (database) {
-        if (database && database.length > 0) {
-            this.databaseConnection = new this.sqlite.Database(database);
-        }
-        else {
-            this.databaseConnection = new this.sqlite.Database();
-        }
-        return Promise.resolve(this.databaseConnection);
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                if (database && database.length > 0) {
+                    this.databaseConnection = new this.sqlite.Database(database);
+                }
+                else {
+                    this.databaseConnection = new this.sqlite.Database();
+                }
+                // Enable foreign keys for database
+                return [2 /*return*/, new Promise(function (ok, fail) {
+                        try {
+                            _this.databaseConnection.exec("PRAGMA foreign_keys = ON;");
+                            ok(_this.databaseConnection);
+                        }
+                        catch (e) {
+                            fail(e);
+                        }
+                    })];
+            });
+        });
     };
     /**
      * If driver dependency is not given explicitly, then try to load it via "require".

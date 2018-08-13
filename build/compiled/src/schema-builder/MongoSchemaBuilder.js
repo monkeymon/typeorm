@@ -35,6 +35,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+var SqlInMemory_1 = require("../driver/SqlInMemory");
 /**
  * Creates complete tables schemas in the database based on the entity metadatas.
  *
@@ -88,7 +89,7 @@ var MongoSchemaBuilder = /** @class */ (function () {
      * Returns query to be executed by schema builder.
      */
     MongoSchemaBuilder.prototype.log = function () {
-        return Promise.resolve([]);
+        return Promise.resolve(new SqlInMemory_1.SqlInMemory());
     };
     return MongoSchemaBuilder;
 }());

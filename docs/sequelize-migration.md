@@ -138,9 +138,9 @@ export class Task {
 }
 ```
 
-Its highly recommended to define one entity class per file.
+It's highly recommended to define one entity class per file.
 TypeORM allows you to use your classes as database models
-and provides you a declarative way to define what part of your model 
+and provides a declarative way to define what part of your model 
 will become part of your database table.
 The power of TypeScript gives you type hinting and other useful features that you can use in classes.
 
@@ -188,7 +188,7 @@ someUnique: string;
 Following in sequelize:
 
 ```javascript
-fieldWithUnderscores: { type: Sequelize.STRING, field: 'field_with_underscores' },
+fieldWithUnderscores: { type: Sequelize.STRING, field: "field_with_underscores" },
 ```
 
 Translates to this in TypeORM:
@@ -257,16 +257,16 @@ or
 const employee = Employee.create({ name: "John Doe", title: "senior engineer" });
 ```
 
-if you want to load an exist entity from the database and replace some of its properties you can use following method:
+if you want to load an existing entity from the database and replace some of its properties you can use the following method:
 
 ```typescript
 const employee = await Employee.preload({ id: 1, name: "John Doe" });
 ```
 
-To access properties in sequelize you do following:
+To access properties in sequelize you do the following:
 
 ```typescript
-console.log(employee.get('name'));
+console.log(employee.get("name"));
 ```
 
 In TypeORM you simply do:

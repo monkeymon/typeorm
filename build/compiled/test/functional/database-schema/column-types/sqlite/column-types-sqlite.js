@@ -48,8 +48,6 @@ describe("database schema > column types > sqlite", function () {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
                         enabledDrivers: ["sqlite"],
-                        schemaCreate: true,
-                        dropSchema: true,
                     })];
                 case 1:
                     connections = _a.sent();
@@ -104,10 +102,11 @@ describe("database schema > column types > sqlite", function () {
                     post.datetime = new Date();
                     post.datetime.setMilliseconds(0);
                     post.simpleArray = ["A", "B", "C"];
+                    post.simpleJson = { param: "VALUE" };
                     return [4 /*yield*/, postRepository.save(post)];
                 case 3:
                     _a.sent();
-                    return [4 /*yield*/, postRepository.findOneById(1)];
+                    return [4 /*yield*/, postRepository.findOne(1)];
                 case 4:
                     loadedPost = (_a.sent());
                     loadedPost.id.should.be.equal(post.id);
@@ -142,6 +141,7 @@ describe("database schema > column types > sqlite", function () {
                     loadedPost.simpleArray[0].should.be.equal(post.simpleArray[0]);
                     loadedPost.simpleArray[1].should.be.equal(post.simpleArray[1]);
                     loadedPost.simpleArray[2].should.be.equal(post.simpleArray[2]);
+                    loadedPost.simpleJson.param.should.be.equal(post.simpleJson.param);
                     table.findColumnByName("id").type.should.be.equal("integer");
                     table.findColumnByName("name").type.should.be.equal("varchar");
                     table.findColumnByName("int").type.should.be.equal("integer");
@@ -171,6 +171,7 @@ describe("database schema > column types > sqlite", function () {
                     table.findColumnByName("date").type.should.be.equal("date");
                     table.findColumnByName("datetime").type.should.be.equal("datetime");
                     table.findColumnByName("simpleArray").type.should.be.equal("text");
+                    table.findColumnByName("simpleJson").type.should.be.equal("text");
                     return [2 /*return*/];
             }
         });
@@ -198,7 +199,7 @@ describe("database schema > column types > sqlite", function () {
                     return [4 /*yield*/, postRepository.save(post)];
                 case 3:
                     _a.sent();
-                    return [4 /*yield*/, postRepository.findOneById(1)];
+                    return [4 /*yield*/, postRepository.findOne(1)];
                 case 4:
                     loadedPost = (_a.sent());
                     loadedPost.id.should.be.equal(post.id);

@@ -1,6 +1,10 @@
 import { ObjectLiteral } from "../common/ObjectLiteral";
 export declare class OrmUtils {
-    static splitClassesAndStrings<T>(clsesAndStrings: T[] | string[]): [T[], string[]];
+    /**
+     * Chunks array into peaces.
+     */
+    static chunk<T>(array: T[], size: number): T[][];
+    static splitClassesAndStrings<T>(clsesAndStrings: (string | T)[]): [T[], string[]];
     static groupBy<T, R>(array: T[], propertyCallback: (item: T) => R): {
         id: R;
         items: T[];
@@ -28,4 +32,9 @@ export declare class OrmUtils {
      * Composes an object from the given array of keys and values.
      */
     static zipObject(keys: any[], values: any[]): ObjectLiteral;
+    /**
+     * Compares two arrays.
+     */
+    static isArraysEqual(arr1: any[], arr2: any[]): boolean;
+    private static compare2Objects(leftChain, rightChain, x, y);
 }

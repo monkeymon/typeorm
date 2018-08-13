@@ -44,8 +44,7 @@ var Game = /** @class */ (function () {
     ], Game.prototype, "isReviewed", void 0);
     __decorate([
         ManyToMany_1.ManyToMany(function (type) { return Platform_1.Platform; }, function (platform) { return platform.games; }, {
-            cascadeInsert: true,
-            cascadeUpdate: true,
+            cascade: true
         }),
         JoinTable_1.JoinTable(),
         __metadata("design:type", Array)

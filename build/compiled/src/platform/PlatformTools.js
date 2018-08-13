@@ -38,6 +38,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var path = require("path");
 var fs = require("fs");
 var cli_highlight_1 = require("cli-highlight");
+var fs_1 = require("fs");
+exports.ReadStream = fs_1.ReadStream;
 var events_1 = require("events");
 exports.EventEmitter = events_1.EventEmitter;
 var stream_1 = require("stream");
@@ -204,13 +206,13 @@ var PlatformTools = /** @class */ (function () {
      * Logging functions needed by AdvancedConsoleLogger
      */
     PlatformTools.logInfo = function (prefix, info) {
-        console.log(chalk.gray.underline(prefix) + " ", info);
+        console.log(chalk.gray.underline(prefix), info);
     };
     PlatformTools.logError = function (prefix, error) {
-        console.log(chalk.underline.red(prefix) + " ", error);
+        console.log(chalk.underline.red(prefix), error);
     };
     PlatformTools.logWarn = function (prefix, warning) {
-        console.log(chalk.underline.yellow(prefix) + " ", warning);
+        console.log(chalk.underline.yellow(prefix), warning);
     };
     PlatformTools.log = function (message) {
         console.log(chalk.underline(message));

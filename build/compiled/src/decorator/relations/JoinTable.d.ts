@@ -1,4 +1,4 @@
-import { JoinTableOptions } from "../options/JoinTableOptions";
+import { JoinTableOptions } from "../../";
 import { JoinTableMultipleColumnsOptions } from "../options/JoinTableMuplipleColumnsOptions";
 /**
  * JoinTable decorator is used in many-to-many relationship to specify owner side of relationship.

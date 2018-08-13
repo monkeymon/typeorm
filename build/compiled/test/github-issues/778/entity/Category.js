@@ -17,7 +17,7 @@ var Category = /** @class */ (function () {
     }
     __decorate([
         PrimaryGeneratedColumn_1.PrimaryGeneratedColumn({ type: "bigint" }),
-        __metadata("design:type", Number)
+        __metadata("design:type", String)
     ], Category.prototype, "id", void 0);
     __decorate([
         Column_1.Column(),

@@ -75,7 +75,7 @@ describe("github issues > #204 jsonb array is not persisted correctly", function
                     return [4 /*yield*/, connection.manager.save(record)];
                 case 1:
                     _a.sent();
-                    return [4 /*yield*/, connection.manager.findOneById(Record_1.Record, record.id)];
+                    return [4 /*yield*/, connection.manager.findOne(Record_1.Record, record.id)];
                 case 2:
                     foundRecord = _a.sent();
                     chai_1.expect(foundRecord).to.be.not.undefined;

@@ -6,7 +6,7 @@ export declare class Category {
     version: number;
     description: string;
     posts: Post[];
-    postsWithEmptyJoinColumn: Post[];
+    postsWithJoinColumn: Post[];
     postsWithOptions: Post[];
-    postsWithNonPrimaryColumns: Post[];
+    postsWithNonPKColumns: Post[];
 }

@@ -20,27 +20,24 @@ var TileEntity = /** @class */ (function () {
     TileEntity_1 = TileEntity;
     __decorate([
         PrimaryGeneratedColumn_1.PrimaryGeneratedColumn({ type: "bigint" }),
-        __metadata("design:type", Number)
+        __metadata("design:type", String)
     ], TileEntity.prototype, "id", void 0);
     __decorate([
         ManyToMany_1.ManyToMany(function (type) { return TileEntity_1; }, function (tile) { return tile.children; }, {
-            cascadeInsert: true,
-            cascadeUpdate: false
+            cascade: ["insert"]
         }),
         JoinTable_1.JoinTable(),
         __metadata("design:type", Array)
     ], TileEntity.prototype, "parents", void 0);
     __decorate([
         ManyToMany_1.ManyToMany(function (type) { return TileEntity_1; }, function (tile) { return tile.parents; }, {
-            cascadeInsert: true,
-            cascadeUpdate: false
+            cascade: ["insert"]
         }),
         __metadata("design:type", Array)
     ], TileEntity.prototype, "children", void 0);
     __decorate([
         ManyToMany_1.ManyToMany(function (type) { return ActivityEntity_1.ActivityEntity; }, function (activity) { return activity.tiles; }, {
-            cascadeInsert: true,
-            cascadeUpdate: false
+            cascade: ["insert"]
         }),
         JoinTable_1.JoinTable(),
         __metadata("design:type", Array)

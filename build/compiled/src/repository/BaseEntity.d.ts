@@ -7,6 +7,10 @@ import { FindManyOptions } from "../find-options/FindManyOptions";
 import { Connection } from "../connection/Connection";
 import { ObjectType } from "../common/ObjectType";
 import { SelectQueryBuilder } from "../query-builder/SelectQueryBuilder";
+import { InsertResult } from "../query-builder/result/InsertResult";
+import { UpdateResult } from "../query-builder/result/UpdateResult";
+import { DeleteResult } from "../query-builder/result/DeleteResult";
+import { ObjectID } from "../driver/mongodb/typings";
 /**
  * Base abstract entity for all entities, used in ActiveRecord patterns.
  */
@@ -29,6 +33,10 @@ export declare class BaseEntity {
      * Removes current entity from the database.
      */
     remove(): Promise<this>;
+    /**
+     * Reloads entity data from the database.
+     */
+    reload(): Promise<void>;
     /**
      * Sets connection to be used by entity.
      */
@@ -95,18 +103,6 @@ export declare class BaseEntity {
      */
     static save<T extends BaseEntity>(this: ObjectType<T>, entity: T, options?: SaveOptions): Promise<T>;
     /**
-     * Updates entity partially. Entity can be found by a given conditions.
-     */
-    static update<T extends BaseEntity>(this: ObjectType<T>, conditions: Partial<T>, partialEntity: DeepPartial<T>, options?: SaveOptions): Promise<void>;
-    /**
-     * Updates entity partially. Entity can be found by a given find options.
-     */
-    static update<T extends BaseEntity>(this: ObjectType<T>, findOptions: FindOneOptions<T>, partialEntity: DeepPartial<T>, options?: SaveOptions): Promise<void>;
-    /**
-     * Updates entity partially. Entity will be found by a given id.
-     */
-    static updateById<T extends BaseEntity>(this: ObjectType<T>, id: any, partialEntity: DeepPartial<T>, options?: SaveOptions): Promise<void>;
-    /**
      * Removes a given entities from the database.
      */
     static remove<T extends BaseEntity>(this: ObjectType<T>, entities: T[], options?: RemoveOptions): Promise<T[]>;
@@ -115,9 +111,26 @@ export declare class BaseEntity {
      */
     static remove<T extends BaseEntity>(this: ObjectType<T>, entity: T, options?: RemoveOptions): Promise<T>;
     /**
-     * Removes entity by a given entity id.
+     * Inserts a given entity into the database.
+     * Unlike save method executes a primitive operation without cascades, relations and other operations included.
+     * Executes fast and efficient INSERT query.
+     * Does not check if entity exist in the database, so query will fail if duplicate entity is being inserted.
      */
-    static removeById<T extends BaseEntity>(this: ObjectType<T>, id: any, options?: RemoveOptions): Promise<void>;
+    static insert<T extends BaseEntity>(this: ObjectType<T>, entity: DeepPartial<T> | DeepPartial<T>[], options?: SaveOptions): Promise<InsertResult>;
+    /**
+     * Updates entity partially. Entity can be found by a given conditions.
+     * Unlike save method executes a primitive operation without cascades, relations and other operations included.
+     * Executes fast and efficient UPDATE query.
+     * Does not check if entity exist in the database.
+     */
+    static update<T extends BaseEntity>(this: ObjectType<T>, criteria: string | string[] | number | number[] | Date | Date[] | ObjectID | ObjectID[] | DeepPartial<T>, partialEntity: DeepPartial<T>, options?: SaveOptions): Promise<UpdateResult>;
+    /**
+     * Deletes entities by a given criteria.
+     * Unlike save method executes a primitive operation without cascades, relations and other operations included.
+     * Executes fast and efficient DELETE query.
+     * Does not check if entity exist in the database.
+     */
+    static delete<T extends BaseEntity>(this: ObjectType<T>, criteria: string | string[] | number | number[] | Date | Date[] | ObjectID | ObjectID[] | DeepPartial<T>, options?: RemoveOptions): Promise<DeleteResult>;
     /**
      * Counts entities that match given options.
      */
@@ -159,21 +172,27 @@ export declare class BaseEntity {
     /**
      * Finds first entity that matches given options.
      */
+    static findOne<T extends BaseEntity>(this: ObjectType<T>, id?: string | number | Date | ObjectID, options?: FindOneOptions<T>): Promise<T | undefined>;
+    /**
+     * Finds first entity that matches given options.
+     */
     static findOne<T extends BaseEntity>(this: ObjectType<T>, options?: FindOneOptions<T>): Promise<T | undefined>;
     /**
      * Finds first entity that matches given conditions.
      */
-    static findOne<T extends BaseEntity>(this: ObjectType<T>, conditions?: DeepPartial<T>): Promise<T | undefined>;
+    static findOne<T extends BaseEntity>(this: ObjectType<T>, conditions?: DeepPartial<T>, options?: FindOneOptions<T>): Promise<T | undefined>;
     /**
-     * Finds entity by given id.
-     * Optionally find options can be applied.
+     * Finds first entity that matches given options.
      */
-    static findOneById<T extends BaseEntity>(this: ObjectType<T>, id: any, options?: FindOneOptions<T>): Promise<T | undefined>;
+    static findOneOrFail<T extends BaseEntity>(this: ObjectType<T>, id?: string | number | Date | ObjectID, options?: FindOneOptions<T>): Promise<T>;
     /**
-     * Finds entity by given id.
-     * Optionally conditions can be applied.
+     * Finds first entity that matches given options.
      */
-    static findOneById<T extends BaseEntity>(this: ObjectType<T>, id: any, conditions?: DeepPartial<T>): Promise<T | undefined>;
+    static findOneOrFail<T extends BaseEntity>(this: ObjectType<T>, options?: FindOneOptions<T>): Promise<T>;
+    /**
+     * Finds first entity that matches given conditions.
+     */
+    static findOneOrFail<T extends BaseEntity>(this: ObjectType<T>, conditions?: DeepPartial<T>, options?: FindOneOptions<T>): Promise<T>;
     /**
      * Executes a raw SQL query and returns a raw database results.
      * Raw query execution is supported only by relational databases (MongoDB is not supported).

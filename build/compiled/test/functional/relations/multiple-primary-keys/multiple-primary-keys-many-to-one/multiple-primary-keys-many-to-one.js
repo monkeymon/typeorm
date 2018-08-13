@@ -48,8 +48,6 @@ describe("relations > multiple-primary-keys > many-to-one", function () {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        schemaCreate: true,
-                        dropSchema: true,
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -141,39 +139,39 @@ describe("relations > multiple-primary-keys > many-to-one", function () {
                         _a.sent();
                         post1 = new Post_1.Post();
                         post1.title = "About BMW";
-                        post1.categoryWithEmptyJoinColumn = category1;
+                        post1.categoryWithJoinColumn = category1;
                         return [4 /*yield*/, connection.manager.save(post1)];
                     case 3:
                         _a.sent();
                         post2 = new Post_1.Post();
                         post2.title = "About Boeing";
-                        post2.categoryWithEmptyJoinColumn = category2;
+                        post2.categoryWithJoinColumn = category2;
                         return [4 /*yield*/, connection.manager.save(post2)];
                     case 4:
                         _a.sent();
                         return [4 /*yield*/, connection.manager
                                 .createQueryBuilder(Post_1.Post, "post")
-                                .leftJoinAndSelect("post.categoryWithEmptyJoinColumn", "category")
+                                .leftJoinAndSelect("post.categoryWithJoinColumn", "category")
                                 .orderBy("post.id")
                                 .getMany()];
                     case 5:
                         loadedPosts = _a.sent();
-                        chai_1.expect(loadedPosts[0].categoryWithEmptyJoinColumn).to.not.be.empty;
-                        chai_1.expect(loadedPosts[0].categoryWithEmptyJoinColumn.name).to.be.equal("cars");
-                        chai_1.expect(loadedPosts[0].categoryWithEmptyJoinColumn.type).to.be.equal("common-category");
-                        chai_1.expect(loadedPosts[1].categoryWithEmptyJoinColumn).to.not.be.empty;
-                        chai_1.expect(loadedPosts[1].categoryWithEmptyJoinColumn.name).to.be.equal("airplanes");
-                        chai_1.expect(loadedPosts[1].categoryWithEmptyJoinColumn.type).to.be.equal("common-category");
+                        chai_1.expect(loadedPosts[0].categoryWithJoinColumn).to.not.be.empty;
+                        chai_1.expect(loadedPosts[0].categoryWithJoinColumn.name).to.be.equal("cars");
+                        chai_1.expect(loadedPosts[0].categoryWithJoinColumn.type).to.be.equal("common-category");
+                        chai_1.expect(loadedPosts[1].categoryWithJoinColumn).to.not.be.empty;
+                        chai_1.expect(loadedPosts[1].categoryWithJoinColumn.name).to.be.equal("airplanes");
+                        chai_1.expect(loadedPosts[1].categoryWithJoinColumn.type).to.be.equal("common-category");
                         return [4 /*yield*/, connection.manager
                                 .createQueryBuilder(Post_1.Post, "post")
-                                .leftJoinAndSelect("post.categoryWithEmptyJoinColumn", "category")
+                                .leftJoinAndSelect("post.categoryWithJoinColumn", "category")
                                 .where("post.id = :id", { id: 1 })
                                 .getOne()];
                     case 6:
                         loadedPost = _a.sent();
-                        chai_1.expect(loadedPost.categoryWithEmptyJoinColumn).to.not.be.empty;
-                        chai_1.expect(loadedPost.categoryWithEmptyJoinColumn.name).to.be.equal("cars");
-                        chai_1.expect(loadedPost.categoryWithEmptyJoinColumn.type).to.be.equal("common-category");
+                        chai_1.expect(loadedPost.categoryWithJoinColumn).to.not.be.empty;
+                        chai_1.expect(loadedPost.categoryWithJoinColumn.name).to.be.equal("cars");
+                        chai_1.expect(loadedPost.categoryWithJoinColumn.type).to.be.equal("common-category");
                         return [2 /*return*/];
                 }
             });
@@ -263,41 +261,41 @@ describe("relations > multiple-primary-keys > many-to-one", function () {
                         _a.sent();
                         post1 = new Post_1.Post();
                         post1.title = "About BMW";
-                        post1.categoryWithNonPrimaryColumns = category1;
+                        post1.categoryWithNonPKColumns = category1;
                         return [4 /*yield*/, connection.manager.save(post1)];
                     case 3:
                         _a.sent();
                         post2 = new Post_1.Post();
                         post2.title = "About Boeing";
-                        post2.categoryWithNonPrimaryColumns = category2;
+                        post2.categoryWithNonPKColumns = category2;
                         return [4 /*yield*/, connection.manager.save(post2)];
                     case 4:
                         _a.sent();
                         return [4 /*yield*/, connection.manager
                                 .createQueryBuilder(Post_1.Post, "post")
-                                .leftJoinAndSelect("post.categoryWithNonPrimaryColumns", "category")
+                                .leftJoinAndSelect("post.categoryWithNonPKColumns", "category")
                                 .orderBy("post.id")
                                 .getMany()];
                     case 5:
                         loadedPosts = _a.sent();
-                        chai_1.expect(loadedPosts[0].categoryWithNonPrimaryColumns).to.not.be.empty;
-                        chai_1.expect(loadedPosts[0].categoryWithNonPrimaryColumns.code).to.be.equal(1);
-                        chai_1.expect(loadedPosts[0].categoryWithNonPrimaryColumns.version).to.be.equal(1);
-                        chai_1.expect(loadedPosts[0].categoryWithNonPrimaryColumns.description).to.be.equal("category about cars");
-                        chai_1.expect(loadedPosts[1].categoryWithNonPrimaryColumns).to.not.be.empty;
-                        chai_1.expect(loadedPosts[1].categoryWithNonPrimaryColumns.code).to.be.equal(2);
-                        chai_1.expect(loadedPosts[1].categoryWithNonPrimaryColumns.version).to.be.equal(1);
+                        chai_1.expect(loadedPosts[0].categoryWithNonPKColumns).to.not.be.empty;
+                        chai_1.expect(loadedPosts[0].categoryWithNonPKColumns.code).to.be.equal(1);
+                        chai_1.expect(loadedPosts[0].categoryWithNonPKColumns.version).to.be.equal(1);
+                        chai_1.expect(loadedPosts[0].categoryWithNonPKColumns.description).to.be.equal("category about cars");
+                        chai_1.expect(loadedPosts[1].categoryWithNonPKColumns).to.not.be.empty;
+                        chai_1.expect(loadedPosts[1].categoryWithNonPKColumns.code).to.be.equal(2);
+                        chai_1.expect(loadedPosts[1].categoryWithNonPKColumns.version).to.be.equal(1);
                         return [4 /*yield*/, connection.manager
                                 .createQueryBuilder(Post_1.Post, "post")
-                                .leftJoinAndSelect("post.categoryWithNonPrimaryColumns", "category")
+                                .leftJoinAndSelect("post.categoryWithNonPKColumns", "category")
                                 .where("post.id = :id", { id: 1 })
                                 .getOne()];
                     case 6:
                         loadedPost = _a.sent();
-                        chai_1.expect(loadedPost.categoryWithNonPrimaryColumns).to.not.be.empty;
-                        chai_1.expect(loadedPost.categoryWithNonPrimaryColumns.code).to.be.equal(1);
-                        chai_1.expect(loadedPost.categoryWithNonPrimaryColumns.version).to.be.equal(1);
-                        chai_1.expect(loadedPost.categoryWithNonPrimaryColumns.description).to.be.equal("category about cars");
+                        chai_1.expect(loadedPost.categoryWithNonPKColumns).to.not.be.empty;
+                        chai_1.expect(loadedPost.categoryWithNonPKColumns.code).to.be.equal(1);
+                        chai_1.expect(loadedPost.categoryWithNonPKColumns.version).to.be.equal(1);
+                        chai_1.expect(loadedPost.categoryWithNonPKColumns.description).to.be.equal("category about cars");
                         return [2 /*return*/];
                 }
             });
@@ -399,7 +397,7 @@ describe("relations > multiple-primary-keys > many-to-one", function () {
                         category1.type = "common-category";
                         category1.code = 1;
                         category1.version = 1;
-                        category1.postsWithEmptyJoinColumn = [post1, post2];
+                        category1.postsWithJoinColumn = [post1, post2];
                         return [4 /*yield*/, connection.manager.save(category1)];
                     case 4:
                         _a.sent();
@@ -408,38 +406,38 @@ describe("relations > multiple-primary-keys > many-to-one", function () {
                         category2.type = "common-category";
                         category2.code = 2;
                         category2.version = 1;
-                        category2.postsWithEmptyJoinColumn = [post3];
+                        category2.postsWithJoinColumn = [post3];
                         return [4 /*yield*/, connection.manager.save(category2)];
                     case 5:
                         _a.sent();
                         return [4 /*yield*/, connection.manager
                                 .createQueryBuilder(Category_1.Category, "category")
-                                .leftJoinAndSelect("category.postsWithEmptyJoinColumn", "posts")
+                                .leftJoinAndSelect("category.postsWithJoinColumn", "posts")
                                 .orderBy("category.code, posts.id")
                                 .getMany()];
                     case 6:
                         loadedCategories = _a.sent();
-                        chai_1.expect(loadedCategories[0].postsWithEmptyJoinColumn).to.not.be.empty;
-                        chai_1.expect(loadedCategories[0].postsWithEmptyJoinColumn[0].id).to.be.equal(1);
-                        chai_1.expect(loadedCategories[0].postsWithEmptyJoinColumn[0].title).to.be.equal("About BMW");
-                        chai_1.expect(loadedCategories[0].postsWithEmptyJoinColumn[1].id).to.be.equal(2);
-                        chai_1.expect(loadedCategories[0].postsWithEmptyJoinColumn[1].title).to.be.equal("About Audi");
-                        chai_1.expect(loadedCategories[1].postsWithEmptyJoinColumn).to.not.be.empty;
-                        chai_1.expect(loadedCategories[1].postsWithEmptyJoinColumn[0].id).to.be.equal(3);
-                        chai_1.expect(loadedCategories[1].postsWithEmptyJoinColumn[0].title).to.be.equal("About Boeing");
+                        chai_1.expect(loadedCategories[0].postsWithJoinColumn).to.not.be.empty;
+                        chai_1.expect(loadedCategories[0].postsWithJoinColumn[0].id).to.be.equal(1);
+                        chai_1.expect(loadedCategories[0].postsWithJoinColumn[0].title).to.be.equal("About BMW");
+                        chai_1.expect(loadedCategories[0].postsWithJoinColumn[1].id).to.be.equal(2);
+                        chai_1.expect(loadedCategories[0].postsWithJoinColumn[1].title).to.be.equal("About Audi");
+                        chai_1.expect(loadedCategories[1].postsWithJoinColumn).to.not.be.empty;
+                        chai_1.expect(loadedCategories[1].postsWithJoinColumn[0].id).to.be.equal(3);
+                        chai_1.expect(loadedCategories[1].postsWithJoinColumn[0].title).to.be.equal("About Boeing");
                         return [4 /*yield*/, connection.manager
                                 .createQueryBuilder(Category_1.Category, "category")
-                                .leftJoinAndSelect("category.postsWithEmptyJoinColumn", "posts")
+                                .leftJoinAndSelect("category.postsWithJoinColumn", "posts")
                                 .orderBy("posts.id")
                                 .where("category.code = :code", { code: 1 })
                                 .getOne()];
                     case 7:
                         loadedCategory = _a.sent();
-                        chai_1.expect(loadedCategory.postsWithEmptyJoinColumn).to.not.be.empty;
-                        chai_1.expect(loadedCategory.postsWithEmptyJoinColumn[0].id).to.be.equal(1);
-                        chai_1.expect(loadedCategory.postsWithEmptyJoinColumn[0].title).to.be.equal("About BMW");
-                        chai_1.expect(loadedCategory.postsWithEmptyJoinColumn[1].id).to.be.equal(2);
-                        chai_1.expect(loadedCategory.postsWithEmptyJoinColumn[1].title).to.be.equal("About Audi");
+                        chai_1.expect(loadedCategory.postsWithJoinColumn).to.not.be.empty;
+                        chai_1.expect(loadedCategory.postsWithJoinColumn[0].id).to.be.equal(1);
+                        chai_1.expect(loadedCategory.postsWithJoinColumn[0].title).to.be.equal("About BMW");
+                        chai_1.expect(loadedCategory.postsWithJoinColumn[1].id).to.be.equal(2);
+                        chai_1.expect(loadedCategory.postsWithJoinColumn[1].title).to.be.equal("About Audi");
                         return [2 /*return*/];
                 }
             });
@@ -540,7 +538,7 @@ describe("relations > multiple-primary-keys > many-to-one", function () {
                         category1.code = 1;
                         category1.version = 1;
                         category1.description = "category of cars";
-                        category1.postsWithNonPrimaryColumns = [post1, post2];
+                        category1.postsWithNonPKColumns = [post1, post2];
                         return [4 /*yield*/, connection.manager.save(category1)];
                     case 4:
                         _a.sent();
@@ -550,38 +548,38 @@ describe("relations > multiple-primary-keys > many-to-one", function () {
                         category2.code = 2;
                         category2.version = 1;
                         category2.description = "category of airplanes";
-                        category2.postsWithNonPrimaryColumns = [post3];
+                        category2.postsWithNonPKColumns = [post3];
                         return [4 /*yield*/, connection.manager.save(category2)];
                     case 5:
                         _a.sent();
                         return [4 /*yield*/, connection.manager
                                 .createQueryBuilder(Category_1.Category, "category")
-                                .leftJoinAndSelect("category.postsWithNonPrimaryColumns", "posts")
+                                .leftJoinAndSelect("category.postsWithNonPKColumns", "posts")
                                 .orderBy("category.code, posts.id")
                                 .getMany()];
                     case 6:
                         loadedCategories = _a.sent();
-                        chai_1.expect(loadedCategories[0].postsWithNonPrimaryColumns).to.not.be.empty;
-                        chai_1.expect(loadedCategories[0].postsWithNonPrimaryColumns[0].id).to.be.equal(1);
-                        chai_1.expect(loadedCategories[0].postsWithNonPrimaryColumns[0].title).to.be.equal("About BMW");
-                        chai_1.expect(loadedCategories[0].postsWithNonPrimaryColumns[1].id).to.be.equal(2);
-                        chai_1.expect(loadedCategories[0].postsWithNonPrimaryColumns[1].title).to.be.equal("About Audi");
-                        chai_1.expect(loadedCategories[1].postsWithNonPrimaryColumns).to.not.be.empty;
-                        chai_1.expect(loadedCategories[1].postsWithNonPrimaryColumns[0].id).to.be.equal(3);
-                        chai_1.expect(loadedCategories[1].postsWithNonPrimaryColumns[0].title).to.be.equal("About Boeing");
+                        chai_1.expect(loadedCategories[0].postsWithNonPKColumns).to.not.be.empty;
+                        chai_1.expect(loadedCategories[0].postsWithNonPKColumns[0].id).to.be.equal(1);
+                        chai_1.expect(loadedCategories[0].postsWithNonPKColumns[0].title).to.be.equal("About BMW");
+                        chai_1.expect(loadedCategories[0].postsWithNonPKColumns[1].id).to.be.equal(2);
+                        chai_1.expect(loadedCategories[0].postsWithNonPKColumns[1].title).to.be.equal("About Audi");
+                        chai_1.expect(loadedCategories[1].postsWithNonPKColumns).to.not.be.empty;
+                        chai_1.expect(loadedCategories[1].postsWithNonPKColumns[0].id).to.be.equal(3);
+                        chai_1.expect(loadedCategories[1].postsWithNonPKColumns[0].title).to.be.equal("About Boeing");
                         return [4 /*yield*/, connection.manager
                                 .createQueryBuilder(Category_1.Category, "category")
-                                .leftJoinAndSelect("category.postsWithNonPrimaryColumns", "posts")
+                                .leftJoinAndSelect("category.postsWithNonPKColumns", "posts")
                                 .orderBy("posts.id")
                                 .where("category.code = :code", { code: 1 })
                                 .getOne()];
                     case 7:
                         loadedCategory = _a.sent();
-                        chai_1.expect(loadedCategory.postsWithNonPrimaryColumns).to.not.be.empty;
-                        chai_1.expect(loadedCategory.postsWithNonPrimaryColumns[0].id).to.be.equal(1);
-                        chai_1.expect(loadedCategory.postsWithNonPrimaryColumns[0].title).to.be.equal("About BMW");
-                        chai_1.expect(loadedCategory.postsWithNonPrimaryColumns[1].id).to.be.equal(2);
-                        chai_1.expect(loadedCategory.postsWithNonPrimaryColumns[1].title).to.be.equal("About Audi");
+                        chai_1.expect(loadedCategory.postsWithNonPKColumns).to.not.be.empty;
+                        chai_1.expect(loadedCategory.postsWithNonPKColumns[0].id).to.be.equal(1);
+                        chai_1.expect(loadedCategory.postsWithNonPKColumns[0].title).to.be.equal("About BMW");
+                        chai_1.expect(loadedCategory.postsWithNonPKColumns[1].id).to.be.equal(2);
+                        chai_1.expect(loadedCategory.postsWithNonPKColumns[1].title).to.be.equal("About Audi");
                         return [2 /*return*/];
                 }
             });

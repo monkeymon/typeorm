@@ -52,8 +52,6 @@ describe.skip("repository > set/add/remove relation methods", function () {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        schemaCreate: true,
-                        dropSchema: true
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -86,7 +84,7 @@ describe.skip("repository > set/add/remove relation methods", function () {
                     return [4 /*yield*/, postRepository.save(newPost)];
                 case 3:
                     _a.sent();
-                    return [4 /*yield*/, postRepository.findOneById(1, {
+                    return [4 /*yield*/, postRepository.findOne(1, {
                             join: {
                                 alias: "post",
                                 leftJoinAndSelect: {
@@ -126,7 +124,7 @@ describe.skip("repository > set/add/remove relation methods", function () {
                     return [4 /*yield*/, categoryRepository.save(newCategory)];
                 case 3:
                     _a.sent();
-                    return [4 /*yield*/, categoryRepository.findOneById(1, {
+                    return [4 /*yield*/, categoryRepository.findOne(1, {
                             join: {
                                 alias: "category",
                                 leftJoinAndSelect: { manyPosts: "category.manyPosts" }
@@ -170,7 +168,7 @@ describe.skip("repository > set/add/remove relation methods", function () {
                     return [4 /*yield*/, postRepository.save(newPost)];
                 case 4:
                     _a.sent();
-                    return [4 /*yield*/, postRepository.findOneById(1, {
+                    return [4 /*yield*/, postRepository.findOne(1, {
                             join: {
                                 alias: "post",
                                 leftJoinAndSelect: { manyCategories: "post.manyCategories" }
@@ -214,7 +212,7 @@ describe.skip("repository > set/add/remove relation methods", function () {
                     return [4 /*yield*/, categoryRepository.save(newCategory)];
                 case 4:
                     _a.sent();
-                    return [4 /*yield*/, categoryRepository.findOneById(1, {
+                    return [4 /*yield*/, categoryRepository.findOne(1, {
                             join: {
                                 alias: "category",
                                 leftJoinAndSelect: { manyPosts: "category.manyPosts" }
@@ -248,7 +246,7 @@ describe.skip("repository > set/add/remove relation methods", function () {
                     return [4 /*yield*/, postRepository.save(newPost)];
                 case 2:
                     _a.sent();
-                    return [4 /*yield*/, postRepository.findOneById(1, {
+                    return [4 /*yield*/, postRepository.findOne(1, {
                             join: {
                                 alias: "post",
                                 leftJoinAndSelect: { categories: "post.categories" }
@@ -280,7 +278,7 @@ describe.skip("repository > set/add/remove relation methods", function () {
                     return [4 /*yield*/, categoryRepository.save(newCategory)];
                 case 2:
                     _a.sent();
-                    return [4 /*yield*/, categoryRepository.findOneById(1, {
+                    return [4 /*yield*/, categoryRepository.findOne(1, {
                             join: {
                                 alias: "category",
                                 leftJoinAndSelect: { post: "category.post" }
@@ -312,7 +310,7 @@ describe.skip("repository > set/add/remove relation methods", function () {
                     return [4 /*yield*/, postRepository.save(newPost)];
                 case 2:
                     _a.sent();
-                    return [4 /*yield*/, postRepository.findOneById(1, {
+                    return [4 /*yield*/, postRepository.findOne(1, {
                             join: {
                                 alias: "post",
                                 leftJoinAndSelect: { categories: "post.categories" }
@@ -344,7 +342,7 @@ describe.skip("repository > set/add/remove relation methods", function () {
                     return [4 /*yield*/, categoryRepository.save(newCategory)];
                 case 2:
                     _a.sent();
-                    return [4 /*yield*/, categoryRepository.findOneById(1, {
+                    return [4 /*yield*/, categoryRepository.findOne(1, {
                             join: {
                                 alias: "category",
                                 leftJoinAndSelect: { post: "category.post" }

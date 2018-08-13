@@ -3,6 +3,4 @@ export declare class User {
     email: string;
     username: string;
     privilege: number;
-    createdAt: string;
-    updatedAt: string;
 }

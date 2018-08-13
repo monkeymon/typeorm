@@ -49,8 +49,6 @@ describe("relations > multiple-primary-keys > many-to-many", function () {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        schemaCreate: true,
-                        dropSchema: true,
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -235,46 +233,46 @@ describe("relations > multiple-primary-keys > many-to-many", function () {
                         _a.sent();
                         post1 = new Post_1.Post();
                         post1.title = "About BMW";
-                        post1.categoriesWithNonPrimaryColumns = [category1, category2];
+                        post1.categoriesWithNonPKColumns = [category1, category2];
                         return [4 /*yield*/, connection.manager.save(post1)];
                     case 4:
                         _a.sent();
                         post2 = new Post_1.Post();
                         post2.title = "About Boeing";
-                        post2.categoriesWithNonPrimaryColumns = [category3];
+                        post2.categoriesWithNonPKColumns = [category3];
                         return [4 /*yield*/, connection.manager.save(post2)];
                     case 5:
                         _a.sent();
                         return [4 /*yield*/, connection.manager
                                 .createQueryBuilder(Post_1.Post, "post")
-                                .leftJoinAndSelect("post.categoriesWithNonPrimaryColumns", "categories")
+                                .leftJoinAndSelect("post.categoriesWithNonPKColumns", "categories")
                                 .orderBy("post.id, categories.code")
                                 .getMany()];
                     case 6:
                         loadedPosts = _a.sent();
-                        chai_1.expect(loadedPosts[0].categoriesWithNonPrimaryColumns).to.not.be.empty;
-                        chai_1.expect(loadedPosts[0].categoriesWithNonPrimaryColumns[0].code).to.be.equal(1);
-                        chai_1.expect(loadedPosts[0].categoriesWithNonPrimaryColumns[0].version).to.be.equal(1);
-                        chai_1.expect(loadedPosts[0].categoriesWithNonPrimaryColumns[0].description).to.be.equal("category of cars");
-                        chai_1.expect(loadedPosts[0].categoriesWithNonPrimaryColumns[1].code).to.be.equal(2);
-                        chai_1.expect(loadedPosts[0].categoriesWithNonPrimaryColumns[1].version).to.be.equal(1);
-                        chai_1.expect(loadedPosts[0].categoriesWithNonPrimaryColumns[1].description).to.be.equal("category of BMW");
-                        chai_1.expect(loadedPosts[1].categoriesWithNonPrimaryColumns).to.not.be.empty;
-                        chai_1.expect(loadedPosts[1].categoriesWithNonPrimaryColumns[0].code).to.be.equal(3);
-                        chai_1.expect(loadedPosts[1].categoriesWithNonPrimaryColumns[0].version).to.be.equal(1);
-                        chai_1.expect(loadedPosts[1].categoriesWithNonPrimaryColumns[0].description).to.be.equal("category of airplanes");
+                        chai_1.expect(loadedPosts[0].categoriesWithNonPKColumns).to.not.be.empty;
+                        chai_1.expect(loadedPosts[0].categoriesWithNonPKColumns[0].code).to.be.equal(1);
+                        chai_1.expect(loadedPosts[0].categoriesWithNonPKColumns[0].version).to.be.equal(1);
+                        chai_1.expect(loadedPosts[0].categoriesWithNonPKColumns[0].description).to.be.equal("category of cars");
+                        chai_1.expect(loadedPosts[0].categoriesWithNonPKColumns[1].code).to.be.equal(2);
+                        chai_1.expect(loadedPosts[0].categoriesWithNonPKColumns[1].version).to.be.equal(1);
+                        chai_1.expect(loadedPosts[0].categoriesWithNonPKColumns[1].description).to.be.equal("category of BMW");
+                        chai_1.expect(loadedPosts[1].categoriesWithNonPKColumns).to.not.be.empty;
+                        chai_1.expect(loadedPosts[1].categoriesWithNonPKColumns[0].code).to.be.equal(3);
+                        chai_1.expect(loadedPosts[1].categoriesWithNonPKColumns[0].version).to.be.equal(1);
+                        chai_1.expect(loadedPosts[1].categoriesWithNonPKColumns[0].description).to.be.equal("category of airplanes");
                         return [4 /*yield*/, connection.manager
                                 .createQueryBuilder(Post_1.Post, "post")
-                                .leftJoinAndSelect("post.categoriesWithNonPrimaryColumns", "categories")
+                                .leftJoinAndSelect("post.categoriesWithNonPKColumns", "categories")
                                 .orderBy("categories.code")
                                 .where("post.id = :id", { id: 1 })
                                 .getOne()];
                     case 7:
                         loadedPost = _a.sent();
-                        chai_1.expect(loadedPost.categoriesWithNonPrimaryColumns).to.not.be.empty;
-                        chai_1.expect(loadedPost.categoriesWithNonPrimaryColumns[0].code).to.be.equal(1);
-                        chai_1.expect(loadedPost.categoriesWithNonPrimaryColumns[0].version).to.be.equal(1);
-                        chai_1.expect(loadedPost.categoriesWithNonPrimaryColumns[0].description).to.be.equal("category of cars");
+                        chai_1.expect(loadedPost.categoriesWithNonPKColumns).to.not.be.empty;
+                        chai_1.expect(loadedPost.categoriesWithNonPKColumns[0].code).to.be.equal(1);
+                        chai_1.expect(loadedPost.categoriesWithNonPKColumns[0].version).to.be.equal(1);
+                        chai_1.expect(loadedPost.categoriesWithNonPKColumns[0].description).to.be.equal("category of cars");
                         return [2 /*return*/];
                 }
             });
@@ -465,7 +463,7 @@ describe("relations > multiple-primary-keys > many-to-many", function () {
                         tag1.code = 1;
                         tag1.title = "About BMW";
                         tag1.description = "Tag about BMW";
-                        tag1.categoriesWithNonPrimaryColumns = [category1, category2];
+                        tag1.categoriesWithNonPKColumns = [category1, category2];
                         return [4 /*yield*/, connection.manager.save(tag1)];
                     case 4:
                         _a.sent();
@@ -473,40 +471,40 @@ describe("relations > multiple-primary-keys > many-to-many", function () {
                         tag2.code = 2;
                         tag2.title = "About Boeing";
                         tag2.description = "Tag about Boeing";
-                        tag2.categoriesWithNonPrimaryColumns = [category3];
+                        tag2.categoriesWithNonPKColumns = [category3];
                         return [4 /*yield*/, connection.manager.save(tag2)];
                     case 5:
                         _a.sent();
                         return [4 /*yield*/, connection.manager
                                 .createQueryBuilder(Tag_1.Tag, "tag")
-                                .leftJoinAndSelect("tag.categoriesWithNonPrimaryColumns", "categories")
+                                .leftJoinAndSelect("tag.categoriesWithNonPKColumns", "categories")
                                 .orderBy("tag.code, categories.code")
                                 .getMany()];
                     case 6:
                         loadedTags = _a.sent();
-                        chai_1.expect(loadedTags[0].categoriesWithNonPrimaryColumns).to.not.be.empty;
-                        chai_1.expect(loadedTags[0].categoriesWithNonPrimaryColumns[0].code).to.be.equal(1);
-                        chai_1.expect(loadedTags[0].categoriesWithNonPrimaryColumns[0].version).to.be.equal(1);
-                        chai_1.expect(loadedTags[0].categoriesWithNonPrimaryColumns[0].description).to.be.equal("category of cars");
-                        chai_1.expect(loadedTags[0].categoriesWithNonPrimaryColumns[1].code).to.be.equal(2);
-                        chai_1.expect(loadedTags[0].categoriesWithNonPrimaryColumns[1].version).to.be.equal(1);
-                        chai_1.expect(loadedTags[0].categoriesWithNonPrimaryColumns[1].description).to.be.equal("category of BMW");
-                        chai_1.expect(loadedTags[1].categoriesWithNonPrimaryColumns).to.not.be.empty;
-                        chai_1.expect(loadedTags[1].categoriesWithNonPrimaryColumns[0].code).to.be.equal(3);
-                        chai_1.expect(loadedTags[1].categoriesWithNonPrimaryColumns[0].version).to.be.equal(1);
-                        chai_1.expect(loadedTags[1].categoriesWithNonPrimaryColumns[0].description).to.be.equal("category of airplanes");
+                        chai_1.expect(loadedTags[0].categoriesWithNonPKColumns).to.not.be.empty;
+                        chai_1.expect(loadedTags[0].categoriesWithNonPKColumns[0].code).to.be.equal(1);
+                        chai_1.expect(loadedTags[0].categoriesWithNonPKColumns[0].version).to.be.equal(1);
+                        chai_1.expect(loadedTags[0].categoriesWithNonPKColumns[0].description).to.be.equal("category of cars");
+                        chai_1.expect(loadedTags[0].categoriesWithNonPKColumns[1].code).to.be.equal(2);
+                        chai_1.expect(loadedTags[0].categoriesWithNonPKColumns[1].version).to.be.equal(1);
+                        chai_1.expect(loadedTags[0].categoriesWithNonPKColumns[1].description).to.be.equal("category of BMW");
+                        chai_1.expect(loadedTags[1].categoriesWithNonPKColumns).to.not.be.empty;
+                        chai_1.expect(loadedTags[1].categoriesWithNonPKColumns[0].code).to.be.equal(3);
+                        chai_1.expect(loadedTags[1].categoriesWithNonPKColumns[0].version).to.be.equal(1);
+                        chai_1.expect(loadedTags[1].categoriesWithNonPKColumns[0].description).to.be.equal("category of airplanes");
                         return [4 /*yield*/, connection.manager
                                 .createQueryBuilder(Tag_1.Tag, "tag")
-                                .leftJoinAndSelect("tag.categoriesWithNonPrimaryColumns", "categories")
+                                .leftJoinAndSelect("tag.categoriesWithNonPKColumns", "categories")
                                 .orderBy("categories.code")
                                 .where("tag.code = :code", { code: 1 })
                                 .getOne()];
                     case 7:
                         loadedTag = _a.sent();
-                        chai_1.expect(loadedTag.categoriesWithNonPrimaryColumns).to.not.be.empty;
-                        chai_1.expect(loadedTag.categoriesWithNonPrimaryColumns[0].code).to.be.equal(1);
-                        chai_1.expect(loadedTag.categoriesWithNonPrimaryColumns[0].version).to.be.equal(1);
-                        chai_1.expect(loadedTag.categoriesWithNonPrimaryColumns[0].description).to.be.equal("category of cars");
+                        chai_1.expect(loadedTag.categoriesWithNonPKColumns).to.not.be.empty;
+                        chai_1.expect(loadedTag.categoriesWithNonPKColumns[0].code).to.be.equal(1);
+                        chai_1.expect(loadedTag.categoriesWithNonPKColumns[0].version).to.be.equal(1);
+                        chai_1.expect(loadedTag.categoriesWithNonPKColumns[0].description).to.be.equal("category of cars");
                         return [2 /*return*/];
                 }
             });
@@ -669,7 +667,7 @@ describe("relations > multiple-primary-keys > many-to-many", function () {
                         category1.code = 1;
                         category1.version = 1;
                         category1.description = "category of cars";
-                        category1.postsWithNonPrimaryColumns = [post1, post2];
+                        category1.postsWithNonPKColumns = [post1, post2];
                         return [4 /*yield*/, connection.manager.save(category1)];
                     case 4:
                         _a.sent();
@@ -679,33 +677,33 @@ describe("relations > multiple-primary-keys > many-to-many", function () {
                         category2.code = 2;
                         category2.version = 1;
                         category2.description = "category of airplanes";
-                        category2.postsWithNonPrimaryColumns = [post3];
+                        category2.postsWithNonPKColumns = [post3];
                         return [4 /*yield*/, connection.manager.save(category2)];
                     case 5:
                         _a.sent();
                         return [4 /*yield*/, connection.manager
                                 .createQueryBuilder(Category_1.Category, "category")
-                                .leftJoinAndSelect("category.postsWithNonPrimaryColumns", "posts")
+                                .leftJoinAndSelect("category.postsWithNonPKColumns", "posts")
                                 .orderBy("category.code, posts.id")
                                 .getMany()];
                     case 6:
                         loadedCategories = _a.sent();
-                        chai_1.expect(loadedCategories[0].postsWithNonPrimaryColumns).to.not.be.empty;
-                        chai_1.expect(loadedCategories[0].postsWithNonPrimaryColumns[0].id).to.be.equal(1);
-                        chai_1.expect(loadedCategories[0].postsWithNonPrimaryColumns[1].id).to.be.equal(2);
-                        chai_1.expect(loadedCategories[1].postsWithNonPrimaryColumns).to.not.be.empty;
-                        chai_1.expect(loadedCategories[1].postsWithNonPrimaryColumns[0].id).to.be.equal(3);
+                        chai_1.expect(loadedCategories[0].postsWithNonPKColumns).to.not.be.empty;
+                        chai_1.expect(loadedCategories[0].postsWithNonPKColumns[0].id).to.be.equal(1);
+                        chai_1.expect(loadedCategories[0].postsWithNonPKColumns[1].id).to.be.equal(2);
+                        chai_1.expect(loadedCategories[1].postsWithNonPKColumns).to.not.be.empty;
+                        chai_1.expect(loadedCategories[1].postsWithNonPKColumns[0].id).to.be.equal(3);
                         return [4 /*yield*/, connection.manager
                                 .createQueryBuilder(Category_1.Category, "category")
-                                .leftJoinAndSelect("category.postsWithNonPrimaryColumns", "posts")
+                                .leftJoinAndSelect("category.postsWithNonPKColumns", "posts")
                                 .orderBy("posts.id")
                                 .where("category.code = :code", { code: 1 })
                                 .getOne()];
                     case 7:
                         loadedCategory = _a.sent();
-                        chai_1.expect(loadedCategory.postsWithNonPrimaryColumns).to.not.be.empty;
-                        chai_1.expect(loadedCategory.postsWithNonPrimaryColumns[0].id).to.be.equal(1);
-                        chai_1.expect(loadedCategory.postsWithNonPrimaryColumns[1].id).to.be.equal(2);
+                        chai_1.expect(loadedCategory.postsWithNonPKColumns).to.not.be.empty;
+                        chai_1.expect(loadedCategory.postsWithNonPKColumns[0].id).to.be.equal(1);
+                        chai_1.expect(loadedCategory.postsWithNonPKColumns[1].id).to.be.equal(2);
                         return [2 /*return*/];
                 }
             });
@@ -890,7 +888,7 @@ describe("relations > multiple-primary-keys > many-to-many", function () {
                         category1.code = 1;
                         category1.version = 1;
                         category1.description = "category of cars";
-                        category1.tagsWithNonPrimaryColumns = [tag1, tag2];
+                        category1.tagsWithNonPKColumns = [tag1, tag2];
                         return [4 /*yield*/, connection.manager.save(category1)];
                     case 4:
                         _a.sent();
@@ -900,36 +898,36 @@ describe("relations > multiple-primary-keys > many-to-many", function () {
                         category2.code = 2;
                         category2.version = 1;
                         category2.description = "category of airplanes";
-                        category2.tagsWithNonPrimaryColumns = [tag3];
+                        category2.tagsWithNonPKColumns = [tag3];
                         return [4 /*yield*/, connection.manager.save(category2)];
                     case 5:
                         _a.sent();
                         return [4 /*yield*/, connection.manager
                                 .createQueryBuilder(Category_1.Category, "category")
-                                .leftJoinAndSelect("category.tagsWithNonPrimaryColumns", "tags")
+                                .leftJoinAndSelect("category.tagsWithNonPKColumns", "tags")
                                 .orderBy("category.code, tags.code")
                                 .getMany()];
                     case 6:
                         loadedCategories = _a.sent();
-                        chai_1.expect(loadedCategories[0].tagsWithNonPrimaryColumns).to.not.be.empty;
-                        chai_1.expect(loadedCategories[0].tagsWithNonPrimaryColumns[0].title).to.be.equal("About BMW");
-                        chai_1.expect(loadedCategories[0].tagsWithNonPrimaryColumns[0].description).to.be.equal("Tag about BMW");
-                        chai_1.expect(loadedCategories[0].tagsWithNonPrimaryColumns[1].title).to.be.equal("About Audi");
-                        chai_1.expect(loadedCategories[0].tagsWithNonPrimaryColumns[1].description).to.be.equal("Tag about Audi");
-                        chai_1.expect(loadedCategories[1].tagsWithNonPrimaryColumns).to.not.be.empty;
-                        chai_1.expect(loadedCategories[1].tagsWithNonPrimaryColumns[0].title).to.be.equal("About Boeing");
-                        chai_1.expect(loadedCategories[1].tagsWithNonPrimaryColumns[0].description).to.be.equal("tag about Boeing");
+                        chai_1.expect(loadedCategories[0].tagsWithNonPKColumns).to.not.be.empty;
+                        chai_1.expect(loadedCategories[0].tagsWithNonPKColumns[0].title).to.be.equal("About BMW");
+                        chai_1.expect(loadedCategories[0].tagsWithNonPKColumns[0].description).to.be.equal("Tag about BMW");
+                        chai_1.expect(loadedCategories[0].tagsWithNonPKColumns[1].title).to.be.equal("About Audi");
+                        chai_1.expect(loadedCategories[0].tagsWithNonPKColumns[1].description).to.be.equal("Tag about Audi");
+                        chai_1.expect(loadedCategories[1].tagsWithNonPKColumns).to.not.be.empty;
+                        chai_1.expect(loadedCategories[1].tagsWithNonPKColumns[0].title).to.be.equal("About Boeing");
+                        chai_1.expect(loadedCategories[1].tagsWithNonPKColumns[0].description).to.be.equal("tag about Boeing");
                         return [4 /*yield*/, connection.manager
                                 .createQueryBuilder(Category_1.Category, "category")
-                                .leftJoinAndSelect("category.tagsWithNonPrimaryColumns", "tags")
+                                .leftJoinAndSelect("category.tagsWithNonPKColumns", "tags")
                                 .orderBy("tags.code")
                                 .where("category.code = :code", { code: 1 })
                                 .getOne()];
                     case 7:
                         loadedCategory = _a.sent();
-                        chai_1.expect(loadedCategory.tagsWithNonPrimaryColumns).to.not.be.empty;
-                        chai_1.expect(loadedCategory.tagsWithNonPrimaryColumns[0].title).to.be.equal("About BMW");
-                        chai_1.expect(loadedCategory.tagsWithNonPrimaryColumns[0].description).to.be.equal("Tag about BMW");
+                        chai_1.expect(loadedCategory.tagsWithNonPKColumns).to.not.be.empty;
+                        chai_1.expect(loadedCategory.tagsWithNonPKColumns[0].title).to.be.equal("About BMW");
+                        chai_1.expect(loadedCategory.tagsWithNonPKColumns[0].description).to.be.equal("Tag about BMW");
                         return [2 /*return*/];
                 }
             });

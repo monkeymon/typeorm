@@ -24,7 +24,7 @@ var PostInformation = /** @class */ (function () {
     ], PostInformation.prototype, "text", void 0);
     __decorate([
         index_1.ManyToMany(function (type) { return Post_1.Post; }, function (post) { return post.informations; }, {
-            cascadeUpdate: true,
+            cascade: ["update"],
         }),
         __metadata("design:type", Array)
     ], PostInformation.prototype, "posts", void 0);

@@ -46,15 +46,13 @@ var Person_1 = require("./entity/Person");
 var Faculty_1 = require("./entity/Faculty");
 var Specialization_1 = require("./entity/Specialization");
 var Department_1 = require("./entity/Department");
-describe.skip("table-inheritance > single-table > relations > many-to-many", function () {
+describe("table-inheritance > single-table > relations > many-to-many", function () {
     var connections;
     before(function () { return __awaiter(_this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        schemaCreate: true,
-                        dropSchema: true,
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -129,8 +127,8 @@ describe.skip("table-inheritance > single-table > relations > many-to-many", fun
                         loadedStudent.id.should.equal(1);
                         loadedStudent.name.should.equal("Alice");
                         loadedStudent.faculties.length.should.equal(2);
-                        loadedStudent.faculties[0].name.should.be.equal("Economics");
-                        loadedStudent.faculties[1].name.should.be.equal("Programming");
+                        loadedStudent.faculties.map(function (f) { return f.name; }).should.contain("Economics");
+                        loadedStudent.faculties.map(function (f) { return f.name; }).should.contain("Programming");
                         return [4 /*yield*/, connection.manager
                                 .createQueryBuilder(Teacher_1.Teacher, "teacher")
                                 .leftJoinAndSelect("teacher.specializations", "specialization")
@@ -142,8 +140,8 @@ describe.skip("table-inheritance > single-table > relations > many-to-many", fun
                         loadedTeacher.id.should.equal(2);
                         loadedTeacher.name.should.equal("Mr. Garrison");
                         loadedTeacher.specializations.length.should.equal(2);
-                        loadedTeacher.specializations[0].name.should.be.equal("Geography");
-                        loadedTeacher.specializations[1].name.should.be.equal("Economist");
+                        loadedTeacher.specializations.map(function (f) { return f.name; }).should.contain("Geography");
+                        loadedTeacher.specializations.map(function (f) { return f.name; }).should.contain("Economist");
                         loadedTeacher.salary.should.equal(2000);
                         return [4 /*yield*/, connection.manager
                                 .createQueryBuilder(Accountant_1.Accountant, "accountant")
@@ -156,8 +154,8 @@ describe.skip("table-inheritance > single-table > relations > many-to-many", fun
                         loadedAccountant.id.should.equal(3);
                         loadedAccountant.name.should.equal("Mr. Burns");
                         loadedAccountant.departments.length.should.equal(2);
-                        loadedAccountant.departments[0].name.should.be.equal("Bookkeeping");
-                        loadedAccountant.departments[1].name.should.be.equal("HR");
+                        loadedAccountant.departments.map(function (f) { return f.name; }).should.contain("Bookkeeping");
+                        loadedAccountant.departments.map(function (f) { return f.name; }).should.contain("HR");
                         loadedAccountant.salary.should.equal(3000);
                         return [4 /*yield*/, connection.manager
                                 .createQueryBuilder(Employee_1.Employee, "employee")
@@ -172,16 +170,16 @@ describe.skip("table-inheritance > single-table > relations > many-to-many", fun
                         loadedEmployees[0].id.should.equal(2);
                         loadedEmployees[0].name.should.equal("Mr. Garrison");
                         loadedEmployees[0].specializations.length.should.equal(2);
-                        loadedEmployees[0].specializations[0].name.should.be.equal("Geography");
-                        loadedEmployees[0].specializations[1].name.should.be.equal("Economist");
+                        loadedEmployees[0].specializations.map(function (f) { return f.name; }).should.contain("Geography");
+                        loadedEmployees[0].specializations.map(function (f) { return f.name; }).should.contain("Economist");
                         loadedEmployees[0].salary.should.equal(2000);
                         loadedEmployees[1].should.have.all.keys("id", "name", "salary", "departments");
                         loadedEmployees[1].should.be.instanceof(Accountant_1.Accountant);
                         loadedEmployees[1].id.should.equal(3);
                         loadedEmployees[1].name.should.equal("Mr. Burns");
                         loadedEmployees[1].departments.length.should.equal(2);
-                        loadedEmployees[1].departments[0].name.should.be.equal("Bookkeeping");
-                        loadedEmployees[1].departments[1].name.should.be.equal("HR");
+                        loadedEmployees[1].departments.map(function (f) { return f.name; }).should.contain("Bookkeeping");
+                        loadedEmployees[1].departments.map(function (f) { return f.name; }).should.contain("HR");
                         loadedEmployees[1].salary.should.equal(3000);
                         return [4 /*yield*/, connection.manager
                                 .createQueryBuilder(Person_1.Person, "person")
@@ -197,23 +195,23 @@ describe.skip("table-inheritance > single-table > relations > many-to-many", fun
                         loadedPersons[0].id.should.equal(1);
                         loadedPersons[0].name.should.equal("Alice");
                         loadedPersons[0].faculties.length.should.equal(2);
-                        loadedPersons[0].faculties[0].name.should.be.equal("Economics");
-                        loadedPersons[0].faculties[1].name.should.be.equal("Programming");
+                        loadedPersons[0].faculties.map(function (f) { return f.name; }).should.contain("Economics");
+                        loadedPersons[0].faculties.map(function (f) { return f.name; }).should.contain("Programming");
                         loadedPersons[1].should.have.all.keys("id", "name", "salary", "specializations");
                         loadedPersons[1].should.be.instanceof(Teacher_1.Teacher);
                         loadedPersons[1].id.should.equal(2);
                         loadedPersons[1].name.should.equal("Mr. Garrison");
                         loadedPersons[1].specializations.length.should.equal(2);
-                        loadedPersons[1].specializations[0].name.should.be.equal("Geography");
-                        loadedPersons[1].specializations[1].name.should.be.equal("Economist");
+                        loadedPersons[1].specializations.map(function (f) { return f.name; }).should.contain("Geography");
+                        loadedPersons[1].specializations.map(function (f) { return f.name; }).should.contain("Economist");
                         loadedPersons[1].salary.should.equal(2000);
                         loadedPersons[2].should.have.all.keys("id", "name", "salary", "departments");
                         loadedPersons[2].should.be.instanceof(Accountant_1.Accountant);
                         loadedPersons[2].id.should.equal(3);
                         loadedPersons[2].name.should.equal("Mr. Burns");
                         loadedPersons[2].departments.length.should.equal(2);
-                        loadedPersons[2].departments[0].name.should.be.equal("Bookkeeping");
-                        loadedPersons[2].departments[1].name.should.be.equal("HR");
+                        loadedPersons[2].departments.map(function (f) { return f.name; }).should.contain("Bookkeeping");
+                        loadedPersons[2].departments.map(function (f) { return f.name; }).should.contain("HR");
                         loadedPersons[2].salary.should.equal(3000);
                         return [2 /*return*/];
                 }

@@ -38,6 +38,7 @@ var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
 require("reflect-metadata");
 var test_utils_1 = require("../../../utils/test-utils");
+var chai_1 = require("chai");
 var Post_1 = require("./entity/Post");
 var PostgresDriver_1 = require("../../../../src/driver/postgres/PostgresDriver");
 var SqlServerDriver_1 = require("../../../../src/driver/sqlserver/SqlServerDriver");
@@ -57,7 +58,6 @@ describe("multi-schema-and-database > basic-functionality", function () {
                             entities: [Post_1.Post, User_1.User, Category_1.Category],
                             enabledDrivers: ["mssql", "postgres"],
                             schema: "custom",
-                            dropSchema: true,
                         })];
                     case 1:
                         connections = _a.sent();
@@ -91,7 +91,7 @@ describe("multi-schema-and-database > basic-functionality", function () {
                             sql.should.be.equal("SELECT \"post\".\"id\" AS \"post_id\", \"post\".\"name\" AS \"post_name\" FROM \"custom\".\"post\" \"post\" WHERE \"post\".\"id\" = $1");
                         if (connection.driver instanceof SqlServerDriver_1.SqlServerDriver)
                             sql.should.be.equal("SELECT \"post\".\"id\" AS \"post_id\", \"post\".\"name\" AS \"post_name\" FROM \"custom\".\"post\" \"post\" WHERE \"post\".\"id\" = @0");
-                        table.schema.should.be.equal("custom");
+                        table.name.should.be.equal("custom.post");
                         return [2 /*return*/];
                 }
             });
@@ -120,7 +120,7 @@ describe("multi-schema-and-database > basic-functionality", function () {
                             sql.should.be.equal("SELECT \"user\".\"id\" AS \"user_id\", \"user\".\"name\" AS \"user_name\" FROM \"userSchema\".\"user\" \"user\" WHERE \"user\".\"id\" = $1");
                         if (connection.driver instanceof SqlServerDriver_1.SqlServerDriver)
                             sql.should.be.equal("SELECT \"user\".\"id\" AS \"user_id\", \"user\".\"name\" AS \"user_name\" FROM \"userSchema\".\"user\" \"user\" WHERE \"user\".\"id\" = @0");
-                        table.schema.should.be.equal("userSchema");
+                        table.name.should.be.equal("userSchema.user");
                         return [2 /*return*/];
                 }
             });
@@ -169,7 +169,7 @@ describe("multi-schema-and-database > basic-functionality", function () {
                             sql.should.be.equal("SELECT \"category\".\"id\" AS \"category_id\", \"category\".\"name\" AS \"category_name\"," +
                                 " \"category\".\"postId\" AS \"category_postId\", \"post\".\"id\" AS \"post_id\", \"post\".\"name\" AS \"post_name\"" +
                                 " FROM \"guest\".\"category\" \"category\" INNER JOIN \"custom\".\"post\" \"post\" ON \"post\".\"id\"=\"category\".\"postId\" WHERE \"category\".\"id\" = @0");
-                        table.schema.should.be.equal("guest");
+                        table.name.should.be.equal("guest.category");
                         return [2 /*return*/];
                 }
             });
@@ -224,7 +224,6 @@ describe("multi-schema-and-database > basic-functionality", function () {
                     case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                             entities: [Question_1.Question, Answer_1.Answer],
                             enabledDrivers: ["mssql"],
-                            dropSchema: true,
                         })];
                     case 1:
                         connections = _a.sent();
@@ -255,59 +254,57 @@ describe("multi-schema-and-database > basic-functionality", function () {
                             .where("question.id = :id", { id: 1 })
                             .getSql();
                         sql.should.be.equal("SELECT \"question\".\"id\" AS \"question_id\", \"question\".\"name\" AS \"question_name\" FROM \"testDB\".\"questions\".\"question\" \"question\" WHERE \"question\".\"id\" = @0");
-                        table.database.should.be.equal("testDB");
-                        table.schema.should.be.equal("questions");
+                        table.name.should.be.equal("testDB.questions.question");
                         return [2 /*return*/];
                 }
             });
         }); })); });
         it("should correctly work with cross-schema and cross-database queries in QueryBuilder", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
-            var queryRunner, questionTableSchema, answerTableSchema, question, answer1, answer2, query;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var queryRunner, questionTable, answerTable, question, answer1, answer2, query, _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
                         queryRunner = connection.createQueryRunner();
                         return [4 /*yield*/, queryRunner.getTable("testDB.questions.question")];
                     case 1:
-                        questionTableSchema = _a.sent();
+                        questionTable = _b.sent();
                         return [4 /*yield*/, queryRunner.getTable("secondDB.answers.answer")];
                     case 2:
-                        answerTableSchema = _a.sent();
+                        answerTable = _b.sent();
                         return [4 /*yield*/, queryRunner.release()];
                     case 3:
-                        _a.sent();
+                        _b.sent();
                         question = new Question_1.Question();
                         question.name = "Question #1";
                         return [4 /*yield*/, connection.getRepository(Question_1.Question).save(question)];
                     case 4:
-                        _a.sent();
+                        _b.sent();
                         answer1 = new Answer_1.Answer();
                         answer1.text = "answer 1";
                         answer1.questionId = question.id;
                         return [4 /*yield*/, connection.getRepository(Answer_1.Answer).save(answer1)];
                     case 5:
-                        _a.sent();
+                        _b.sent();
                         answer2 = new Answer_1.Answer();
                         answer2.text = "answer 2";
                         answer2.questionId = question.id;
                         return [4 /*yield*/, connection.getRepository(Answer_1.Answer).save(answer2)];
                     case 6:
-                        _a.sent();
+                        _b.sent();
                         query = connection.createQueryBuilder()
                             .select()
                             .from(Question_1.Question, "question")
                             .addFrom(Answer_1.Answer, "answer")
                             .where("question.id = :id", { id: 1 })
                             .andWhere("answer.questionId = question.id");
+                        _a = chai_1.expect;
                         return [4 /*yield*/, query.getRawOne()];
                     case 7:
-                        (_a.sent()).should.be.not.empty;
+                        _a.apply(void 0, [_b.sent()]).to.be.not.empty;
                         query.getSql().should.be.equal("SELECT * FROM \"testDB\".\"questions\".\"question\" \"question\", \"secondDB\".\"answers\".\"answer\"" +
                             " \"answer\" WHERE \"question\".\"id\" = @0 AND \"answer\".\"questionId\" = \"question\".\"id\"");
-                        questionTableSchema.database.should.be.equal("testDB");
-                        answerTableSchema.database.should.be.equal("secondDB");
-                        questionTableSchema.schema.should.be.equal("questions");
-                        answerTableSchema.schema.should.be.equal("answers");
+                        questionTable.name.should.be.equal("testDB.questions.question");
+                        answerTable.name.should.be.equal("secondDB.answers.answer");
                         return [2 /*return*/];
                 }
             });
@@ -321,7 +318,6 @@ describe("multi-schema-and-database > basic-functionality", function () {
                     case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                             entities: [Person_1.Person],
                             enabledDrivers: ["mssql", "mysql"],
-                            dropSchema: true,
                         })];
                     case 1:
                         connections = _a.sent();
@@ -356,7 +352,7 @@ describe("multi-schema-and-database > basic-functionality", function () {
                             sql.should.be.equal("SELECT \"person\".\"id\" AS \"person_id\", \"person\".\"name\" AS \"person_name\" FROM \"secondDB\"..\"person\" \"person\" WHERE \"person\".\"id\" = @0");
                         if (connection.driver instanceof MysqlDriver_1.MysqlDriver)
                             sql.should.be.equal("SELECT `person`.`id` AS `person_id`, `person`.`name` AS `person_name` FROM `secondDB`.`person` `person` WHERE `person`.`id` = ?");
-                        table.database.should.be.equal("secondDB");
+                        table.name.should.be.equal(tablePath);
                         return [2 /*return*/];
                 }
             });

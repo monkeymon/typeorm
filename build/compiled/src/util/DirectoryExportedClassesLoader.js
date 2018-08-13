@@ -1,13 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var PlatformTools_1 = require("../platform/PlatformTools");
+var index_1 = require("../index");
 /**
  * Loads all exported classes from the given directory.
  */
 function importClassesFromDirectories(directories, formats) {
     if (formats === void 0) { formats = [".js", ".ts"]; }
     function loadFileClasses(exported, allLoaded) {
-        if (typeof exported === "function") {
+        if (typeof exported === "function" || exported instanceof index_1.EntitySchema) {
             allLoaded.push(exported);
         }
         else if (Array.isArray(exported)) {

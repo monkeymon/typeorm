@@ -24,8 +24,7 @@ var AccessToken = /** @class */ (function () {
     ], AccessToken.prototype, "primaryKey", void 0);
     __decorate([
         OneToOne_1.OneToOne(function (type) { return User_1.User; }, function (user) { return user.access_token; }, {
-            cascadeInsert: true,
-            cascadeUpdate: true
+            cascade: true
         }),
         __metadata("design:type", User_1.User)
     ], AccessToken.prototype, "user", void 0);

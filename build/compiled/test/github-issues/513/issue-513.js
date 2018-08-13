@@ -48,8 +48,6 @@ describe("github issues > #513 Incorrect time/datetime types for SQLite", functi
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        schemaCreate: true,
-                        dropSchema: true,
                         enabledDrivers: ["sqlite"]
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
@@ -91,7 +89,7 @@ describe("github issues > #513 Incorrect time/datetime types for SQLite", functi
                     return [4 /*yield*/, connection.manager.save(post)];
                 case 1:
                     _a.sent();
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, post.id)];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, post.id)];
                 case 2:
                     storedPost = _a.sent();
                     chai_1.expect(storedPost).to.not.be.null;
@@ -133,7 +131,7 @@ describe("github issues > #513 Incorrect time/datetime types for SQLite", functi
                     return [4 /*yield*/, connection.manager.save(post)];
                 case 1:
                     _a.sent();
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, post.id)];
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, post.id)];
                 case 2:
                     storedPost = _a.sent();
                     chai_1.expect(storedPost).to.not.be.null;

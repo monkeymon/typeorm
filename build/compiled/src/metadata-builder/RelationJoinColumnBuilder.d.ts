@@ -1,4 +1,5 @@
 import { ColumnMetadata } from "../metadata/ColumnMetadata";
+import { UniqueMetadata } from "../metadata/UniqueMetadata";
 import { ForeignKeyMetadata } from "../metadata/ForeignKeyMetadata";
 import { RelationMetadata } from "../metadata/RelationMetadata";
 import { JoinColumnMetadataArgs } from "../metadata-args/JoinColumnMetadataArgs";
@@ -39,7 +40,10 @@ export declare class RelationJoinColumnBuilder {
     /**
      * Builds a foreign key of the many-to-one or one-to-one owner relations.
      */
-    build(joinColumns: JoinColumnMetadataArgs[], relation: RelationMetadata): ForeignKeyMetadata | undefined;
+    build(joinColumns: JoinColumnMetadataArgs[], relation: RelationMetadata): {
+        foreignKey: ForeignKeyMetadata | undefined;
+        uniqueConstraint: UniqueMetadata | undefined;
+    };
     /**
      * Collects referenced columns from the given join column args.
      */

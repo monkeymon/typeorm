@@ -1,57 +1,24 @@
 /// <reference types="node" />
 import { QueryRunner } from "../../query-runner/QueryRunner";
-import { ObjectLiteral } from "../../common/ObjectLiteral";
-import { TableColumn } from "../../schema-builder/schema/TableColumn";
-import { Table } from "../../schema-builder/schema/Table";
-import { TableIndex } from "../../schema-builder/schema/TableIndex";
-import { TableForeignKey } from "../../schema-builder/schema/TableForeignKey";
+import { TableColumn } from "../../schema-builder/table/TableColumn";
+import { Table } from "../../schema-builder/table/Table";
+import { TableIndex } from "../../schema-builder/table/TableIndex";
+import { TableForeignKey } from "../../schema-builder/table/TableForeignKey";
 import { AbstractSqliteDriver } from "./AbstractSqliteDriver";
-import { Connection } from "../../connection/Connection";
 import { ReadStream } from "../../platform/PlatformTools";
-import { EntityManager } from "../../entity-manager/EntityManager";
-import { InsertResult } from "../InsertResult";
+import { TableUnique } from "../../schema-builder/table/TableUnique";
+import { BaseQueryRunner } from "../../query-runner/BaseQueryRunner";
+import { TableCheck } from "../../schema-builder/table/TableCheck";
+import { IsolationLevel } from "../types/IsolationLevel";
 /**
  * Runs queries on a single sqlite database connection.
- *
- * Does not support compose primary keys with autoincrement field.
- * todo: need to throw exception for this case.
  */
-export declare class AbstractSqliteQueryRunner implements QueryRunner {
+export declare abstract class AbstractSqliteQueryRunner extends BaseQueryRunner implements QueryRunner {
     /**
      * Database driver used by connection.
      */
     driver: AbstractSqliteDriver;
-    /**
-     * Connection used by this query runner.
-     */
-    connection: Connection;
-    /**
-     * Isolated entity manager working only with current query runner.
-     */
-    manager: EntityManager;
-    /**
-     * Indicates if connection for this query runner is released.
-     * Once its released, query runner cannot run queries anymore.
-     */
-    isReleased: boolean;
-    /**
-     * Indicates if transaction is in progress.
-     */
-    isTransactionActive: boolean;
-    /**
-     * Stores temporarily user data.
-     * Useful for sharing data with subscribers.
-     */
-    data: {};
-    /**
-     * Indicates if special query runner mode in which sql queries won't be executed is enabled.
-     */
-    protected sqlMemoryMode: boolean;
-    /**
-     * Sql-s stored if "sql in memory" mode is enabled.
-     */
-    protected sqlsInMemory: string[];
-    constructor(driver: AbstractSqliteDriver);
+    constructor();
     /**
      * Creates/uses database connection from the connection pool to perform further operations.
      * Returns obtained database connection.
@@ -59,13 +26,13 @@ export declare class AbstractSqliteQueryRunner implements QueryRunner {
     connect(): Promise<any>;
     /**
      * Releases used database connection.
-     * We don't do anything here because sqlite do not support multiple connections thus query runners.
+     * We just clear loaded tables and sql in memory, because sqlite do not support multiple connections thus query runners.
      */
     release(): Promise<void>;
     /**
      * Starts transaction.
      */
-    startTransaction(): Promise<void>;
+    startTransaction(isolationLevel?: IsolationLevel): Promise<void>;
     /**
      * Commits transaction.
      * Error will be thrown if transaction was not started.
@@ -77,66 +44,62 @@ export declare class AbstractSqliteQueryRunner implements QueryRunner {
      */
     rollbackTransaction(): Promise<void>;
     /**
-     * Executes a given SQL query.
-     */
-    query(query: string, parameters?: any[]): Promise<any>;
-    /**
      * Returns raw data stream.
      */
     stream(query: string, parameters?: any[], onEnd?: Function, onError?: Function): Promise<ReadStream>;
     /**
-     * Insert a new row with given values into the given table.
-     * Returns value of the generated column if given and generate column exist in the table.
+     * Returns all available database names including system databases.
      */
-    insert(tableName: string, keyValues: ObjectLiteral): Promise<InsertResult>;
+    getDatabases(): Promise<string[]>;
     /**
-     * Updates rows that match given conditions in the given table.
+     * Returns all available schema names including system schemas.
+     * If database parameter specified, returns schemas of that database.
      */
-    update(tableName: string, valuesMap: ObjectLiteral, conditions: ObjectLiteral): Promise<void>;
-    /**
-     * Deletes from the given table by a given conditions.
-     */
-    delete(tableName: string, conditions: ObjectLiteral | string, maybeParameters?: any[]): Promise<void>;
-    /**
-     * Inserts rows into closure table.
-     */
-    insertIntoClosureTable(tableName: string, newEntityId: any, parentId: any, hasLevel: boolean): Promise<number>;
-    /**
-     * Loads given table's data from the database.
-     */
-    getTable(tableName: string): Promise<Table | undefined>;
-    /**
-     * Loads all tables (with given names) from the database and creates a Table from them.
-     */
-    getTables(tableNames: string[]): Promise<Table[]>;
+    getSchemas(database?: string): Promise<string[]>;
     /**
      * Checks if database with the given name exist.
      */
     hasDatabase(database: string): Promise<boolean>;
     /**
+     * Checks if schema with the given name exist.
+     */
+    hasSchema(schema: string): Promise<boolean>;
+    /**
      * Checks if table with the given name exist in the database.
      */
-    hasTable(tableName: string): Promise<boolean>;
-    /**
-     * Creates a database if it's not created.
-     */
-    createDatabase(database: string): Promise<void[]>;
-    /**
-     * Creates a schema if it's not created.
-     */
-    createSchema(schemas: string[]): Promise<void[]>;
-    /**
-     * Creates a new table from the given table metadata and column metadatas.
-     */
-    createTable(table: Table): Promise<void>;
-    /**
-     * Drops the table.
-     */
-    dropTable(tableName: string): Promise<void>;
+    hasTable(tableOrName: Table | string): Promise<boolean>;
     /**
      * Checks if column with the given name exist in the given table.
      */
-    hasColumn(tableName: string, columnName: string): Promise<boolean>;
+    hasColumn(tableOrName: Table | string, columnName: string): Promise<boolean>;
+    /**
+     * Creates a new database.
+     */
+    createDatabase(database: string, ifNotExist?: boolean): Promise<void>;
+    /**
+     * Drops database.
+     */
+    dropDatabase(database: string, ifExist?: boolean): Promise<void>;
+    /**
+     * Creates a new table schema.
+     */
+    createSchema(schema: string, ifNotExist?: boolean): Promise<void>;
+    /**
+     * Drops table schema.
+     */
+    dropSchema(schemaPath: string, ifExist?: boolean): Promise<void>;
+    /**
+     * Creates a new table.
+     */
+    createTable(table: Table, ifNotExist?: boolean, createForeignKeys?: boolean, createIndices?: boolean): Promise<void>;
+    /**
+     * Drops the table.
+     */
+    dropTable(tableOrName: Table | string, ifExist?: boolean, dropForeignKeys?: boolean, dropIndices?: boolean): Promise<void>;
+    /**
+     * Renames the given table.
+     */
+    renameTable(oldTableOrName: Table | string, newTableName: string): Promise<void>;
     /**
      * Creates a new column from the column in the table.
      */
@@ -157,22 +120,62 @@ export declare class AbstractSqliteQueryRunner implements QueryRunner {
      * Changes a column in the table.
      * Changed column looses all its keys in the db.
      */
-    changeColumns(table: Table, changedColumns: {
-        newColumn: TableColumn;
+    changeColumns(tableOrName: Table | string, changedColumns: {
         oldColumn: TableColumn;
+        newColumn: TableColumn;
     }[]): Promise<void>;
     /**
      * Drops column in the table.
      */
-    dropColumn(table: Table, column: TableColumn): Promise<void>;
+    dropColumn(tableOrName: Table | string, columnOrName: TableColumn | string): Promise<void>;
     /**
      * Drops the columns in the table.
      */
-    dropColumns(table: Table, columns: TableColumn[]): Promise<void>;
+    dropColumns(tableOrName: Table | string, columns: TableColumn[]): Promise<void>;
     /**
-     * Updates table's primary keys.
+     * Creates a new primary key.
      */
-    updatePrimaryKeys(dbTable: Table): Promise<void>;
+    createPrimaryKey(tableOrName: Table | string, columnNames: string[]): Promise<void>;
+    /**
+     * Updates composite primary keys.
+     */
+    updatePrimaryKeys(tableOrName: Table | string, columns: TableColumn[]): Promise<void>;
+    /**
+     * Drops a primary key.
+     */
+    dropPrimaryKey(tableOrName: Table | string): Promise<void>;
+    /**
+     * Creates a new unique constraint.
+     */
+    createUniqueConstraint(tableOrName: Table | string, uniqueConstraint: TableUnique): Promise<void>;
+    /**
+     * Creates a new unique constraints.
+     */
+    createUniqueConstraints(tableOrName: Table | string, uniqueConstraints: TableUnique[]): Promise<void>;
+    /**
+     * Drops an unique constraint.
+     */
+    dropUniqueConstraint(tableOrName: Table | string, uniqueOrName: TableUnique | string): Promise<void>;
+    /**
+     * Creates an unique constraints.
+     */
+    dropUniqueConstraints(tableOrName: Table | string, uniqueConstraints: TableUnique[]): Promise<void>;
+    /**
+     * Creates new check constraint.
+     */
+    createCheckConstraint(tableOrName: Table | string, checkConstraint: TableCheck): Promise<void>;
+    /**
+     * Creates new check constraints.
+     */
+    createCheckConstraints(tableOrName: Table | string, checkConstraints: TableCheck[]): Promise<void>;
+    /**
+     * Drops check constraint.
+     */
+    dropCheckConstraint(tableOrName: Table | string, checkOrName: TableCheck | string): Promise<void>;
+    /**
+     * Drops check constraints.
+     */
+    dropCheckConstraints(tableOrName: Table | string, checkConstraints: TableCheck[]): Promise<void>;
     /**
      * Creates a new foreign key.
      */
@@ -184,7 +187,7 @@ export declare class AbstractSqliteQueryRunner implements QueryRunner {
     /**
      * Drops a foreign key from the table.
      */
-    dropForeignKey(tableOrName: Table | string, foreignKey: TableForeignKey): Promise<void>;
+    dropForeignKey(tableOrName: Table | string, foreignKeyOrName: TableForeignKey | string): Promise<void>;
     /**
      * Drops a foreign keys from the table.
      */
@@ -192,50 +195,51 @@ export declare class AbstractSqliteQueryRunner implements QueryRunner {
     /**
      * Creates a new index.
      */
-    createIndex(table: Table | string, index: TableIndex): Promise<void>;
+    createIndex(tableOrName: Table | string, index: TableIndex): Promise<void>;
+    /**
+     * Creates a new indices
+     */
+    createIndices(tableOrName: Table | string, indices: TableIndex[]): Promise<void>;
     /**
      * Drops an index from the table.
      */
-    dropIndex(tableSchemeOrName: Table | string, indexName: string): Promise<void>;
+    dropIndex(tableOrName: Table | string, indexOrName: TableIndex | string): Promise<void>;
     /**
-     * Truncates table.
+     * Drops an indices from the table.
      */
-    truncate(tableName: string): Promise<void>;
+    dropIndices(tableOrName: Table | string, indices: TableIndex[]): Promise<void>;
+    /**
+     * Clears all table contents.
+     * Note: this operation uses SQL's TRUNCATE query which cannot be reverted in transactions.
+     */
+    clearTable(tableName: string): Promise<void>;
     /**
      * Removes all tables from the currently connected database.
      */
     clearDatabase(): Promise<void>;
     /**
-     * Enables special query runner mode in which sql queries won't be executed,
-     * instead they will be memorized into a special variable inside query runner.
-     * You can get memorized sql using getMemorySql() method.
+     * Loads all tables (with given names) from the database and creates a Table from them.
      */
-    enableSqlMemory(): void;
+    protected loadTables(tableNames: string[]): Promise<Table[]>;
     /**
-     * Disables special query runner mode in which sql queries won't be executed
-     * started by calling enableSqlMemory() method.
-     *
-     * Previously memorized sql will be flushed.
+     * Builds create table sql.
      */
-    disableSqlMemory(): void;
+    protected createTableSql(table: Table, createForeignKeys?: boolean): string;
     /**
-     * Gets sql stored in the memory. Parameters in the sql are already replaced.
+     * Builds drop table sql.
      */
-    getMemorySql(): (string | {
-        up: string;
-        down: string;
-    })[];
+    protected dropTableSql(tableOrName: Table | string, ifExist?: boolean): string;
     /**
-     * Parametrizes given object of values. Used to create column=value queries.
+     * Builds create index sql.
      */
-    protected parametrize(objectLiteral: ObjectLiteral, startIndex?: number): string[];
+    protected createIndexSql(table: Table, index: TableIndex): string;
+    /**
+     * Builds drop index sql.
+     */
+    protected dropIndexSql(indexOrName: TableIndex | string): string;
     /**
      * Builds a query for create column.
      */
-    protected buildCreateColumnSql(column: TableColumn): string;
-    protected recreateTable(table: Table, oldTableSchema?: Table, migrateData?: boolean): Promise<void>;
-    /**
-     * If given value is a table name then it loads its table schema representation from the database.
-     */
-    protected getTableSchema(tableOrName: Table | string): Promise<Table>;
+    protected buildCreateColumnSql(column: TableColumn, skipPrimary?: boolean): string;
+    protected recreateTable(newTable: Table, oldTable: Table, migrateData?: boolean): Promise<void>;
 }

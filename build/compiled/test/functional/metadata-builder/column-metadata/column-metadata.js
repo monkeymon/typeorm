@@ -49,8 +49,6 @@ describe("metadata-builder > ColumnMetadata", function () {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        schemaCreate: true,
-                        dropSchema: true,
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -99,27 +97,27 @@ describe("metadata-builder > ColumnMetadata", function () {
             titleColumnMetadata = connection.getMetadata(Post_1.Post).columns.find(function (column) { return column.propertyName === "title"; });
             chai_1.expect(titleColumnMetadata).not.to.be.empty;
             chai_1.expect(titleColumnMetadata.getEntityValueMap(post)).to.be.eql({ title: "Post #1" });
-            chai_1.expect(titleColumnMetadata.getEntityValueMap({ id: 1 })).to.be.eql({ title: undefined }); // still not sure if it should be undefined or { title: undefined }
+            chai_1.expect(titleColumnMetadata.getEntityValueMap({ id: 1 })).to.be.undefined;
             codeColumnMetadata = connection.getMetadata(Post_1.Post).columns.find(function (column) { return column.propertyName === "code"; });
             chai_1.expect(codeColumnMetadata).not.to.be.empty;
             chai_1.expect(codeColumnMetadata.getEntityValueMap(post)).to.be.eql({ counters: { code: 123 } });
-            chai_1.expect(codeColumnMetadata.getEntityValueMap({ id: 1 })).to.be.eql({ counters: { code: undefined } }); // still not sure if it should be undefined or { title: undefined }
-            chai_1.expect(codeColumnMetadata.getEntityValueMap({ id: 1, counters: undefined })).to.be.eql({ counters: { code: undefined } }); // still not sure if it should be undefined or { title: undefined }
-            chai_1.expect(codeColumnMetadata.getEntityValueMap({ id: 1, counters: {} })).to.be.eql({ counters: { code: undefined } }); // still not sure if it should be undefined or { title: undefined }
-            chai_1.expect(codeColumnMetadata.getEntityValueMap({ id: 1, counters: { code: undefined } })).to.be.eql({ counters: { code: undefined } }); // still not sure if it should be undefined or { title: undefined }
-            chai_1.expect(codeColumnMetadata.getEntityValueMap({ id: 1, counters: { code: null } })).to.be.eql({ counters: { code: null } }); // still not sure if it should be undefined or { title: undefined }
-            chai_1.expect(codeColumnMetadata.getEntityValueMap({ id: 1, counters: { code: 0 } })).to.be.eql({ counters: { code: 0 } }); // still not sure if it should be undefined or { title: undefined }
-            chai_1.expect(codeColumnMetadata.getEntityValueMap({ id: 1, counters: { likes: 123 } })).to.be.eql({ counters: { code: undefined } }); // still not sure if it should be undefined or { title: undefined }
+            chai_1.expect(codeColumnMetadata.getEntityValueMap({ id: 1 })).to.be.undefined;
+            chai_1.expect(codeColumnMetadata.getEntityValueMap({ id: 1, counters: undefined })).to.be.undefined;
+            chai_1.expect(codeColumnMetadata.getEntityValueMap({ id: 1, counters: {} })).to.be.undefined;
+            chai_1.expect(codeColumnMetadata.getEntityValueMap({ id: 1, counters: { code: undefined } })).to.be.undefined;
+            chai_1.expect(codeColumnMetadata.getEntityValueMap({ id: 1, counters: { code: null } })).to.be.eql({ counters: { code: null } });
+            chai_1.expect(codeColumnMetadata.getEntityValueMap({ id: 1, counters: { code: 0 } })).to.be.eql({ counters: { code: 0 } });
+            chai_1.expect(codeColumnMetadata.getEntityValueMap({ id: 1, counters: { likes: 123 } })).to.be.undefined;
             watchesColumnMetadata = connection.getMetadata(Post_1.Post).columns.find(function (column) { return column.propertyName === "watches"; });
             chai_1.expect(watchesColumnMetadata).not.to.be.empty;
             chai_1.expect(watchesColumnMetadata.getEntityValueMap(post)).to.be.eql({ counters: { subcounters: { watches: 10 } } });
-            chai_1.expect(watchesColumnMetadata.getEntityValueMap({ id: 1 })).to.be.eql({ counters: { subcounters: { watches: undefined } } }); // still not sure if it should be undefined or { title: undefined }
-            chai_1.expect(watchesColumnMetadata.getEntityValueMap({ id: 1, counters: undefined })).to.be.eql({ counters: { subcounters: { watches: undefined } } }); // still not sure if it should be undefined or { title: undefined }
-            chai_1.expect(watchesColumnMetadata.getEntityValueMap({ id: 1, counters: {} })).to.be.eql({ counters: { subcounters: { watches: undefined } } }); // still not sure if it should be undefined or { title: undefined }
-            chai_1.expect(watchesColumnMetadata.getEntityValueMap({ id: 1, counters: { subcounters: undefined } })).to.be.eql({ counters: { subcounters: { watches: undefined } } }); // still not sure if it should be undefined or { title: undefined }
-            chai_1.expect(watchesColumnMetadata.getEntityValueMap({ id: 1, counters: { subcounters: { watches: null } } })).to.be.eql({ counters: { subcounters: { watches: null } } }); // still not sure if it should be undefined or { title: undefined }
-            chai_1.expect(watchesColumnMetadata.getEntityValueMap({ id: 1, counters: { subcounters: { watches: 0 } } })).to.be.eql({ counters: { subcounters: { watches: 0 } } }); // still not sure if it should be undefined or { title: undefined }
-            chai_1.expect(watchesColumnMetadata.getEntityValueMap({ id: 1, counters: { subcounters: { version: 123 } } })).to.be.eql({ counters: { subcounters: { watches: undefined } } }); // still
+            chai_1.expect(watchesColumnMetadata.getEntityValueMap({ id: 1 })).to.be.eql(undefined);
+            chai_1.expect(watchesColumnMetadata.getEntityValueMap({ id: 1, counters: undefined })).to.be.undefined;
+            chai_1.expect(watchesColumnMetadata.getEntityValueMap({ id: 1, counters: {} })).to.be.undefined;
+            chai_1.expect(watchesColumnMetadata.getEntityValueMap({ id: 1, counters: { subcounters: undefined } })).to.be.undefined;
+            chai_1.expect(watchesColumnMetadata.getEntityValueMap({ id: 1, counters: { subcounters: { watches: null } } })).to.be.eql({ counters: { subcounters: { watches: null } } });
+            chai_1.expect(watchesColumnMetadata.getEntityValueMap({ id: 1, counters: { subcounters: { watches: 0 } } })).to.be.eql({ counters: { subcounters: { watches: 0 } } });
+            chai_1.expect(watchesColumnMetadata.getEntityValueMap({ id: 1, counters: { subcounters: { version: 123 } } })).to.be.undefined;
             return [2 /*return*/];
         });
     }); })); });

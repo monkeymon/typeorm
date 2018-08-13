@@ -40,7 +40,7 @@ require("reflect-metadata");
 var chai_1 = require("chai");
 var Post_1 = require("./entity/Post");
 var test_utils_1 = require("../../../../utils/test-utils");
-describe("database schema > column length > mssql", function () {
+describe("database schema > column length > mysql", function () {
     var connections;
     before(function () { return __awaiter(_this, void 0, void 0, function () {
         return __generator(this, function (_a) {
@@ -48,8 +48,6 @@ describe("database schema > column length > mssql", function () {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [Post_1.Post],
                         enabledDrivers: ["mysql"],
-                        schemaCreate: true,
-                        dropSchema: true,
                     })];
                 case 1:
                     connections = _a.sent();
@@ -59,7 +57,7 @@ describe("database schema > column length > mssql", function () {
     }); });
     beforeEach(function () { return test_utils_1.reloadTestingDatabases(connections); });
     after(function () { return test_utils_1.closeTestingConnections(connections); });
-    it("all types should create with correct size", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
+    it("all types should be created with correct length", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
         var queryRunner, table;
         return __generator(this, function (_a) {
             switch (_a.label) {
@@ -71,28 +69,18 @@ describe("database schema > column length > mssql", function () {
                     return [4 /*yield*/, queryRunner.release()];
                 case 2:
                     _a.sent();
-                    chai_1.expect(table.findColumnByName("int").length).to.be.equal("5");
-                    chai_1.expect(table.findColumnByName("tinyint").length).to.be.equal("5");
-                    chai_1.expect(table.findColumnByName("smallint").length).to.be.equal("5");
-                    chai_1.expect(table.findColumnByName("mediumint").length).to.be.equal("5");
-                    chai_1.expect(table.findColumnByName("bigint").length).to.be.equal("5");
                     chai_1.expect(table.findColumnByName("char").length).to.be.equal("50");
                     chai_1.expect(table.findColumnByName("varchar").length).to.be.equal("50");
                     return [2 /*return*/];
             }
         });
     }); })); });
-    it("all types should update their size", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
+    it("all types should update their length", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
         var metadata, queryRunner, table;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     metadata = connection.getMetadata(Post_1.Post);
-                    metadata.findColumnWithPropertyName("int").length = "10";
-                    metadata.findColumnWithPropertyName("tinyint").length = "10";
-                    metadata.findColumnWithPropertyName("smallint").length = "10";
-                    metadata.findColumnWithPropertyName("mediumint").length = "10";
-                    metadata.findColumnWithPropertyName("bigint").length = "10";
                     metadata.findColumnWithPropertyName("char").length = "100";
                     metadata.findColumnWithPropertyName("varchar").length = "100";
                     return [4 /*yield*/, connection.synchronize(false)];
@@ -105,11 +93,6 @@ describe("database schema > column length > mssql", function () {
                     return [4 /*yield*/, queryRunner.release()];
                 case 3:
                     _a.sent();
-                    chai_1.expect(table.findColumnByName("int").length).to.be.equal("10");
-                    chai_1.expect(table.findColumnByName("tinyint").length).to.be.equal("10");
-                    chai_1.expect(table.findColumnByName("smallint").length).to.be.equal("10");
-                    chai_1.expect(table.findColumnByName("mediumint").length).to.be.equal("10");
-                    chai_1.expect(table.findColumnByName("bigint").length).to.be.equal("10");
                     chai_1.expect(table.findColumnByName("char").length).to.be.equal("100");
                     chai_1.expect(table.findColumnByName("varchar").length).to.be.equal("100");
                     return [2 /*return*/];

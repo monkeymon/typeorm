@@ -15,7 +15,7 @@ var Counters = /** @class */ (function () {
     function Counters() {
     }
     __decorate([
-        PrimaryColumn_1.PrimaryColumn({ unique: true }),
+        PrimaryColumn_1.PrimaryColumn(),
         __metadata("design:type", Number)
     ], Counters.prototype, "code", void 0);
     __decorate([

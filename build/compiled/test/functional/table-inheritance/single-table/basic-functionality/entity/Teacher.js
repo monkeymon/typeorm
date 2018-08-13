@@ -20,7 +20,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var Column_1 = require("../../../../../../src/decorator/columns/Column");
-var SingleEntityChild_1 = require("../../../../../../src/decorator/entity/SingleEntityChild");
+var ChildEntity_1 = require("../../../../../../src/decorator/entity/ChildEntity");
 var Employee_1 = require("./Employee");
 var Teacher = /** @class */ (function (_super) {
     __extends(Teacher, _super);
@@ -32,7 +32,7 @@ var Teacher = /** @class */ (function (_super) {
         __metadata("design:type", String)
     ], Teacher.prototype, "specialization", void 0);
     Teacher = __decorate([
-        SingleEntityChild_1.SingleEntityChild()
+        ChildEntity_1.ChildEntity()
     ], Teacher);
     return Teacher;
 }(Employee_1.Employee));

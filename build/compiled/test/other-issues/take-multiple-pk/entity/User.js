@@ -32,7 +32,7 @@ var User = /** @class */ (function () {
     ], User.prototype, "handedness", void 0);
     __decorate([
         ManyToMany_1.ManyToMany(function (type) { return Role_1.Role; }, {
-            cascadeInsert: true
+            cascade: ["insert"]
         }),
         JoinTable_1.JoinTable(),
         __metadata("design:type", Array)

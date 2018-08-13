@@ -7,12 +7,13 @@ import { MappedColumnTypes } from "../types/MappedColumnTypes";
 import { ColumnType } from "../types/ColumnTypes";
 import { QueryRunner } from "../../query-runner/QueryRunner";
 import { DataTypeDefaults } from "../types/DataTypeDefaults";
-import { TableColumn } from "../../schema-builder/schema/TableColumn";
+import { TableColumn } from "../../schema-builder/table/TableColumn";
 import { BaseConnectionOptions } from "../../connection/BaseConnectionOptions";
+import { EntityMetadata } from "../../metadata/EntityMetadata";
 /**
  * Organizes communication with sqlite DBMS.
  */
-export declare class AbstractSqliteDriver implements Driver {
+export declare abstract class AbstractSqliteDriver implements Driver {
     /**
      * Connection used by driver.
      */
@@ -57,6 +58,18 @@ export declare class AbstractSqliteDriver implements Driver {
      */
     withLengthColumnTypes: ColumnType[];
     /**
+     * Gets list of spatial column data types.
+     */
+    spatialTypes: ColumnType[];
+    /**
+     * Gets list of column data types that support precision by a driver.
+     */
+    withPrecisionColumnTypes: ColumnType[];
+    /**
+     * Gets list of column data types that support scale by a driver.
+     */
+    withScaleColumnTypes: ColumnType[];
+    /**
      * Orm has special columns and we need to know what database column types should be for those types.
      * Column types are driver dependant.
      */
@@ -67,6 +80,10 @@ export declare class AbstractSqliteDriver implements Driver {
      */
     dataTypeDefaults: DataTypeDefaults;
     constructor(connection: Connection);
+    /**
+     * Creates a query runner used to execute database queries.
+     */
+    abstract createQueryRunner(mode: "master" | "slave"): QueryRunner;
     /**
      * Performs connection to the database.
      */
@@ -84,10 +101,6 @@ export declare class AbstractSqliteDriver implements Driver {
      */
     createSchemaBuilder(): RdbmsSchemaBuilder;
     /**
-     * Creates a query runner used to execute database queries.
-     */
-    createQueryRunner(mode?: "master" | "slave"): QueryRunner;
-    /**
      * Prepares given value to a value to be persisted, based on its column type and metadata.
      */
     preparePersistentValue(value: any, columnMetadata: ColumnMetadata): any;
@@ -99,24 +112,31 @@ export declare class AbstractSqliteDriver implements Driver {
      * Replaces parameters in the given sql with special escaping character
      * and an array of parameter names to be passed to a query.
      */
-    escapeQueryWithParameters(sql: string, parameters: ObjectLiteral): [string, any[]];
+    escapeQueryWithParameters(sql: string, parameters: ObjectLiteral, nativeParameters: ObjectLiteral): [string, any[]];
     /**
      * Escapes a column name.
      */
     escape(columnName: string): string;
+    /**
+     * Build full table name with database name, schema name and table name.
+     * E.g. "myDB"."mySchema"."myTable"
+     *
+     * Returns only simple table name because all inherited drivers does not supports schema and database.
+     */
+    buildTableName(tableName: string, schema?: string, database?: string): string;
     /**
      * Creates a database type from a given column metadata.
      */
     normalizeType(column: {
         type?: ColumnType;
         length?: number | string;
-        precision?: number;
+        precision?: number | null;
         scale?: number;
     }): string;
     /**
      * Normalizes "default" value of the column.
      */
-    normalizeDefault(column: ColumnMetadata): string;
+    normalizeDefault(columnMetadata: ColumnMetadata): string;
     /**
      * Normalizes "isUnique" value of the column.
      */
@@ -141,6 +161,27 @@ export declare class AbstractSqliteDriver implements Driver {
      * If replication is not setup then returns master (default) connection's database connection.
      */
     obtainSlaveConnection(): Promise<any>;
+    /**
+     * Creates generated map of values generated or returned by database after INSERT query.
+     */
+    createGeneratedMap(metadata: EntityMetadata, insertResult: any): any;
+    /**
+     * Differentiate columns of this table and columns from the given column metadatas columns
+     * and returns only changed.
+     */
+    findChangedColumns(tableColumns: TableColumn[], columnMetadatas: ColumnMetadata[]): ColumnMetadata[];
+    /**
+     * Returns true if driver supports RETURNING / OUTPUT statement.
+     */
+    isReturningSqlSupported(): boolean;
+    /**
+     * Returns true if driver supports uuid values generation on its own.
+     */
+    isUUIDGenerationSupported(): boolean;
+    /**
+     * Creates an escaped parameter.
+     */
+    createParameter(parameterName: string, index: number): string;
     /**
      * Creates connection with the database.
      */

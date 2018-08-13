@@ -1,14 +1,18 @@
 /// <reference types="node" />
 import { QueryRunner } from "../../query-runner/QueryRunner";
 import { ObjectLiteral } from "../../common/ObjectLiteral";
-import { TableColumn } from "../../schema-builder/schema/TableColumn";
-import { Table } from "../../schema-builder/schema/Table";
-import { TableForeignKey } from "../../schema-builder/schema/TableForeignKey";
-import { TableIndex } from "../../schema-builder/schema/TableIndex";
+import { TableColumn } from "../../schema-builder/table/TableColumn";
+import { Table } from "../../schema-builder/table/Table";
+import { TableForeignKey } from "../../schema-builder/table/TableForeignKey";
+import { TableIndex } from "../../schema-builder/table/TableIndex";
 import { AggregationCursor, BulkWriteOpResultObject, Code, Collection, CollectionAggregationOptions, CollectionBluckWriteOptions, CollectionInsertManyOptions, CollectionInsertOneOptions, CollectionOptions, CollStats, CommandCursor, Cursor, Db, DeleteWriteOpResultObject, FindAndModifyWriteOpResultObject, FindOneAndReplaceOption, GeoHaystackSearchOptions, GeoNearOptions, InsertOneWriteOpResult, InsertWriteOpResult, MapReduceOptions, MongoCountPreferences, MongodbIndexOptions, OrderedBulkOperation, ParallelCollectionScanOptions, ReadPreference, ReplaceOneOptions, UnorderedBulkOperation, UpdateWriteOpResult } from "./typings";
 import { Connection } from "../../connection/Connection";
 import { ReadStream } from "../../platform/PlatformTools";
 import { MongoEntityManager } from "../../entity-manager/MongoEntityManager";
+import { SqlInMemory } from "../SqlInMemory";
+import { TableUnique } from "../../schema-builder/table/TableUnique";
+import { Broadcaster } from "../../subscriber/Broadcaster";
+import { TableCheck } from "../../schema-builder/table/TableCheck";
 /**
  * Runs queries on a single MongoDB connection.
  */
@@ -18,7 +22,11 @@ export declare class MongoQueryRunner implements QueryRunner {
      */
     connection: Connection;
     /**
-     * Isolated entity manager working only with current query runner.
+     * Broadcaster used on this query runner to broadcast entity events.
+     */
+    broadcaster: Broadcaster;
+    /**
+     * Entity manager working only with current query runner.
      */
     manager: MongoEntityManager;
     /**
@@ -37,6 +45,10 @@ export declare class MongoQueryRunner implements QueryRunner {
      * Useful for sharing data with subscribers.
      */
     data: {};
+    /**
+     * All synchronized tables in the database.
+     */
+    loadedTables: Table[];
     /**
      * Real database connection from a connection pool used to perform queries.
      */
@@ -239,20 +251,45 @@ export declare class MongoQueryRunner implements QueryRunner {
     /**
      * Insert a new row with given values into the given table.
      * Returns value of inserted object id.
-     */
-    insert(collectionName: string, keyValues: ObjectLiteral): Promise<any>;
+
+    async insert(collectionName: string, keyValues: ObjectLiteral): Promise<any> { // todo: fix any
+        const results = await this.databaseConnection
+            .collection(collectionName)
+            .insertOne(keyValues);
+        const generatedMap = this.connection.getMetadata(collectionName).objectIdColumn!.createValueMap(results.insertedId);
+        return {
+            result: results,
+            generatedMap: generatedMap
+        };
+    }*/
     /**
      * Updates rows that match given conditions in the given table.
-     */
-    update(collectionName: string, valuesMap: ObjectLiteral, conditions: ObjectLiteral): Promise<void>;
+
+    async update(collectionName: string, valuesMap: ObjectLiteral, conditions: ObjectLiteral): Promise<any> { // todo: fix any
+        await this.databaseConnection
+            .collection(collectionName)
+            .updateOne(conditions, valuesMap);
+    }*/
     /**
      * Deletes from the given table by a given conditions.
-     */
-    delete(collectionName: string, conditions: ObjectLiteral | string, maybeParameters?: any[]): Promise<void>;
+
+    async delete(collectionName: string, conditions: ObjectLiteral|ObjectLiteral[]|string, maybeParameters?: any[]): Promise<any> { // todo: fix any
+        if (typeof conditions === "string")
+            throw new Error(`String condition is not supported by MongoDB driver.`);
+
+        await this.databaseConnection
+            .collection(collectionName)
+            .deleteOne(conditions);
+    }*/
     /**
-     * Inserts rows into the closure table.
+     * Returns all available database names including system databases.
      */
-    insertIntoClosureTable(collectionName: string, newEntityId: any, parentId: any, hasLevel: boolean): Promise<number>;
+    getDatabases(): Promise<string[]>;
+    /**
+     * Returns all available schema names including system schemas.
+     * If database parameter specified, returns schemas of that database.
+     */
+    getSchemas(database?: string): Promise<string[]>;
     /**
      * Loads given table's data from the database.
      */
@@ -266,17 +303,33 @@ export declare class MongoQueryRunner implements QueryRunner {
      */
     hasDatabase(database: string): Promise<boolean>;
     /**
+     * Checks if schema with the given name exist.
+     */
+    hasSchema(schema: string): Promise<boolean>;
+    /**
      * Checks if table with the given name exist in the database.
      */
     hasTable(collectionName: string): Promise<boolean>;
     /**
+     * Checks if column with the given name exist in the given table.
+     */
+    hasColumn(tableOrName: Table | string, columnName: string): Promise<boolean>;
+    /**
      * Creates a database if it's not created.
      */
-    createDatabase(database: string): Promise<void[]>;
+    createDatabase(database: string): Promise<void>;
     /**
-     * Creates a schema if it's not created.
+     * Drops database.
      */
-    createSchema(schemas: string[]): Promise<void[]>;
+    dropDatabase(database: string, ifExist?: boolean): Promise<void>;
+    /**
+     * Creates a new table schema.
+     */
+    createSchema(schema: string, ifNotExist?: boolean): Promise<void>;
+    /**
+     * Drops table schema.
+     */
+    dropSchema(schemaPath: string, ifExist?: boolean): Promise<void>;
     /**
      * Creates a new table from the given table and columns inside it.
      */
@@ -284,11 +337,11 @@ export declare class MongoQueryRunner implements QueryRunner {
     /**
      * Drops the table.
      */
-    dropTable(tableName: string): Promise<void>;
+    dropTable(tableName: Table | string): Promise<void>;
     /**
-     * Checks if column with the given name exist in the given table.
+     * Renames the given table.
      */
-    hasColumn(collectionName: string, columnName: string): Promise<boolean>;
+    renameTable(oldTableOrName: Table | string, newTableOrName: Table | string): Promise<void>;
     /**
      * Creates a new column from the column in the table.
      */
@@ -308,22 +361,62 @@ export declare class MongoQueryRunner implements QueryRunner {
     /**
      * Changes a column in the table.
      */
-    changeColumns(table: Table, changedColumns: {
+    changeColumns(tableOrName: Table | string, changedColumns: {
         newColumn: TableColumn;
         oldColumn: TableColumn;
     }[]): Promise<void>;
     /**
      * Drops column in the table.
      */
-    dropColumn(table: Table, column: TableColumn): Promise<void>;
+    dropColumn(tableOrName: Table | string, columnOrName: TableColumn | string): Promise<void>;
     /**
      * Drops the columns in the table.
      */
-    dropColumns(table: Table, columns: TableColumn[]): Promise<void>;
+    dropColumns(tableOrName: Table | string, columns: TableColumn[]): Promise<void>;
     /**
-     * Updates table's primary keys.
+     * Creates a new primary key.
      */
-    updatePrimaryKeys(table: Table): Promise<void>;
+    createPrimaryKey(tableOrName: Table | string, columnNames: string[]): Promise<void>;
+    /**
+     * Updates composite primary keys.
+     */
+    updatePrimaryKeys(tableOrName: Table | string, columns: TableColumn[]): Promise<void>;
+    /**
+     * Drops a primary key.
+     */
+    dropPrimaryKey(tableOrName: Table | string): Promise<void>;
+    /**
+     * Creates a new unique constraint.
+     */
+    createUniqueConstraint(tableOrName: Table | string, uniqueConstraint: TableUnique): Promise<void>;
+    /**
+     * Creates a new unique constraints.
+     */
+    createUniqueConstraints(tableOrName: Table | string, uniqueConstraints: TableUnique[]): Promise<void>;
+    /**
+     * Drops an unique constraint.
+     */
+    dropUniqueConstraint(tableOrName: Table | string, uniqueOrName: TableUnique | string): Promise<void>;
+    /**
+     * Drops an unique constraints.
+     */
+    dropUniqueConstraints(tableOrName: Table | string, uniqueConstraints: TableUnique[]): Promise<void>;
+    /**
+     * Creates a new check constraint.
+     */
+    createCheckConstraint(tableOrName: Table | string, checkConstraint: TableCheck): Promise<void>;
+    /**
+     * Creates a new check constraints.
+     */
+    createCheckConstraints(tableOrName: Table | string, checkConstraints: TableCheck[]): Promise<void>;
+    /**
+     * Drops check constraint.
+     */
+    dropCheckConstraint(tableOrName: Table | string, checkOrName: TableCheck | string): Promise<void>;
+    /**
+     * Drops check constraints.
+     */
+    dropCheckConstraints(tableOrName: Table | string, checkConstraints: TableCheck[]): Promise<void>;
     /**
      * Creates a new foreign key.
      */
@@ -343,15 +436,23 @@ export declare class MongoQueryRunner implements QueryRunner {
     /**
      * Creates a new index.
      */
-    createIndex(collectionName: string, index: TableIndex): Promise<void>;
+    createIndex(tableOrName: Table | string, index: TableIndex): Promise<void>;
+    /**
+     * Creates a new indices
+     */
+    createIndices(tableOrName: Table | string, indices: TableIndex[]): Promise<void>;
     /**
      * Drops an index from the table.
      */
     dropIndex(collectionName: string, indexName: string): Promise<void>;
     /**
+     * Drops an indices from the table.
+     */
+    dropIndices(tableOrName: Table | string, indices: TableIndex[]): Promise<void>;
+    /**
      * Drops collection.
      */
-    truncate(collectionName: string): Promise<void>;
+    clearTable(collectionName: string): Promise<void>;
     /**
      * Enables special query runner mode in which sql queries won't be executed,
      * instead they will be memorized into a special variable inside query runner.
@@ -366,12 +467,21 @@ export declare class MongoQueryRunner implements QueryRunner {
      */
     disableSqlMemory(): void;
     /**
+     * Flushes all memorized sqls.
+     */
+    clearSqlMemory(): void;
+    /**
      * Gets sql stored in the memory. Parameters in the sql are already replaced.
      */
-    getMemorySql(): (string | {
-        up: string;
-        down: string;
-    })[];
+    getMemorySql(): SqlInMemory;
+    /**
+     * Executes up sql queries.
+     */
+    executeMemoryUpSql(): Promise<void>;
+    /**
+     * Executes down sql queries.
+     */
+    executeMemoryDownSql(): Promise<void>;
     /**
      * Gets collection from the database with a given name.
      */

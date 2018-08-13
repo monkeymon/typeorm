@@ -48,8 +48,6 @@ describe("github issues > OneToOne relation with referencedColumnName does not w
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        schemaCreate: true,
-                        dropSchema: true,
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -73,8 +71,7 @@ describe("github issues > OneToOne relation with referencedColumnName does not w
                     return [4 /*yield*/, connection.manager.save(post)];
                 case 2:
                     _a.sent();
-                    return [4 /*yield*/, connection
-                            .manager
+                    return [4 /*yield*/, connection.manager
                             .createQueryBuilder(Post_1.Post, "post")
                             .leftJoinAndSelect("post.category", "category")
                             .getOne()];

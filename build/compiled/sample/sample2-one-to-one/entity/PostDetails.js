@@ -32,9 +32,7 @@ var PostDetails = /** @class */ (function () {
     ], PostDetails.prototype, "metadata", void 0);
     __decorate([
         index_1.OneToOne(function (type) { return Post_1.Post; }, function (post) { return post.details; }, {
-            cascadeInsert: true,
-            cascadeUpdate: true,
-            cascadeRemove: true
+            cascade: true
         }),
         __metadata("design:type", Post_1.Post)
     ], PostDetails.prototype, "post", void 0);

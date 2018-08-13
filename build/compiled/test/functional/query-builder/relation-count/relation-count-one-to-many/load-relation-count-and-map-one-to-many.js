@@ -49,8 +49,6 @@ describe("query builder > load-relation-count-and-map > one-to-many", function (
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        schemaCreate: true,
-                        dropSchema: true,
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -226,7 +224,7 @@ describe("query builder > load-relation-count-and-map > one-to-many", function (
                     return [4 /*yield*/, connection.manager
                             .createQueryBuilder(Post_1.Post, "post")
                             .loadRelationCountAndMap("post.categoryCount", "post.categories")
-                            .loadRelationCountAndMap("post.removedCategoryCount", "post.categories", "removedCategories", function (qb) { return qb.andWhere("removedCategories.isRemoved = :isRemoved", { isRemoved: true }); })
+                            .loadRelationCountAndMap("post.removedCategoryCount", "post.categories", "rc", function (qb) { return qb.andWhere("rc.isRemoved = :isRemoved", { isRemoved: true }); })
                             .getMany()];
                 case 6:
                     loadedPosts = _a.sent();
@@ -236,7 +234,7 @@ describe("query builder > load-relation-count-and-map > one-to-many", function (
                     return [4 /*yield*/, connection.manager
                             .createQueryBuilder(Post_1.Post, "post")
                             .loadRelationCountAndMap("post.categoryCount", "post.categories")
-                            .loadRelationCountAndMap("post.removedCategoryCount", "post.categories", "removedCategories", function (qb) { return qb.andWhere("removedCategories.isRemoved = :isRemoved", { isRemoved: true }); })
+                            .loadRelationCountAndMap("post.removedCategoryCount", "post.categories", "rc", function (qb) { return qb.andWhere("rc.isRemoved = :isRemoved", { isRemoved: true }); })
                             .where("post.id = :id", { id: 1 })
                             .getOne()];
                 case 7:

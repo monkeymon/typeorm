@@ -32,8 +32,7 @@ var Post = /** @class */ (function () {
     ], Post.prototype, "categoryId", void 0);
     __decorate([
         ManyToOne_1.ManyToOne(function (type) { return Category_1.Category; }, function (category) { return category.posts; }, {
-            cascadeInsert: true,
-            cascadeUpdate: true
+            cascade: true
         }),
         JoinColumn_1.JoinColumn({ name: "categoryId" }),
         __metadata("design:type", Category_1.Category)

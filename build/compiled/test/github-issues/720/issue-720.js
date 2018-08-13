@@ -50,8 +50,6 @@ describe("github issues > #720 `.save()` not updating composite key with Postgre
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        schemaCreate: true,
-                        dropSchema: true,
                         enabledDrivers: ["postgres"]
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
@@ -101,13 +99,13 @@ describe("github issues > #720 `.save()` not updating composite key with Postgre
                 case 4:
                     count2 = _a.sent();
                     chai_1.expect(count2).to.be.equal(3);
-                    return [4 /*yield*/, connection.manager.findOneById(Participant_1.Participant, { order_id: 1, distance: "one" })];
+                    return [4 /*yield*/, connection.manager.findOne(Participant_1.Participant, { order_id: 1, distance: "one" })];
                 case 5:
                     loadedParticipant1 = _a.sent();
                     chai_1.expect(loadedParticipant1.order_id).to.be.equal(1);
                     chai_1.expect(loadedParticipant1.distance).to.be.equal("one");
                     chai_1.expect(loadedParticipant1.price).to.be.equal("150$");
-                    return [4 /*yield*/, connection.manager.findOneById(Participant_1.Participant, { order_id: 1, distance: "two" })];
+                    return [4 /*yield*/, connection.manager.findOne(Participant_1.Participant, { order_id: 1, distance: "two" })];
                 case 6:
                     loadedParticipant2 = _a.sent();
                     chai_1.expect(loadedParticipant2.order_id).to.be.equal(1);
@@ -145,11 +143,13 @@ describe("github issues > #720 `.save()` not updating composite key with Postgre
                     return [4 /*yield*/, connection.manager.save(translation)];
                 case 4:
                     _a.sent();
-                    return [4 /*yield*/, connection.manager.getRepository(Translation_1.Translation).findOneById({
+                    return [4 /*yield*/, connection.manager.getRepository(Translation_1.Translation).findOne({
                             locale: {
                                 code: "US"
                             },
-                            message: "1"
+                            message: {
+                                id: "1"
+                            }
                         })];
                 case 5:
                     foundTranslation = _a.sent();

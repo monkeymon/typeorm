@@ -27,7 +27,7 @@ var Photo = /** @class */ (function () {
         __metadata("design:type", String)
     ], Photo.prototype, "name", void 0);
     __decorate([
-        Column_1.Column("text"),
+        Column_1.Column(),
         __metadata("design:type", String)
     ], Photo.prototype, "description", void 0);
     __decorate([
@@ -35,7 +35,7 @@ var Photo = /** @class */ (function () {
         __metadata("design:type", String)
     ], Photo.prototype, "filename", void 0);
     __decorate([
-        Column_1.Column("int"),
+        Column_1.Column(),
         __metadata("design:type", Number)
     ], Photo.prototype, "views", void 0);
     __decorate([

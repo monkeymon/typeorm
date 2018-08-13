@@ -27,10 +27,10 @@ var Category = /** @class */ (function () {
         __metadata("design:type", String)
     ], Category.prototype, "name", void 0);
     __decorate([
-        ManyToMany_1.ManyToMany(function (type) { return Post_1.Post; }, function (post) { return post.secondaryCategories; }),
+        ManyToMany_1.ManyToMany(function (type) { return Post_1.Post; }, function (post) { return post.categories2; }),
         JoinTable_1.JoinTable(),
         __metadata("design:type", Array)
-    ], Category.prototype, "secondaryPosts", void 0);
+    ], Category.prototype, "posts2", void 0);
     Category = __decorate([
         Entity_1.Entity()
     ], Category);

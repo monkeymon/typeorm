@@ -1,18 +1,17 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var index_1 = require("../../index");
+var _1 = require("../../");
 var EventListenerTypes_1 = require("../../metadata/types/EventListenerTypes");
 /**
  * Calls a method on which this decorator is applied after entity is loaded.
  */
 function AfterLoad() {
     return function (object, propertyName) {
-        var args = {
+        _1.getMetadataArgsStorage().entityListeners.push({
             target: object.constructor,
             propertyName: propertyName,
             type: EventListenerTypes_1.EventListenerTypes.AFTER_LOAD
-        };
-        index_1.getMetadataArgsStorage().entityListeners.push(args);
+        });
     };
 }
 exports.AfterLoad = AfterLoad;

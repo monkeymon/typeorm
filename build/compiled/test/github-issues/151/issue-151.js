@@ -41,7 +41,6 @@ var test_utils_1 = require("../../utils/test-utils");
 var chai_1 = require("chai");
 var Post_1 = require("./entity/Post");
 var Category_1 = require("./entity/Category");
-var PostMetadata_1 = require("./entity/PostMetadata");
 describe("github issues > #151 joinAndSelect can't find entity from inverse side of relation", function () {
     var connections;
     before(function () { return __awaiter(_this, void 0, void 0, function () {
@@ -49,8 +48,6 @@ describe("github issues > #151 joinAndSelect can't find entity from inverse side
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        schemaCreate: true,
-                        dropSchema: true,
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -71,7 +68,7 @@ describe("github issues > #151 joinAndSelect can't find entity from inverse side
                     return [4 /*yield*/, connection.manager.save(post)];
                 case 1:
                     _a.sent();
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 1, {
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, 1, {
                             join: {
                                 alias: "post",
                                 innerJoinAndSelect: {
@@ -90,94 +87,6 @@ describe("github issues > #151 joinAndSelect can't find entity from inverse side
                             name: "post category"
                         }
                     });
-                    return [2 /*return*/];
-            }
-        });
-    }); })); });
-    it("should cascade remove successfully with uni-directional relation", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
-        var category, post, loadedPostWithCategory, loadedPostWithoutCategory, loadedCategory;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    category = new Category_1.Category();
-                    category.name = "post category";
-                    post = new Post_1.Post();
-                    post.title = "Hello post";
-                    post.category = category;
-                    return [4 /*yield*/, connection.manager.save(post)];
-                case 1:
-                    _a.sent();
-                    post.category = null;
-                    return [4 /*yield*/, connection.manager.save(post)];
-                case 2:
-                    _a.sent();
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 1, {
-                            join: {
-                                alias: "post",
-                                innerJoinAndSelect: {
-                                    category: "post.category"
-                                }
-                            }
-                        })];
-                case 3:
-                    loadedPostWithCategory = _a.sent();
-                    chai_1.expect(loadedPostWithCategory).to.be.empty;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 1)];
-                case 4:
-                    loadedPostWithoutCategory = _a.sent();
-                    chai_1.expect(loadedPostWithoutCategory).not.to.be.empty;
-                    loadedPostWithoutCategory.should.be.eql({
-                        id: 1,
-                        title: "Hello post"
-                    });
-                    return [4 /*yield*/, connection.manager.findOneById(Category_1.Category, 1)];
-                case 5:
-                    loadedCategory = _a.sent();
-                    chai_1.expect(loadedCategory).to.be.empty;
-                    return [2 /*return*/];
-            }
-        });
-    }); })); });
-    it("should cascade remove successfully with bi-directional relation from owner side", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
-        var metadata, post, loadedPostWithMetadata, loadedPostWithoutMetadata, loadedMetadata;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    metadata = new PostMetadata_1.PostMetadata();
-                    metadata.name = "post metadata";
-                    post = new Post_1.Post();
-                    post.title = "Hello post";
-                    post.metadata = metadata;
-                    return [4 /*yield*/, connection.manager.save(post)];
-                case 1:
-                    _a.sent();
-                    post.metadata = null;
-                    return [4 /*yield*/, connection.manager.save(post)];
-                case 2:
-                    _a.sent();
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 1, {
-                            join: {
-                                alias: "post",
-                                innerJoinAndSelect: {
-                                    metadata: "post.metadata"
-                                }
-                            }
-                        })];
-                case 3:
-                    loadedPostWithMetadata = _a.sent();
-                    chai_1.expect(loadedPostWithMetadata).to.be.empty;
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, 1)];
-                case 4:
-                    loadedPostWithoutMetadata = _a.sent();
-                    chai_1.expect(loadedPostWithoutMetadata).not.to.be.empty;
-                    loadedPostWithoutMetadata.should.be.eql({
-                        id: 1,
-                        title: "Hello post"
-                    });
-                    return [4 /*yield*/, connection.manager.findOneById(PostMetadata_1.PostMetadata, 1)];
-                case 5:
-                    loadedMetadata = _a.sent();
-                    chai_1.expect(loadedMetadata).to.be.empty;
                     return [2 /*return*/];
             }
         });

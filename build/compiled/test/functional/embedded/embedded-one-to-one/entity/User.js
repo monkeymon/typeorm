@@ -26,7 +26,7 @@ var User = /** @class */ (function () {
         __metadata("design:type", String)
     ], User.prototype, "name", void 0);
     __decorate([
-        OneToOne_1.OneToOne(function (type) { return Post_1.Post; }, function (post) { return post.counters.likedUser; }),
+        OneToOne_1.OneToOne(function () { return Post_1.Post; }, function (post) { return post.counters.likedUser; }),
         __metadata("design:type", Post_1.Post)
     ], User.prototype, "likedPost", void 0);
     User = __decorate([

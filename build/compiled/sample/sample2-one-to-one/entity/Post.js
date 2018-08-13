@@ -34,39 +34,33 @@ var Post = /** @class */ (function () {
     ], Post.prototype, "text", void 0);
     __decorate([
         index_1.OneToOne(function (type) { return PostCategory_1.PostCategory; }, {
-            cascadeInsert: true,
-            cascadeUpdate: true,
-            cascadeRemove: true
+            cascade: true
         }),
         JoinColumn_1.JoinColumn(),
         __metadata("design:type", PostCategory_1.PostCategory)
     ], Post.prototype, "category", void 0);
     __decorate([
         index_1.OneToOne(function (type) { return PostDetails_1.PostDetails; }, function (details) { return details.post; }, {
-            cascadeInsert: true
+            cascade: ["insert"]
         }),
         JoinColumn_1.JoinColumn(),
         __metadata("design:type", PostDetails_1.PostDetails)
     ], Post.prototype, "details", void 0);
     __decorate([
         index_1.OneToOne(function (type) { return PostImage_1.PostImage; }, function (image) { return image.post; }, {
-            cascadeUpdate: true
+            cascade: ["update"]
         }),
         JoinColumn_1.JoinColumn(),
         __metadata("design:type", PostImage_1.PostImage)
     ], Post.prototype, "image", void 0);
     __decorate([
-        index_1.OneToOne(function (type) { return PostMetadata_1.PostMetadata; }, function (metadata) { return metadata.post; }, {
-            cascadeRemove: true
-        }),
+        index_1.OneToOne(function (type) { return PostMetadata_1.PostMetadata; }, function (metadata) { return metadata.post; }),
         JoinColumn_1.JoinColumn(),
         __metadata("design:type", Object)
     ], Post.prototype, "metadata", void 0);
     __decorate([
         index_1.OneToOne(function (type) { return PostInformation_1.PostInformation; }, function (information) { return information.post; }, {
-            cascadeInsert: true,
-            cascadeUpdate: true,
-            cascadeRemove: true
+            cascade: true
         }),
         JoinColumn_1.JoinColumn(),
         __metadata("design:type", PostInformation_1.PostInformation)

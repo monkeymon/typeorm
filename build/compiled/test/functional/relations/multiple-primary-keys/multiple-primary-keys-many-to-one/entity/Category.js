@@ -12,9 +12,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var Entity_1 = require("../../../../../../src/decorator/entity/Entity");
 var PrimaryColumn_1 = require("../../../../../../src/decorator/columns/PrimaryColumn");
 var Column_1 = require("../../../../../../src/decorator/columns/Column");
-var Index_1 = require("../../../../../../src/decorator/Index");
 var OneToMany_1 = require("../../../../../../src/decorator/relations/OneToMany");
 var Post_1 = require("./Post");
+var src_1 = require("../../../../../../src");
 var Category = /** @class */ (function () {
     function Category() {
     }
@@ -43,20 +43,20 @@ var Category = /** @class */ (function () {
         __metadata("design:type", Array)
     ], Category.prototype, "posts", void 0);
     __decorate([
-        OneToMany_1.OneToMany(function (type) { return Post_1.Post; }, function (post) { return post.categoryWithEmptyJoinColumn; }),
+        OneToMany_1.OneToMany(function (type) { return Post_1.Post; }, function (post) { return post.categoryWithJoinColumn; }),
         __metadata("design:type", Array)
-    ], Category.prototype, "postsWithEmptyJoinColumn", void 0);
+    ], Category.prototype, "postsWithJoinColumn", void 0);
     __decorate([
         OneToMany_1.OneToMany(function (type) { return Post_1.Post; }, function (post) { return post.categoryWithOptions; }),
         __metadata("design:type", Array)
     ], Category.prototype, "postsWithOptions", void 0);
     __decorate([
-        OneToMany_1.OneToMany(function (type) { return Post_1.Post; }, function (post) { return post.categoryWithNonPrimaryColumns; }),
+        OneToMany_1.OneToMany(function (type) { return Post_1.Post; }, function (post) { return post.categoryWithNonPKColumns; }),
         __metadata("design:type", Array)
-    ], Category.prototype, "postsWithNonPrimaryColumns", void 0);
+    ], Category.prototype, "postsWithNonPKColumns", void 0);
     Category = __decorate([
         Entity_1.Entity(),
-        Index_1.Index(["code", "version", "description"], { unique: true })
+        src_1.Unique(["code", "version", "description"])
     ], Category);
     return Category;
 }());

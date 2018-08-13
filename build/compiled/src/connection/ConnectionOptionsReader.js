@@ -58,8 +58,16 @@ var ConnectionOptionsReader = /** @class */ (function () {
      */
     ConnectionOptionsReader.prototype.all = function () {
         return __awaiter(this, void 0, void 0, function () {
+            var options;
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.load()];
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.load()];
+                    case 1:
+                        options = _a.sent();
+                        if (!options)
+                            throw new Error("No connection options were found in any of configurations file.");
+                        return [2 /*return*/, options];
+                }
             });
         });
     };
@@ -83,6 +91,25 @@ var ConnectionOptionsReader = /** @class */ (function () {
             });
         });
     };
+    /**
+     * Checks if there is a TypeORM configuration file.
+     */
+    ConnectionOptionsReader.prototype.has = function (name) {
+        return __awaiter(this, void 0, void 0, function () {
+            var allOptions, targetOptions;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.load()];
+                    case 1:
+                        allOptions = _a.sent();
+                        if (!allOptions)
+                            return [2 /*return*/, false];
+                        targetOptions = allOptions.find(function (options) { return options.name === name || (name === "default" && !options.name); });
+                        return [2 /*return*/, !!targetOptions];
+                }
+            });
+        });
+    };
     // -------------------------------------------------------------------------
     // Protected Methods
     // -------------------------------------------------------------------------
@@ -98,7 +125,7 @@ var ConnectionOptionsReader = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        foundFileFormat = ["env", "js", "json", "yml", "yaml", "xml"].find(function (format) {
+                        foundFileFormat = ["env", "js", "ts", "json", "yml", "yaml", "xml"].find(function (format) {
                             return PlatformTools_1.PlatformTools.fileExist(_this.baseFilePath + "." + format);
                         });
                         // if .env file found then load all its variables into process.env using dotenv package
@@ -110,6 +137,7 @@ var ConnectionOptionsReader = /** @class */ (function () {
                             dotenv = PlatformTools_1.PlatformTools.load("dotenv");
                             dotenv.config({ path: ".env" });
                         }
+                        connectionOptions = undefined;
                         if (!PlatformTools_1.PlatformTools.getEnvVariable("TYPEORM_CONNECTION")) return [3 /*break*/, 1];
                         connectionOptions = new ConnectionOptionsEnvReader_1.ConnectionOptionsEnvReader().read();
                         return [3 /*break*/, 8];
@@ -118,27 +146,33 @@ var ConnectionOptionsReader = /** @class */ (function () {
                         connectionOptions = PlatformTools_1.PlatformTools.load(this.baseFilePath + ".js");
                         return [3 /*break*/, 8];
                     case 2:
-                        if (!(foundFileFormat === "json")) return [3 /*break*/, 3];
-                        connectionOptions = PlatformTools_1.PlatformTools.load(this.baseFilePath + ".json");
+                        if (!(foundFileFormat === "ts")) return [3 /*break*/, 3];
+                        connectionOptions = PlatformTools_1.PlatformTools.load(this.baseFilePath + ".ts");
                         return [3 /*break*/, 8];
                     case 3:
-                        if (!(foundFileFormat === "yml")) return [3 /*break*/, 4];
-                        connectionOptions = new ConnectionOptionsYmlReader_1.ConnectionOptionsYmlReader().read(this.baseFilePath + ".yml");
+                        if (!(foundFileFormat === "json")) return [3 /*break*/, 4];
+                        connectionOptions = PlatformTools_1.PlatformTools.load(this.baseFilePath + ".json");
                         return [3 /*break*/, 8];
                     case 4:
-                        if (!(foundFileFormat === "yaml")) return [3 /*break*/, 5];
-                        connectionOptions = new ConnectionOptionsYmlReader_1.ConnectionOptionsYmlReader().read(this.baseFilePath + ".yaml");
+                        if (!(foundFileFormat === "yml")) return [3 /*break*/, 5];
+                        connectionOptions = new ConnectionOptionsYmlReader_1.ConnectionOptionsYmlReader().read(this.baseFilePath + ".yml");
                         return [3 /*break*/, 8];
                     case 5:
-                        if (!(foundFileFormat === "xml")) return [3 /*break*/, 7];
-                        return [4 /*yield*/, new ConnectionOptionsXmlReader_1.ConnectionOptionsXmlReader().read(this.baseFilePath + ".xml")];
-                    case 6:
-                        connectionOptions = _a.sent();
+                        if (!(foundFileFormat === "yaml")) return [3 /*break*/, 6];
+                        connectionOptions = new ConnectionOptionsYmlReader_1.ConnectionOptionsYmlReader().read(this.baseFilePath + ".yaml");
                         return [3 /*break*/, 8];
-                    case 7: throw new Error("No connection options were found in any of configurations file.");
-                    case 8: 
-                    // normalize and return connection options
-                    return [2 /*return*/, this.normalizeConnectionOptions(connectionOptions)];
+                    case 6:
+                        if (!(foundFileFormat === "xml")) return [3 /*break*/, 8];
+                        return [4 /*yield*/, new ConnectionOptionsXmlReader_1.ConnectionOptionsXmlReader().read(this.baseFilePath + ".xml")];
+                    case 7:
+                        connectionOptions = _a.sent();
+                        _a.label = 8;
+                    case 8:
+                        // normalize and return connection options
+                        if (connectionOptions) {
+                            return [2 /*return*/, this.normalizeConnectionOptions(connectionOptions)];
+                        }
+                        return [2 /*return*/, undefined];
                 }
             });
         });
@@ -177,7 +211,10 @@ var ConnectionOptionsReader = /** @class */ (function () {
             }
             // make database path file in sqlite relative to package.json
             if (options.type === "sqlite") {
-                if (typeof options.database === "string" && options.database.substr(0, 1) !== "/") {
+                if (typeof options.database === "string" &&
+                    options.database.substr(0, 1) !== "/" && // unix absolute
+                    options.database.substr(1, 2) !== ":\\" && // windows absolute
+                    options.database !== ":memory:") {
                     Object.assign(options, {
                         database: _this.baseDirectory + "/" + options.database
                     });

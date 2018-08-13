@@ -49,8 +49,6 @@ describe("transaction > method wrapped into transaction decorator", function () 
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        schemaCreate: true,
-                        dropSchema: true,
                         enabledDrivers: ["mysql"] // since @Transaction accepts a specific connection name we can use only one connection and its name
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
@@ -204,6 +202,34 @@ describe("transaction > method wrapped into transaction decorator", function () 
                     // controller should successfully call custom repository method and return the found entity
                     chai_1.expect(savedCategory).not.to.be.empty;
                     savedCategory.should.be.eql(category);
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, { where: { title: "successfully saved post" } })];
+                case 2:
+                    loadedPost = _a.sent();
+                    chai_1.expect(loadedPost).not.to.be.empty;
+                    loadedPost.should.be.eql(post);
+                    return [4 /*yield*/, connection.manager.findOne(Category_1.Category, { where: { name: "successfully saved category" } })];
+                case 3:
+                    loadedCategory = _a.sent();
+                    chai_1.expect(loadedCategory).not.to.be.empty;
+                    loadedCategory.should.be.eql(category);
+                    return [2 /*return*/];
+            }
+        });
+    }); })); });
+    it("should execute all operations in the method in a transaction with a specified isolation", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
+        var post, category, loadedPost, loadedCategory;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    post = new Post_1.Post();
+                    post.title = "successfully saved post";
+                    category = new Category_1.Category();
+                    category.name = "successfully saved category";
+                    // call controller method
+                    return [4 /*yield*/, controller.saveWithNonDefaultIsolation.apply(controller, [post, category])];
+                case 1:
+                    // call controller method
+                    _a.sent();
                     return [4 /*yield*/, connection.manager.findOne(Post_1.Post, { where: { title: "successfully saved post" } })];
                 case 2:
                     loadedPost = _a.sent();

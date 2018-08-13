@@ -40,14 +40,14 @@ var Post = /** @class */ (function () {
         __metadata("design:type", Category_1.Category)
     ], Post.prototype, "categoryWithOptions", void 0);
     __decorate([
-        OneToOne_1.OneToOne(function (type) { return Category_1.Category; }, function (category) { return category.postWithNonPrimaryColumns; }),
+        OneToOne_1.OneToOne(function (type) { return Category_1.Category; }, function (category) { return category.postWithNonPKColumns; }),
         JoinColumn_1.JoinColumn([
             { name: "category_code", referencedColumnName: "code" },
             { name: "category_version", referencedColumnName: "version" },
             { name: "category_description", referencedColumnName: "description" }
         ]),
         __metadata("design:type", Category_1.Category)
-    ], Post.prototype, "categoryWithNonPrimaryColumns", void 0);
+    ], Post.prototype, "categoryWithNonPKColumns", void 0);
     Post = __decorate([
         Entity_1.Entity()
     ], Post);

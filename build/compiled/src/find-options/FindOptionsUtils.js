@@ -22,9 +22,11 @@ var FindOptionsUtils = /** @class */ (function () {
                 possibleOptions.relations instanceof Array ||
                 possibleOptions.join instanceof Object ||
                 possibleOptions.order instanceof Object ||
-                (possibleOptions.cache instanceof Object ||
-                    typeof possibleOptions.cache === "boolean" ||
-                    typeof possibleOptions.cache === "number"));
+                possibleOptions.cache instanceof Object ||
+                typeof possibleOptions.cache === "boolean" ||
+                typeof possibleOptions.cache === "number" ||
+                possibleOptions.loadRelationIds instanceof Object ||
+                typeof possibleOptions.loadRelationIds === "boolean");
     };
     /**
      * Checks if given object is really instance of FindManyOptions interface.
@@ -33,15 +35,9 @@ var FindOptionsUtils = /** @class */ (function () {
         var possibleOptions = obj;
         return possibleOptions && (this.isFindOneOptions(possibleOptions) ||
             typeof possibleOptions.skip === "number" ||
-            typeof possibleOptions.take === "number");
-    };
-    /**
-     * Checks if given object is really instance of FindOptions interface.
-     */
-    FindOptionsUtils.extractFindOneOptionsAlias = function (object) {
-        if (this.isFindOneOptions(object) && object.join)
-            return object.join.alias;
-        return undefined;
+            typeof possibleOptions.take === "number" ||
+            typeof possibleOptions.skip === "string" ||
+            typeof possibleOptions.take === "string");
     };
     /**
      * Checks if given object is really instance of FindOptions interface.
@@ -50,16 +46,6 @@ var FindOptionsUtils = /** @class */ (function () {
         if (this.isFindManyOptions(object) && object.join)
             return object.join.alias;
         return undefined;
-    };
-    /**
-     * Applies give find one options to the given query builder.
-     */
-    FindOptionsUtils.applyFindOneOptionsOrConditionsToQueryBuilder = function (qb, options) {
-        if (this.isFindOneOptions(options))
-            return this.applyOptionsToQueryBuilder(qb, options);
-        if (options)
-            return qb.where(options);
-        return qb;
     };
     /**
      * Applies give find many options to the given query builder.
@@ -78,9 +64,17 @@ var FindOptionsUtils = /** @class */ (function () {
         // if options are not set then simply return query builder. This is made for simplicity of usage.
         if (!options || (!this.isFindOneOptions(options) && !this.isFindManyOptions(options)))
             return qb;
+        if (!qb.expressionMap.mainAlias || !qb.expressionMap.mainAlias.hasMetadata)
+            return qb;
+        var metadata = qb.expressionMap.mainAlias.metadata;
         // apply all options from FindOptions
         if (options.select) {
-            qb.select(options.select.map(function (selection) { return qb.alias + "." + selection; }));
+            qb.select([]);
+            options.select.forEach(function (select) {
+                if (!metadata.findColumnWithPropertyPath(select))
+                    throw new Error(select + " column was not found in the " + metadata.name + " entity.");
+                qb.addSelect(qb.alias + "." + select);
+            });
         }
         if (options.where)
             qb.where(options.where);
@@ -91,6 +85,8 @@ var FindOptionsUtils = /** @class */ (function () {
         if (options.order)
             Object.keys(options.order).forEach(function (key) {
                 var order = options.order[key];
+                if (!metadata.findColumnWithPropertyPath(key))
+                    throw new Error(key + " column was not found in the " + metadata.name + " entity.");
                 switch (order) {
                     case 1:
                         qb.addOrderBy(qb.alias + "." + key, "ASC");
@@ -142,6 +138,12 @@ var FindOptionsUtils = /** @class */ (function () {
                 qb.cache(options.cache);
             }
         }
+        if (options.loadRelationIds === true) {
+            qb.loadAllRelationIds();
+        }
+        else if (options.loadRelationIds instanceof Object) {
+            qb.loadAllRelationIds(options.loadRelationIds);
+        }
         return qb;
     };
     // -------------------------------------------------------------------------
@@ -169,11 +171,24 @@ var FindOptionsUtils = /** @class */ (function () {
             // add a join for the found relation
             var selection = alias + "." + relation;
             qb.leftJoinAndSelect(selection, alias + "_" + relation);
+            // join the eager relations of the found relation
+            var relMetadata = metadata.relations.find(function (metadata) { return metadata.propertyName === relation; });
+            if (relMetadata) {
+                _this.joinEagerRelations(qb, alias + "_" + relation, relMetadata.inverseEntityMetadata);
+            }
             // remove added relations from the allRelations array, this is needed to find all not found relations at the end
             allRelations.splice(allRelations.indexOf(prefix ? prefix + "." + relation : relation), 1);
             // try to find sub-relations
             var join = qb.expressionMap.joinAttributes.find(function (join) { return join.entityOrProperty === selection; });
-            _this.applyRelationsRecursively(qb, allRelations, join.alias.name, join.metadata, relation);
+            _this.applyRelationsRecursively(qb, allRelations, join.alias.name, join.metadata, prefix ? prefix + "." + relation : relation);
+        });
+    };
+    FindOptionsUtils.joinEagerRelations = function (qb, alias, metadata) {
+        var _this = this;
+        metadata.eagerRelations.forEach(function (relation) {
+            var relationAlias = alias + "_" + relation.propertyPath.replace(".", "_");
+            qb.leftJoinAndSelect(alias + "." + relation.propertyPath, relationAlias);
+            _this.joinEagerRelations(qb, relationAlias, relation.inverseEntityMetadata);
         });
     };
     return FindOptionsUtils;

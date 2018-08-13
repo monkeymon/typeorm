@@ -41,8 +41,7 @@ var PostDetails = /** @class */ (function () {
     ], PostDetails.prototype, "metadata", void 0);
     __decorate([
         index_1.OneToMany(function (type) { return Post_1.Post; }, function (post) { return post.details; }, {
-            cascadeInsert: true,
-            cascadeUpdate: true
+            cascade: true
         }),
         __metadata("design:type", Array)
     ], PostDetails.prototype, "posts", void 0);

@@ -1,32 +1,27 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var index_1 = require("../../index");
+var _1 = require("../../");
 /**
- * Marks a specific property of the class as a children of the tree.
+ * Marks a entity property as a children of the tree.
+ * "Tree children" will contain all children (bind) of this entity.
  */
 function TreeChildren(options) {
     return function (object, propertyName) {
         if (!options)
             options = {};
         // now try to determine it its lazy relation
-        var isLazy = options && options.lazy === true ? true : false;
-        if (!isLazy && Reflect && Reflect.getMetadata) {
-            var reflectedType = Reflect.getMetadata("design:type", object, propertyName);
-            if (reflectedType && typeof reflectedType.name === "string" && reflectedType.name.toLowerCase() === "promise")
-                isLazy = true;
-        }
+        var reflectedType = Reflect && Reflect.getMetadata ? Reflect.getMetadata("design:type", object, propertyName) : undefined;
+        var isLazy = (reflectedType && typeof reflectedType.name === "string" && reflectedType.name.toLowerCase() === "promise") || false;
         // add one-to-many relation for this 
-        var args = {
+        _1.getMetadataArgsStorage().relations.push({
             isTreeChildren: true,
             target: object.constructor,
             propertyName: propertyName,
-            // propertyType: reflectedType,
             isLazy: isLazy,
             relationType: "one-to-many",
             type: function () { return object.constructor; },
             options: options
-        };
-        index_1.getMetadataArgsStorage().relations.push(args);
+        });
     };
 }
 exports.TreeChildren = TreeChildren;

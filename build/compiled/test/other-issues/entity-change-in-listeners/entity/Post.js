@@ -13,6 +13,7 @@ var Entity_1 = require("../../../../src/decorator/entity/Entity");
 var PrimaryGeneratedColumn_1 = require("../../../../src/decorator/columns/PrimaryGeneratedColumn");
 var Column_1 = require("../../../../src/decorator/columns/Column");
 var BeforeUpdate_1 = require("../../../../src/decorator/listeners/BeforeUpdate");
+var UpdateDateColumn_1 = require("../../../../src/decorator/columns/UpdateDateColumn");
 var Post = /** @class */ (function () {
     function Post() {
     }
@@ -31,6 +32,10 @@ var Post = /** @class */ (function () {
         Column_1.Column({ default: false }),
         __metadata("design:type", Boolean)
     ], Post.prototype, "active", void 0);
+    __decorate([
+        UpdateDateColumn_1.UpdateDateColumn(),
+        __metadata("design:type", Date)
+    ], Post.prototype, "updateDate", void 0);
     __decorate([
         BeforeUpdate_1.BeforeUpdate(),
         __metadata("design:type", Function),

@@ -53,8 +53,18 @@ export class DriverUtils {
         const secondSlash = preBase.indexOf("/");
         const base = (secondSlash !== -1) ? preBase.substr(0, secondSlash) : preBase;
         const afterBase = (secondSlash !== -1) ? preBase.substr(secondSlash + 1) : undefined;
-        const [usernameAndPassword, hostAndPort] = base.split("@");
-        const [username, password] = usernameAndPassword.split(":");
+
+        const lastAtSign = base.lastIndexOf("@");
+        const usernameAndPassword = base.substr(0, lastAtSign);
+        const hostAndPort = base.substr(lastAtSign + 1);
+
+        let username = usernameAndPassword;
+        let password = "";
+        const firstColon = usernameAndPassword.indexOf(":");
+        if (firstColon !== -1) {
+            username = usernameAndPassword.substr(0, firstColon);
+            password = usernameAndPassword.substr(firstColon + 1);
+        }
         const [host, port] = hostAndPort.split(":");
 
         return {

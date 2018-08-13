@@ -21,8 +21,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var Column_1 = require("../../../src/decorator/columns/Column");
 var Person_1 = require("./Person");
-var DiscriminatorValue_1 = require("../../../src/decorator/DiscriminatorValue");
-var SingleEntityChild_1 = require("../../../src/decorator/entity/SingleEntityChild");
+var ChildEntity_1 = require("../../../src/decorator/entity/ChildEntity");
 var Homesitter = /** @class */ (function (_super) {
     __extends(Homesitter, _super);
     function Homesitter() {
@@ -33,8 +32,7 @@ var Homesitter = /** @class */ (function (_super) {
         __metadata("design:type", Number)
     ], Homesitter.prototype, "numberOfKids", void 0);
     Homesitter = __decorate([
-        SingleEntityChild_1.SingleEntityChild(),
-        DiscriminatorValue_1.DiscriminatorValue("home-sitter") // can be omitted
+        ChildEntity_1.ChildEntity("home-sitter")
     ], Homesitter);
     return Homesitter;
 }(Person_1.Person));

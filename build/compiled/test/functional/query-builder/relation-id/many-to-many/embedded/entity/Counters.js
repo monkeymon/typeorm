@@ -31,11 +31,11 @@ var Counters = /** @class */ (function () {
     ], Counters.prototype, "favorites", void 0);
     __decorate([
         ManyToMany_1.ManyToMany(function (type) { return Category_1.Category; }, function (category) { return category.posts; }),
-        JoinTable_1.JoinTable(),
+        JoinTable_1.JoinTable({ name: "counter_categories" }),
         __metadata("design:type", Array)
     ], Counters.prototype, "categories", void 0);
     __decorate([
-        Column_1.Column(function () { return Subcounters_1.Subcounters; }),
+        Column_1.Column(function () { return Subcounters_1.Subcounters; }, { prefix: "subcnt" }),
         __metadata("design:type", Subcounters_1.Subcounters)
     ], Counters.prototype, "subcounters", void 0);
     return Counters;

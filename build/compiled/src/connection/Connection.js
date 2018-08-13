@@ -38,7 +38,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var DefaultNamingStrategy_1 = require("../naming-strategy/DefaultNamingStrategy");
 var CannotExecuteNotConnectedError_1 = require("../error/CannotExecuteNotConnectedError");
 var CannotConnectAlreadyConnectedError_1 = require("../error/CannotConnectAlreadyConnectedError");
-var EntityMetadataNotFound_1 = require("../error/EntityMetadataNotFound");
+var EntityMetadataNotFoundError_1 = require("../error/EntityMetadataNotFoundError");
 var MigrationExecutor_1 = require("../migration/MigrationExecutor");
 var MongoDriver_1 = require("../driver/mongodb/MongoDriver");
 var MongoEntityManager_1 = require("../entity-manager/MongoEntityManager");
@@ -50,10 +50,13 @@ var ConnectionMetadataBuilder_1 = require("./ConnectionMetadataBuilder");
 var SelectQueryBuilder_1 = require("../query-builder/SelectQueryBuilder");
 var LoggerFactory_1 = require("../logger/LoggerFactory");
 var QueryResultCacheFactory_1 = require("../cache/QueryResultCacheFactory");
+var SqljsEntityManager_1 = require("../entity-manager/SqljsEntityManager");
+var RelationLoader_1 = require("../query-builder/RelationLoader");
+var RelationIdLoader_1 = require("../query-builder/RelationIdLoader");
+var _1 = require("../");
 var SqlServerDriver_1 = require("../driver/sqlserver/SqlServerDriver");
 var MysqlDriver_1 = require("../driver/mysql/MysqlDriver");
-var PromiseUtils_1 = require("../util/PromiseUtils");
-var SqljsEntityManager_1 = require("../entity-manager/SqljsEntityManager");
+var _2 = require("../");
 /**
  * Connection is a single database ORM connection to a specific database.
  * Its not required to be a database connection, depend on database type it can create connection pool.
@@ -87,6 +90,8 @@ var Connection = /** @class */ (function () {
         this.manager = this.createEntityManager();
         this.namingStrategy = options.namingStrategy || new DefaultNamingStrategy_1.DefaultNamingStrategy();
         this.queryResultCache = options.cache ? new QueryResultCacheFactory_1.QueryResultCacheFactory(this).create() : undefined;
+        this.relationLoader = new RelationLoader_1.RelationLoader(this);
+        this.relationIdLoader = new RelationIdLoader_1.RelationIdLoader(this);
     }
     Object.defineProperty(Connection.prototype, "mongoManager", {
         // -------------------------------------------------------------------------
@@ -252,28 +257,26 @@ var Connection = /** @class */ (function () {
      * Be careful with this method on production since this method will erase all your database tables and their data.
      * Can be used only after connection to the database is established.
      */
+    // TODO rename
     Connection.prototype.dropDatabase = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var queryRunner, schemas, databases_1;
+            var queryRunner, databases_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.createQueryRunner("master")];
                     case 1:
                         queryRunner = _a.sent();
-                        schemas = this.entityMetadatas
-                            .filter(function (metadata) { return metadata.schema; })
-                            .map(function (metadata) { return metadata.schema; });
                         if (!(this.driver instanceof SqlServerDriver_1.SqlServerDriver || this.driver instanceof MysqlDriver_1.MysqlDriver)) return [3 /*break*/, 3];
                         databases_1 = this.driver.database ? [this.driver.database] : [];
                         this.entityMetadatas.forEach(function (metadata) {
                             if (metadata.database && databases_1.indexOf(metadata.database) === -1)
                                 databases_1.push(metadata.database);
                         });
-                        return [4 /*yield*/, PromiseUtils_1.PromiseUtils.runInSequence(databases_1, function (database) { return queryRunner.clearDatabase(schemas, database); })];
+                        return [4 /*yield*/, _2.PromiseUtils.runInSequence(databases_1, function (database) { return queryRunner.clearDatabase(database); })];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 5];
-                    case 3: return [4 /*yield*/, queryRunner.clearDatabase(schemas)];
+                    case 3: return [4 /*yield*/, queryRunner.clearDatabase()];
                     case 4:
                         _a.sent();
                         _a.label = 5;
@@ -289,7 +292,7 @@ var Connection = /** @class */ (function () {
      * Runs all pending migrations.
      * Can be used only after connection to the database is established.
      */
-    Connection.prototype.runMigrations = function () {
+    Connection.prototype.runMigrations = function (options) {
         return __awaiter(this, void 0, void 0, function () {
             var migrationExecutor;
             return __generator(this, function (_a) {
@@ -298,6 +301,9 @@ var Connection = /** @class */ (function () {
                         if (!this.isConnected)
                             throw new CannotExecuteNotConnectedError_1.CannotExecuteNotConnectedError(this.name);
                         migrationExecutor = new MigrationExecutor_1.MigrationExecutor(this);
+                        if (options && options.transaction === false) {
+                            migrationExecutor.transaction = false;
+                        }
                         return [4 /*yield*/, migrationExecutor.executePendingMigrations()];
                     case 1:
                         _a.sent();
@@ -310,7 +316,7 @@ var Connection = /** @class */ (function () {
      * Reverts last executed migration.
      * Can be used only after connection to the database is established.
      */
-    Connection.prototype.undoLastMigration = function () {
+    Connection.prototype.undoLastMigration = function (options) {
         return __awaiter(this, void 0, void 0, function () {
             var migrationExecutor;
             return __generator(this, function (_a) {
@@ -319,6 +325,9 @@ var Connection = /** @class */ (function () {
                         if (!this.isConnected)
                             throw new CannotExecuteNotConnectedError_1.CannotExecuteNotConnectedError(this.name);
                         migrationExecutor = new MigrationExecutor_1.MigrationExecutor(this);
+                        if (options && options.transaction === false) {
+                            migrationExecutor.transaction = false;
+                        }
                         return [4 /*yield*/, migrationExecutor.undoLastMigration()];
                     case 1:
                         _a.sent();
@@ -339,7 +348,7 @@ var Connection = /** @class */ (function () {
     Connection.prototype.getMetadata = function (target) {
         var metadata = this.findMetadata(target);
         if (!metadata)
-            throw new EntityMetadataNotFound_1.EntityMetadataNotFound(target);
+            throw new EntityMetadataNotFoundError_1.EntityMetadataNotFoundError(target);
         return metadata;
     };
     /**
@@ -350,7 +359,7 @@ var Connection = /** @class */ (function () {
     };
     /**
      * Gets tree repository for the given entity class or name.
-     * Only tree-type entities can have a TreeRepository, like ones decorated with @ClosureEntity decorator.
+     * Only tree-type entities can have a TreeRepository, like ones decorated with @Tree decorator.
      */
     Connection.prototype.getTreeRepository = function (target) {
         return this.manager.getTreeRepository(target);
@@ -473,6 +482,9 @@ var Connection = /** @class */ (function () {
         return this.entityMetadatas.find(function (metadata) {
             if (metadata.target === target)
                 return true;
+            if (target instanceof _1.EntitySchema) {
+                return metadata.name === target.options.name;
+            }
             if (typeof target === "string") {
                 if (target.indexOf(".") !== -1) {
                     return metadata.tablePath === target;
@@ -494,7 +506,7 @@ var Connection = /** @class */ (function () {
         var subscribers = connectionMetadataBuilder.buildSubscribers(this.options.subscribers || []);
         Object.assign(this, { subscribers: subscribers });
         // build entity metadatas
-        var entityMetadatas = connectionMetadataBuilder.buildEntityMetadatas(this.options.entities || [], this.options.entitySchemas || []);
+        var entityMetadatas = connectionMetadataBuilder.buildEntityMetadatas(this.options.entities || []);
         Object.assign(this, { entityMetadatas: entityMetadatas });
         // create migration instances
         var migrations = connectionMetadataBuilder.buildMigrations(this.options.migrations || []);

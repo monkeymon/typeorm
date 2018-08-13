@@ -50,8 +50,7 @@ var PostCategory = /** @class */ (function () {
     ], PostCategory.prototype, "name", void 0);
     __decorate([
         ManyToMany_1.ManyToMany(function (type) { return Post_1.Post; }, function (post) { return post.categories; }, {
-            cascadeInsert: true,
-            cascadeUpdate: true
+            cascade: true
         }),
         __metadata("design:type", Array)
     ], PostCategory.prototype, "posts", void 0);

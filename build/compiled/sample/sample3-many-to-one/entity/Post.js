@@ -33,35 +33,29 @@ var Post = /** @class */ (function () {
     ], Post.prototype, "text", void 0);
     __decorate([
         index_1.ManyToOne(function (type) { return PostCategory_1.PostCategory; }, {
-            cascadeInsert: true,
-            cascadeUpdate: true,
-            cascadeRemove: true
+            cascade: true
         }),
         __metadata("design:type", PostCategory_1.PostCategory)
     ], Post.prototype, "category", void 0);
     __decorate([
         index_1.ManyToOne(function (type) { return PostDetails_1.PostDetails; }, function (details) { return details.posts; }, {
-            cascadeInsert: true
+            cascade: ["insert"]
         }),
         __metadata("design:type", PostDetails_1.PostDetails)
     ], Post.prototype, "details", void 0);
     __decorate([
         index_1.ManyToOne(function (type) { return PostImage_1.PostImage; }, function (image) { return image.posts; }, {
-            cascadeUpdate: true
+            cascade: ["update"]
         }),
         __metadata("design:type", PostImage_1.PostImage)
     ], Post.prototype, "image", void 0);
     __decorate([
-        index_1.ManyToOne(function (type) { return PostMetadata_1.PostMetadata; }, function (metadata) { return metadata.posts; }, {
-            cascadeRemove: true
-        }),
+        index_1.ManyToOne(function (type) { return PostMetadata_1.PostMetadata; }, function (metadata) { return metadata.posts; }),
         __metadata("design:type", Object)
     ], Post.prototype, "metadata", void 0);
     __decorate([
         index_1.ManyToOne(function (type) { return PostInformation_1.PostInformation; }, function (information) { return information.posts; }, {
-            cascadeInsert: true,
-            cascadeUpdate: true,
-            cascadeRemove: true
+            cascade: true
         }),
         __metadata("design:type", PostInformation_1.PostInformation)
     ], Post.prototype, "information", void 0);

@@ -80,7 +80,7 @@ describe("query builder > insertion > on conflict", function () {
                             .execute()];
                 case 2:
                     _a.sent();
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, "post#1").should.eventually.be.eql({
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, "post#1").should.eventually.be.eql({
                             id: "post#1",
                             title: "About post"
                         })];
@@ -95,7 +95,7 @@ describe("query builder > insertion > on conflict", function () {
                             .execute()];
                 case 4:
                     _a.sent();
-                    return [4 /*yield*/, connection.manager.findOneById(Post_1.Post, "post#1").should.eventually.be.eql({
+                    return [4 /*yield*/, connection.manager.findOne(Post_1.Post, "post#1").should.eventually.be.eql({
                             id: "post#1",
                             title: "Again post"
                         })];

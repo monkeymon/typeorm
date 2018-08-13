@@ -1,39 +1,4 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [0, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 var MissingPrimaryColumnError_1 = require("../error/MissingPrimaryColumnError");
 var CircularRelationsError_1 = require("../error/CircularRelationsError");
@@ -42,6 +7,8 @@ var DataTypeNotSupportedError_1 = require("../error/DataTypeNotSupportedError");
 var MongoDriver_1 = require("../driver/mongodb/MongoDriver");
 var SqlServerDriver_1 = require("../driver/sqlserver/SqlServerDriver");
 var MysqlDriver_1 = require("../driver/mysql/MysqlDriver");
+var NoConnectionOptionError_1 = require("../error/NoConnectionOptionError");
+var InitializedRelationError_1 = require("../error/InitializedRelationError");
 /// todo: add check if there are multiple tables with the same name
 /// todo: add checks when generated column / table names are too long for the specific driver
 // todo: type in function validation, inverse side function validation
@@ -54,6 +21,9 @@ var MysqlDriver_1 = require("../driver/mysql/MysqlDriver");
 // todo: MetadataArgsStorage: check on build for duplicate names, since naming checking was removed from MetadataStorage
 // todo: MetadataArgsStorage: duplicate name checking for: table, relation, column, index, naming strategy, join tables/columns?
 // todo: MetadataArgsStorage: check for duplicate targets too since this check has been removed too
+// todo: check if relation decorator contains primary: true and nullable: true
+// todo: check column length, precision. scale
+// todo: MySQL index can be unique or spatial or fulltext
 /**
  * Validates built entity metadatas.
  */
@@ -67,28 +37,23 @@ var EntityMetadataValidator = /** @class */ (function () {
      * Validates all given entity metadatas.
      */
     EntityMetadataValidator.prototype.validateMany = function (entityMetadatas, driver) {
-        return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
-            return __generator(this, function (_a) {
-                entityMetadatas.forEach(function (entityMetadata) { return _this.validate(entityMetadata, entityMetadatas, driver); });
-                this.validateDependencies(entityMetadatas);
-                this.validateEagerRelations(entityMetadatas);
-                return [2 /*return*/];
-            });
-        });
+        var _this = this;
+        entityMetadatas.forEach(function (entityMetadata) { return _this.validate(entityMetadata, entityMetadatas, driver); });
+        this.validateDependencies(entityMetadatas);
+        this.validateEagerRelations(entityMetadatas);
     };
     /**
      * Validates given entity metadata.
      */
     EntityMetadataValidator.prototype.validate = function (entityMetadata, allEntityMetadatas, driver) {
         // check if table metadata has an id
-        if (!entityMetadata.isClassTableChild && !entityMetadata.primaryColumns.length && !entityMetadata.isJunction)
+        if (!entityMetadata.primaryColumns.length && !entityMetadata.isJunction)
             throw new MissingPrimaryColumnError_1.MissingPrimaryColumnError(entityMetadata);
         // validate if table is using inheritance it has a discriminator
         // also validate if discriminator values are not empty and not repeated
-        if (entityMetadata.inheritanceType === "single-table") {
+        if (entityMetadata.inheritancePattern === "STI") {
             if (!entityMetadata.discriminatorColumn)
-                throw new Error("Entity " + entityMetadata.name + " using single-table inheritance, it should also have a discriminator column. Did you forget to put @DiscriminatorColumn decorator?");
+                throw new Error("Entity " + entityMetadata.name + " using single-table inheritance, it should also have a discriminator column. Did you forget to put discriminator column options?");
             if (["", undefined, null].indexOf(entityMetadata.discriminatorValue) !== -1)
                 throw new Error("Entity " + entityMetadata.name + " has empty discriminator value. Discriminator value should not be empty.");
             var sameDiscriminatorValueEntityMetadata = allEntityMetadatas.find(function (metadata) {
@@ -110,21 +75,37 @@ var EntityMetadataValidator = /** @class */ (function () {
                     throw new Error("Column " + column.propertyName + " of Entity " + entityMetadata.name + " does not support length property.");
             });
         }
-        /* if (driver instanceof MysqlDriver) {
-             const generatedColumns = entityMetadata.columns.filter(column => column.isGenerated && column.generationStrategy !== "uuid");
-             if (generatedColumns.length > 1)
-                 throw new Error(`Error in ${entityMetadata.name} entity. There can be only one auto-increment column in MySql table.`);
-         }*/
+        if (driver instanceof MysqlDriver_1.MysqlDriver) {
+            var generatedColumns = entityMetadata.columns.filter(function (column) { return column.isGenerated && column.generationStrategy !== "uuid"; });
+            if (generatedColumns.length > 1)
+                throw new Error("Error in " + entityMetadata.name + " entity. There can be only one auto-increment column in MySql table.");
+        }
+        // for mysql we are able to not define a default selected database, instead all entities can have their database
+        // defined in their decorators. To make everything work either all entities must have database define and we
+        // can live without database set in the connection options, either database in the connection options must be set
         if (driver instanceof MysqlDriver_1.MysqlDriver) {
             var metadatasWithDatabase = allEntityMetadatas.filter(function (metadata) { return metadata.database; });
             if (metadatasWithDatabase.length === 0 && !driver.database)
-                throw new Error("Database not specified");
+                throw new NoConnectionOptionError_1.NoConnectionOptionError("database");
         }
         if (driver instanceof SqlServerDriver_1.SqlServerDriver) {
             var charsetColumns = entityMetadata.columns.filter(function (column) { return column.charset; });
             if (charsetColumns.length > 1)
                 throw new Error("Character set specifying is not supported in Sql Server");
         }
+        // check if relations are all without initialized properties
+        var entityInstance = entityMetadata.create();
+        entityMetadata.relations.forEach(function (relation) {
+            if (relation.isManyToMany || relation.isOneToMany) {
+                // we skip relations for which persistence is disabled since initialization in them cannot harm somehow
+                if (relation.persistenceEnabled === false)
+                    return;
+                // get entity relation value and check if its an array
+                var relationInitializedValue = relation.getEntityValue(entityInstance);
+                if (relationInitializedValue instanceof Array)
+                    throw new InitializedRelationError_1.InitializedRelationError(relation);
+            }
+        });
         // validate relations
         entityMetadata.relations.forEach(function (relation) {
             // check join tables:

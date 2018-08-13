@@ -34,7 +34,7 @@ index_1.createConnection(options).then(function (connection) {
         .then(function (post) {
         console.log("Post has been saved");
         console.log("---------------------------");
-        return postRepository.findOneById(post.id);
+        return postRepository.findOne(post.id);
     })
         .then(function (loadedPost) {
         console.log("post is loaded. Its uid is " + loadedPost.uid);

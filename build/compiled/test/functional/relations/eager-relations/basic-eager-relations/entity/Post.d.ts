@@ -4,8 +4,8 @@ import { Editor } from "./Editor";
 export declare class Post {
     id: number;
     title: string;
-    primaryCategories: Category[];
-    secondaryCategories: Category[];
+    categories1: Category[];
+    categories2: Category[];
     author: User;
     editors: Editor[];
 }

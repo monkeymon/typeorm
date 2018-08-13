@@ -50,8 +50,6 @@ describe.skip("github issues > #838 Time zones for timestamp columns are incorre
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        schemaCreate: true,
-                        dropSchema: true,
                         enabledDrivers: [
                             "postgres"
                         ]
@@ -79,7 +77,7 @@ describe.skip("github issues > #838 Time zones for timestamp columns are incorre
                     // const results = await postgresConnection.query(`SELECT date FROM "flight" WHERE id = 1`);
                     // console.log(results);
                     _a.sent();
-                    return [4 /*yield*/, postgresConnection.manager.findOneById(Flight_1.Flight, 1)];
+                    return [4 /*yield*/, postgresConnection.manager.findOne(Flight_1.Flight, 1)];
                 case 2:
                     flight = _a.sent();
                     chai_1.expect(flight.date.toISOString()).to.equal(new Date(testDateString).toISOString());
@@ -96,7 +94,7 @@ describe.skip("github issues > #838 Time zones for timestamp columns are incorre
                     return [4 /*yield*/, postgresConnection.manager.save(new Flight_1.Flight(1, testDate))];
                 case 1:
                     _a.sent();
-                    return [4 /*yield*/, postgresConnection.query("SELECT date FROM \"flight\" WHERE id = 1")];
+                    return [4 /*yield*/, postgresConnection.query("SELECT \"date\" FROM \"flight\" WHERE id = 1")];
                 case 2:
                     results = _a.sent();
                     chai_1.expect(results[0].date.toISOString()).to.equal(testDate.toISOString());

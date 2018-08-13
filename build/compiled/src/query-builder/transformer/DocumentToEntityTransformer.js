@@ -9,9 +9,9 @@ var DocumentToEntityTransformer = /** @class */ (function () {
     // Constructor
     // -------------------------------------------------------------------------
     function DocumentToEntityTransformer(// private selectionMap: AliasMap,
-        // private joinMappings: JoinMapping[],
-        // private relationCountMetas: RelationCountAttribute[],
-        enableRelationIdValues) {
+    // private joinMappings: JoinMapping[],
+    // private relationCountMetas: RelationCountAttribute[],
+    enableRelationIdValues) {
         if (enableRelationIdValues === void 0) { enableRelationIdValues = false; }
         this.enableRelationIdValues = enableRelationIdValues;
     }
@@ -63,9 +63,7 @@ var DocumentToEntityTransformer = /** @class */ (function () {
             if (valueInObject !== undefined &&
                 valueInObject !== null &&
                 column.propertyName &&
-                !column.isVirtual &&
-                !column.isParentId &&
-                !column.isDiscriminator) {
+                !column.isVirtual) {
                 // const value = this.driver.prepareHydratedValue(valueInObject, column);
                 entity[column.propertyName] = valueInObject;
                 hasData = true;

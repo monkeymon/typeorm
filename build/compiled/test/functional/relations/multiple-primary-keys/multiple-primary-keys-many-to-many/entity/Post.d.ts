@@ -4,5 +4,5 @@ export declare class Post {
     title: string;
     categories: Category[];
     categoriesWithOptions: Category[];
-    categoriesWithNonPrimaryColumns: Category[];
+    categoriesWithNonPKColumns: Category[];
 }

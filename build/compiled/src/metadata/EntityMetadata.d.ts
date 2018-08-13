@@ -4,7 +4,6 @@ import { IndexMetadata } from "./IndexMetadata";
 import { ForeignKeyMetadata } from "./ForeignKeyMetadata";
 import { EmbeddedMetadata } from "./EmbeddedMetadata";
 import { ObjectLiteral } from "../common/ObjectLiteral";
-import { LazyRelationsWrapper } from "../lazy-loading/LazyRelationsWrapper";
 import { RelationIdMetadata } from "./RelationIdMetadata";
 import { RelationCountMetadata } from "./RelationCountMetadata";
 import { TableType } from "./types/TableTypes";
@@ -12,16 +11,23 @@ import { OrderByCondition } from "../find-options/OrderByCondition";
 import { TableMetadataArgs } from "../metadata-args/TableMetadataArgs";
 import { Connection } from "../connection/Connection";
 import { EntityListenerMetadata } from "./EntityListenerMetadata";
-import { PropertyTypeFactory } from "./types/PropertyTypeInFunction";
-import { Driver } from "../driver/Driver";
+import { TreeType } from "./types/TreeTypes";
+import { TreeMetadataArgs } from "../metadata-args/TreeMetadataArgs";
+import { UniqueMetadata } from "./UniqueMetadata";
+import { CheckMetadata } from "./CheckMetadata";
+import { QueryRunner } from "..";
 /**
  * Contains all entity metadata.
  */
 export declare class EntityMetadata {
     /**
-     * Used to wrap lazy relations.
+     * Connection where this entity metadata is created.
      */
-    lazyRelationsWrapper: LazyRelationsWrapper;
+    connection: Connection;
+    /**
+     * Metadata arguments used to build this entity metadata.
+     */
+    tableMetadataArgs: TableMetadataArgs;
     /**
      * If entity's table is a closure-typed table, then this entity will have a closure junction table metadata.
      */
@@ -39,6 +45,12 @@ export declare class EntityMetadata {
      */
     childEntityMetadatas: EntityMetadata[];
     /**
+     * All "inheritance tree" from a target entity.
+     * For example for target Post < ContentModel < Unit it will be an array of [Post, ContentModel, Unit].
+     * It also contains child entities for single table inheritance.
+     */
+    inheritanceTree: Function[];
+    /**
      * Table type. Tables can be abstract, closure, junction, embedded, etc.
      */
     tableType: TableType;
@@ -49,22 +61,15 @@ export declare class EntityMetadata {
      */
     target: Function | string;
     /**
-     * Indicates if this entity metadata of a junction table, or not.
-     * Junction table is a table created by many-to-many relationship.
-     *
-     * Its also possible to understand if entity is junction via tableType.
+     * Gets the name of the target.
      */
-    isJunction: boolean;
+    targetName: string;
     /**
      * Entity's name.
      * Equal to entity target class's name if target is set to table.
      * If target class is not then then it equals to table name.
      */
     name: string;
-    /**
-     * Gets the name of the target.
-     */
-    targetName: string;
     /**
      * Original user-given table name (taken from schema or @Entity(tableName) decorator).
      * If user haven't specified a table name this property will be undefined.
@@ -79,12 +84,12 @@ export declare class EntityMetadata {
     tableName: string;
     /**
      * Entity table path. Contains database name, schema name and table name.
-     * E.g. "myDB"."mySchema"."myTable"
+     * E.g. myDB.mySchema.myTable
      */
     tablePath: string;
     /**
      * Entity schema path. Contains database name and schema name.
-     * E.g. "myDB"."mySchema"
+     * E.g. myDB.mySchema
      */
     schemaPath?: string;
     /**
@@ -95,9 +100,9 @@ export declare class EntityMetadata {
      */
     tableNameWithoutPrefix: string;
     /**
-     * Indicates if schema sync is skipped for this entity.
+     * Indicates if schema will be synchronized for this entity or not.
      */
-    skipSync: boolean;
+    synchronize: boolean;
     /**
      * Table's database engine type (like "InnoDB", "MyISAM", etc).
      */
@@ -115,37 +120,63 @@ export declare class EntityMetadata {
      */
     orderBy?: OrderByCondition;
     /**
+     * If this entity metadata's table using one of the inheritance patterns,
+     * then this will contain what pattern it uses.
+     */
+    inheritancePattern?: "STI";
+    /**
+     * Checks if there any non-nullable column exist in this entity.
+     */
+    hasNonNullableRelations: boolean;
+    /**
+     * Indicates if this entity metadata of a junction table, or not.
+     * Junction table is a table created by many-to-many relationship.
+     *
+     * Its also possible to understand if entity is junction via tableType.
+     */
+    isJunction: boolean;
+    /**
+     * Indicates if this entity is a tree, what type of tree it is.
+     */
+    treeType?: TreeType;
+    /**
+     * Checks if this table is a junction table of the closure table.
+     * This type is for tables that contain junction metadata of the closure tables.
+     */
+    isClosureJunction: boolean;
+    /**
+     * Checks if entity's table has multiple primary columns.
+     */
+    hasMultiplePrimaryKeys: boolean;
+    /**
+     * Indicates if this entity metadata has uuid generated columns.
+     */
+    hasUUIDGeneratedColumns: boolean;
+    /**
+     * If this entity metadata is a child table of some table, it should have a discriminator value.
+     * Used to store a value in a discriminator column.
+     */
+    discriminatorValue?: string;
+    /**
      * Entity's column metadatas defined by user.
      */
     ownColumns: ColumnMetadata[];
     /**
-     * Entity's relation metadatas.
-     */
-    ownRelations: RelationMetadata[];
-    /**
-     * Entity's own listener metadatas.
-     */
-    ownListeners: EntityListenerMetadata[];
-    /**
-     * Entity's own indices.
-     */
-    ownIndices: IndexMetadata[];
-    /**
-     * Relations of the entity, including relations that are coming from the embeddeds of this entity.
-     */
-    relations: RelationMetadata[];
-    /**
-     * List of eager relations this metadata has.
-     */
-    eagerRelations: RelationMetadata[];
-    /**
-     * List of eager relations this metadata has.
-     */
-    lazyRelations: RelationMetadata[];
-    /**
      * Columns of the entity, including columns that are coming from the embeddeds of this entity.
      */
     columns: ColumnMetadata[];
+    /**
+     * Ancestor columns used only in closure junction tables.
+     */
+    ancestorColumns: ColumnMetadata[];
+    /**
+     * Descendant columns used only in closure junction tables.
+     */
+    descendantColumns: ColumnMetadata[];
+    /**
+     * All columns except for virtual columns.
+     */
+    nonVirtualColumns: ColumnMetadata[];
     /**
      * In the case if this entity metadata is junction table's entity metadata,
      * this will contain all referenced columns of owner entity.
@@ -156,44 +187,6 @@ export declare class EntityMetadata {
      * this will contain all referenced columns of inverse entity.
      */
     inverseColumns: ColumnMetadata[];
-    /**
-     * Entity's relation id metadatas.
-     */
-    relationIds: RelationIdMetadata[];
-    /**
-     * Entity's relation id metadatas.
-     */
-    relationCounts: RelationCountMetadata[];
-    /**
-     * Entity's index metadatas.
-     */
-    indices: IndexMetadata[];
-    /**
-     * Entity's foreign key metadatas.
-     */
-    foreignKeys: ForeignKeyMetadata[];
-    /**
-     * Entity's embedded metadatas.
-     */
-    embeddeds: EmbeddedMetadata[];
-    /**
-     * Entity listener metadatas.
-     */
-    listeners: EntityListenerMetadata[];
-    /**
-     * If this entity metadata's table using one of the inheritance patterns,
-     * then this will contain what pattern it uses.
-     */
-    inheritanceType?: "single-table" | "class-table";
-    /**
-     * If this entity metadata is a child table of some table, it should have a discriminator value.
-     * Used to store a value in a discriminator column.
-     */
-    discriminatorValue?: string;
-    /**
-     * Checks if entity's table has multiple primary columns.
-     */
-    hasMultiplePrimaryKeys: boolean;
     /**
      * Gets the column with generated flag.
      */
@@ -223,13 +216,40 @@ export declare class EntityMetadata {
      */
     treeLevelColumn?: ColumnMetadata;
     /**
+     * Nested set's left value column.
+     * Used only in tree entities with nested set pattern applied.
+     */
+    nestedSetLeftColumn?: ColumnMetadata;
+    /**
+     * Nested set's right value column.
+     * Used only in tree entities with nested set pattern applied.
+     */
+    nestedSetRightColumn?: ColumnMetadata;
+    /**
+     * Materialized path column.
+     * Used only in tree entities with materialized path pattern applied.
+     */
+    materializedPathColumn?: ColumnMetadata;
+    /**
      * Gets the primary columns.
      */
     primaryColumns: ColumnMetadata[];
     /**
-     * Id columns in the parent table (used in table inheritance).
+     * Entity's relation metadatas.
      */
-    parentIdColumns: ColumnMetadata[];
+    ownRelations: RelationMetadata[];
+    /**
+     * Relations of the entity, including relations that are coming from the embeddeds of this entity.
+     */
+    relations: RelationMetadata[];
+    /**
+     * List of eager relations this metadata has.
+     */
+    eagerRelations: RelationMetadata[];
+    /**
+     * List of eager relations this metadata has.
+     */
+    lazyRelations: RelationMetadata[];
     /**
      * Gets only one-to-one relations of the entity.
      */
@@ -267,46 +287,77 @@ export declare class EntityMetadata {
      */
     treeChildrenRelation?: RelationMetadata;
     /**
-     * Checks if there any non-nullable column exist in this entity.
+     * Entity's relation id metadatas.
      */
-    hasNonNullableRelations: boolean;
+    relationIds: RelationIdMetadata[];
     /**
-     * Checks if this table is regular.
-     * All non-specific tables are just regular tables. Its a default table type.
+     * Entity's relation id metadatas.
      */
-    isRegular: boolean;
+    relationCounts: RelationCountMetadata[];
     /**
-     * Checks if this table is abstract.
-     * This type is for the tables that does not exist in the database,
-     * but provide columns and relations for the tables of the child classes who inherit them.
+     * Entity's foreign key metadatas.
      */
-    isAbstract: boolean;
+    foreignKeys: ForeignKeyMetadata[];
     /**
-     * Checks if this table is a closure table.
-     * Closure table is one of the tree-specific tables that supports closure database pattern.
+     * Entity's embedded metadatas.
      */
-    isClosure: boolean;
+    embeddeds: EmbeddedMetadata[];
     /**
-     * Checks if this table is a junction table of the closure table.
-     * This type is for tables that contain junction metadata of the closure tables.
+     * All embeddeds - embeddeds from this entity metadata and from all child embeddeds, etc.
      */
-    isClosureJunction: boolean;
+    allEmbeddeds: EmbeddedMetadata[];
     /**
-     * Checks if this table is an embeddable table.
-     * Embeddable tables are not stored in the database as separate tables.
-     * Instead their columns are embed into tables who owns them.
+     * Entity's own indices.
      */
-    isEmbeddable: boolean;
+    ownIndices: IndexMetadata[];
     /**
-     * Checks if this table is a single table child.
-     * Special table type for tables that are mapped into single table using Single Table Inheritance pattern.
+     * Entity's index metadatas.
      */
-    isSingleTableChild: boolean;
+    indices: IndexMetadata[];
     /**
-     * Checks if this table is a class table child.
-     * Special table type for tables that are mapped into multiple tables using Class Table Inheritance pattern.
+     * Entity's unique metadatas.
      */
-    isClassTableChild: boolean;
+    uniques: UniqueMetadata[];
+    /**
+     * Entity's check metadatas.
+     */
+    checks: CheckMetadata[];
+    /**
+     * Entity's own listener metadatas.
+     */
+    ownListeners: EntityListenerMetadata[];
+    /**
+     * Entity listener metadatas.
+     */
+    listeners: EntityListenerMetadata[];
+    /**
+     * Listener metadatas with "AFTER LOAD" type.
+     */
+    afterLoadListeners: EntityListenerMetadata[];
+    /**
+     * Listener metadatas with "AFTER INSERT" type.
+     */
+    beforeInsertListeners: EntityListenerMetadata[];
+    /**
+     * Listener metadatas with "AFTER INSERT" type.
+     */
+    afterInsertListeners: EntityListenerMetadata[];
+    /**
+     * Listener metadatas with "AFTER UPDATE" type.
+     */
+    beforeUpdateListeners: EntityListenerMetadata[];
+    /**
+     * Listener metadatas with "AFTER UPDATE" type.
+     */
+    afterUpdateListeners: EntityListenerMetadata[];
+    /**
+     * Listener metadatas with "AFTER REMOVE" type.
+     */
+    beforeRemoveListeners: EntityListenerMetadata[];
+    /**
+     * Listener metadatas with "AFTER REMOVE" type.
+     */
+    afterRemoveListeners: EntityListenerMetadata[];
     /**
      * Map of columns and relations of the entity.
      *
@@ -317,27 +368,72 @@ export declare class EntityMetadata {
     propertiesMap: ObjectLiteral;
     constructor(options: {
         connection: Connection;
+        inheritanceTree?: Function[];
+        inheritancePattern?: "STI";
+        tableTree?: TreeMetadataArgs;
         parentClosureEntityMetadata?: EntityMetadata;
         args: TableMetadataArgs;
     });
     /**
      * Creates a new entity.
      */
-    create(): any;
+    create(queryRunner?: QueryRunner): any;
     /**
      * Checks if given entity has an id.
      */
     hasId(entity: ObjectLiteral): boolean;
     /**
-     * Compares ids of the two entities.
-     * Returns true if they match, false otherwise.
+     * Checks if given entity / object contains ALL primary keys entity must have.
+     * Returns true if it contains all of them, false if at least one of them is not defined.
      */
-    compareIds(firstId: ObjectLiteral | undefined, secondId: ObjectLiteral | undefined): boolean;
+    hasAllPrimaryKeys(entity: ObjectLiteral): boolean;
     /**
-     * Compares two different entity instances by their ids.
+     * Ensures that given object is an entity id map.
+     * If given id is an object then it means its already id map.
+     * If given id isn't an object then it means its a value of the id column
+     * and it creates a new id map with this value and name of the primary column.
+     */
+    ensureEntityIdMap(id: any): ObjectLiteral;
+    /**
+     * Gets primary keys of the entity and returns them in a literal object.
+     * For example, for Post{ id: 1, title: "hello" } where id is primary it will return { id: 1 }
+     * For multiple primary keys it returns multiple keys in object.
+     * For primary keys inside embeds it returns complex object literal with keys in them.
+     */
+    getEntityIdMap(entity: ObjectLiteral | undefined): ObjectLiteral | undefined;
+    /**
+     * Creates a "mixed id map".
+     * If entity has multiple primary keys (ids) then it will return just regular id map, like what getEntityIdMap returns.
+     * But if entity has a single primary key then it will return just value of the id column of the entity, just value.
+     * This is called mixed id map.
+     */
+    getEntityIdMixedMap(entity: ObjectLiteral | undefined): ObjectLiteral | undefined;
+    /**
+     * Compares two different entities by their ids.
      * Returns true if they match, false otherwise.
      */
     compareEntities(firstEntity: ObjectLiteral, secondEntity: ObjectLiteral): boolean;
+    /**
+     * Finds column with a given property name.
+     */
+    findColumnWithPropertyName(propertyName: string): ColumnMetadata | undefined;
+    /**
+     * Finds column with a given database name.
+     */
+    findColumnWithDatabaseName(databaseName: string): ColumnMetadata | undefined;
+    /**
+     * Finds column with a given property path.
+     */
+    findColumnWithPropertyPath(propertyPath: string): ColumnMetadata | undefined;
+    /**
+     * Finds columns with a given property path.
+     * Property path can match a relation, and relations can contain multiple columns.
+     */
+    findColumnsWithPropertyPath(propertyPath: string): ColumnMetadata[];
+    /**
+     * Finds relation with the given property path.
+     */
+    findRelationWithPropertyPath(propertyPath: string): RelationMetadata | undefined;
     /**
      * Checks if there is an embedded with a given property path.
      */
@@ -347,67 +443,32 @@ export declare class EntityMetadata {
      */
     findEmbeddedWithPropertyPath(propertyPath: string): EmbeddedMetadata | undefined;
     /**
-     * Finds column with a given property name.
-     */
-    findColumnWithPropertyName(propertyName: string): ColumnMetadata | undefined;
-    /**
-     * Finds column with a given property path.
-     */
-    findColumnWithPropertyPath(propertyPath: string): ColumnMetadata | undefined;
-    /**
-     * Finds column with a given database name.
-     */
-    findColumnWithDatabaseName(databaseName: string): ColumnMetadata | undefined;
-    /**
-     * Finds relation with the given name.
-     */
-    findRelationWithDbName(dbName: string): RelationMetadata | undefined;
-    /**
-     * Finds relation with the given property path.
-     */
-    findRelationWithPropertyPath(propertyPath: string): RelationMetadata | undefined;
-    /**
-     * Computes property name of the entity using given PropertyTypeInFunction.
-     */
-    computePropertyPath(nameOrFn: PropertyTypeFactory<any>): any;
-    /**
-     * Creates entity id map from the given entity ids array.
-     */
-    createEntityIdMap(ids: any | any[]): any;
-    /**
-     * Checks each id in the given entity id map if they all aren't empty.
-     * If they all aren't empty it returns true.
-     * If at least one id in the given map is empty it returns false.
-     */
-    isEntityMapEmpty(entity: ObjectLiteral): boolean;
-    /**
-     * Gets primary keys of the entity and returns them in a literal object.
-     * For example, for Post{ id: 1, title: "hello" } where id is primary it will return { id: 1 }
-     * For multiple primary keys it returns multiple keys in object.
-     * For primary keys inside embeds it returns complex object literal with keys in them.
-     */
-    getEntityIdMap(entity: ObjectLiteral | undefined): ObjectLiteral | undefined;
-    /**
-     * Same as getEntityIdMap, but instead of id column property names it returns database column names.
-     */
-    getDatabaseEntityIdMap(entity: ObjectLiteral): ObjectLiteral | undefined;
-    /**
-     * Creates a "mixed id map".
-     * If entity has multiple primary keys (ids) then it will return just regular id map, like what getEntityIdMap returns.
-     * But if entity has a single primary key then it will return just value of the id column of the entity, just value.
-     * This is called mixed id map.
-     */
-    getEntityIdMixedMap(entity: ObjectLiteral | undefined): ObjectLiteral | undefined;
-    /**
-     * Checks if given object contains ALL primary keys entity must have.
-     * Returns true if it contains all of them, false if at least one of them is not defined.
-     */
-    checkIfObjectContainsAllPrimaryKeys(object: ObjectLiteral): boolean;
-    /**
-     * Iterates throw entity and finds and extracts all values from relations in the entity.
+     * Iterates through entity and finds and extracts all values from relations in the entity.
      * If relation value is an array its being flattened.
      */
     extractRelationValuesFromEntity(entity: ObjectLiteral, relations: RelationMetadata[]): [RelationMetadata, any, EntityMetadata][];
+    /**
+     * Creates a property paths for a given entity.
+     */
+    static createPropertyPath(metadata: EntityMetadata, entity: ObjectLiteral, prefix?: string): string[];
+    /**
+     * Finds difference between two entity id maps.
+     * Returns items that exist in the first array and absent in the second array.
+     */
+    static difference(firstIdMaps: ObjectLiteral[], secondIdMaps: ObjectLiteral[]): ObjectLiteral[];
+    /**
+     * Compares ids of the two entities.
+     * Returns true if they match, false otherwise.
+     */
+    static compareIds(firstId: ObjectLiteral | undefined, secondId: ObjectLiteral | undefined): boolean;
+    /**
+     * Creates value map from the given values and columns.
+     * Examples of usages are primary columns map and join columns map.
+     */
+    static getValueMap(entity: ObjectLiteral, columns: ColumnMetadata[], options?: {
+        skipNulls?: boolean;
+    }): ObjectLiteral | undefined;
+    build(): void;
     /**
      * Registers a new column in the entity and recomputes all depend properties.
      */
@@ -424,11 +485,11 @@ export declare class EntityMetadata {
         [name: string]: string | any;
     };
     /**
-     * Builds table path using database name and schema name and table name.
+     * Builds table path using database name, schema name and table name.
      */
-    protected buildTablePath(driver: Driver): string;
+    protected buildTablePath(): string;
     /**
      * Builds table path using schema name and database name.
      */
-    protected buildSchemaPath(driver: Driver): string | undefined;
+    protected buildSchemaPath(): string | undefined;
 }

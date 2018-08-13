@@ -35,13 +35,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+var EntityNotFoundError_1 = require("../error/EntityNotFoundError");
 var QueryRunnerProviderAlreadyReleasedError_1 = require("../error/QueryRunnerProviderAlreadyReleasedError");
 var NoNeedToReleaseEntityManagerError_1 = require("../error/NoNeedToReleaseEntityManagerError");
 var TreeRepository_1 = require("../repository/TreeRepository");
 var Repository_1 = require("../repository/Repository");
 var FindOptionsUtils_1 = require("../find-options/FindOptionsUtils");
-var SubjectBuilder_1 = require("../persistence/SubjectBuilder");
-var SubjectOperationExecutor_1 = require("../persistence/SubjectOperationExecutor");
 var PlainObjectToNewEntityTransformer_1 = require("../query-builder/transformer/PlainObjectToNewEntityTransformer");
 var PlainObjectToDatabaseEntityTransformer_1 = require("../query-builder/transformer/PlainObjectToDatabaseEntityTransformer");
 var CustomRepositoryNotFoundError_1 = require("../error/CustomRepositoryNotFoundError");
@@ -53,6 +52,8 @@ var RepositoryNotFoundError_1 = require("../error/RepositoryNotFoundError");
 var RepositoryNotTreeError_1 = require("../error/RepositoryNotTreeError");
 var RepositoryFactory_1 = require("../repository/RepositoryFactory");
 var TreeRepositoryNotSupportedError_1 = require("../error/TreeRepositoryNotSupportedError");
+var EntityPersistExecutor_1 = require("../persistence/EntityPersistExecutor");
+var OracleDriver_1 = require("../driver/oracle/OracleDriver");
 /**
  * Entity manager supposed to work with any entity, automatically find its repository and call its methods,
  * whatever entity type are you passing.
@@ -69,6 +70,10 @@ var EntityManager = /** @class */ (function () {
          * Once created and then reused by en repositories.
          */
         this.repositories = [];
+        /**
+         * Plain to object transformer used in create and merge operations.
+         */
+        this.plainObjectToEntityTransformer = new PlainObjectToNewEntityTransformer_1.PlainObjectToNewEntityTransformer();
         this.connection = connection;
         if (queryRunner) {
             this.queryRunner = queryRunner;
@@ -76,61 +81,64 @@ var EntityManager = /** @class */ (function () {
             Object.assign(this.queryRunner, { manager: this });
         }
     }
-    // -------------------------------------------------------------------------
-    // Public Methods
-    // -------------------------------------------------------------------------
-    /**
-     * Wraps given function execution (and all operations made there) in a transaction.
-     * All database operations must be executed using provided entity manager.
-     */
-    EntityManager.prototype.transaction = function (runInTransaction) {
+    EntityManager.prototype.transaction = function (isolationOrRunInTransaction, runInTransactionParam) {
         return __awaiter(this, void 0, void 0, function () {
-            var usedQueryRunner, transactionEntityManager, result, err_1, rollbackError_1;
+            var isolation, runInTransaction, queryRunner, result, err_1, rollbackError_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
+                        isolation = typeof isolationOrRunInTransaction === "string" ? isolationOrRunInTransaction : undefined;
+                        runInTransaction = typeof isolationOrRunInTransaction === "function" ? isolationOrRunInTransaction : runInTransactionParam;
+                        if (!runInTransaction) {
+                            throw new Error("Transaction method requires callback in second paramter if isolation level is supplied.");
+                        }
                         if (this.connection.driver instanceof MongoDriver_1.MongoDriver)
                             throw new Error("Transactions aren't supported by MongoDB.");
                         if (this.queryRunner && this.queryRunner.isReleased)
                             throw new QueryRunnerProviderAlreadyReleasedError_1.QueryRunnerProviderAlreadyReleasedError();
                         if (this.queryRunner && this.queryRunner.isTransactionActive)
                             throw new Error("Cannot start transaction because its already started");
-                        usedQueryRunner = this.queryRunner || this.connection.createQueryRunner("master");
-                        transactionEntityManager = this.connection.createEntityManager(usedQueryRunner);
+                        queryRunner = this.queryRunner || this.connection.createQueryRunner("master");
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 5, 10, 13]);
-                        return [4 /*yield*/, usedQueryRunner.startTransaction()];
+                        _a.trys.push([1, 8, 13, 16]);
+                        if (!isolation) return [3 /*break*/, 3];
+                        return [4 /*yield*/, queryRunner.startTransaction(isolation)];
                     case 2:
                         _a.sent();
-                        return [4 /*yield*/, runInTransaction(transactionEntityManager)];
-                    case 3:
-                        result = _a.sent();
-                        return [4 /*yield*/, usedQueryRunner.commitTransaction()];
+                        return [3 /*break*/, 5];
+                    case 3: return [4 /*yield*/, queryRunner.startTransaction()];
                     case 4:
                         _a.sent();
-                        return [2 /*return*/, result];
-                    case 5:
-                        err_1 = _a.sent();
-                        _a.label = 6;
+                        _a.label = 5;
+                    case 5: return [4 /*yield*/, runInTransaction(queryRunner.manager)];
                     case 6:
-                        _a.trys.push([6, 8, , 9]);
-                        return [4 /*yield*/, usedQueryRunner.rollbackTransaction()];
+                        result = _a.sent();
+                        return [4 /*yield*/, queryRunner.commitTransaction()];
                     case 7:
                         _a.sent();
-                        return [3 /*break*/, 9];
+                        return [2 /*return*/, result];
                     case 8:
-                        rollbackError_1 = _a.sent();
-                        return [3 /*break*/, 9];
-                    case 9: throw err_1;
+                        err_1 = _a.sent();
+                        _a.label = 9;
+                    case 9:
+                        _a.trys.push([9, 11, , 12]);
+                        return [4 /*yield*/, queryRunner.rollbackTransaction()];
                     case 10:
-                        if (!!this.queryRunner) return [3 /*break*/, 12];
-                        return [4 /*yield*/, usedQueryRunner.release()];
-                    case 11:
                         _a.sent();
-                        _a.label = 12;
-                    case 12: return [7 /*endfinally*/];
-                    case 13: return [2 /*return*/];
+                        return [3 /*break*/, 12];
+                    case 11:
+                        rollbackError_1 = _a.sent();
+                        return [3 /*break*/, 12];
+                    case 12: throw err_1;
+                    case 13:
+                        if (!!this.queryRunner) return [3 /*break*/, 15];
+                        return [4 /*yield*/, queryRunner.release()];
+                    case 14:
+                        _a.sent();
+                        _a.label = 15;
+                    case 15: return [7 /*endfinally*/];
+                    case 16: return [2 /*return*/];
                 }
             });
         });
@@ -153,7 +161,7 @@ var EntityManager = /** @class */ (function () {
             return this.connection.createQueryBuilder(entityClass, alias, queryRunner || this.queryRunner);
         }
         else {
-            return this.connection.createQueryBuilder(entityClass || this.queryRunner);
+            return this.connection.createQueryBuilder(entityClass || queryRunner || this.queryRunner);
         }
     };
     /**
@@ -182,22 +190,24 @@ var EntityManager = /** @class */ (function () {
         var _this = this;
         var metadata = this.connection.getMetadata(entityClass);
         if (!plainObjectOrObjects)
-            return metadata.create();
+            return metadata.create(this.queryRunner);
         if (plainObjectOrObjects instanceof Array)
             return plainObjectOrObjects.map(function (plainEntityLike) { return _this.create(entityClass, plainEntityLike); });
-        return this.merge(entityClass, metadata.create(), plainObjectOrObjects);
+        var mergeIntoEntity = metadata.create(this.queryRunner);
+        this.plainObjectToEntityTransformer.transform(mergeIntoEntity, plainObjectOrObjects, metadata, true);
+        return mergeIntoEntity;
     };
     /**
      * Merges two entities into one new entity.
      */
     EntityManager.prototype.merge = function (entityClass, mergeIntoEntity) {
+        var _this = this;
         var entityLikes = [];
         for (var _i = 2; _i < arguments.length; _i++) {
             entityLikes[_i - 2] = arguments[_i];
         }
         var metadata = this.connection.getMetadata(entityClass);
-        var plainObjectToEntityTransformer = new PlainObjectToNewEntityTransformer_1.PlainObjectToNewEntityTransformer();
-        entityLikes.forEach(function (object) { return plainObjectToEntityTransformer.transform(mergeIntoEntity, object, metadata); });
+        entityLikes.forEach(function (object) { return _this.plainObjectToEntityTransformer.transform(mergeIntoEntity, object, metadata); });
         return mergeIntoEntity;
     };
     /**
@@ -228,380 +238,129 @@ var EntityManager = /** @class */ (function () {
      * Saves a given entity in the database.
      */
     EntityManager.prototype.save = function (targetOrEntity, maybeEntityOrOptions, maybeOptions) {
-        var _this = this;
+        // normalize mixed parameters
+        var target = (arguments.length > 1 && (targetOrEntity instanceof Function || targetOrEntity instanceof index_1.EntitySchema || typeof targetOrEntity === "string")) ? targetOrEntity : undefined;
+        var entity = target ? maybeEntityOrOptions : targetOrEntity;
+        var options = target ? maybeOptions : maybeEntityOrOptions;
+        if (target instanceof index_1.EntitySchema)
+            target = target.options.name;
+        // if user passed empty array of entities then we don't need to do anything
+        if (entity instanceof Array && entity.length === 0)
+            return Promise.resolve(entity);
+        // execute save operation
+        return new EntityPersistExecutor_1.EntityPersistExecutor(this.connection, this.queryRunner, "save", target, entity, options)
+            .execute()
+            .then(function () { return entity; });
+    };
+    /**
+     * Removes a given entity from the database.
+     */
+    EntityManager.prototype.remove = function (targetOrEntity, maybeEntityOrOptions, maybeOptions) {
+        // normalize mixed parameters
         var target = (arguments.length > 1 && (targetOrEntity instanceof Function || typeof targetOrEntity === "string")) ? targetOrEntity : undefined;
         var entity = target ? maybeEntityOrOptions : targetOrEntity;
         var options = target ? maybeOptions : maybeEntityOrOptions;
         // if user passed empty array of entities then we don't need to do anything
         if (entity instanceof Array && entity.length === 0)
             return Promise.resolve(entity);
-        return Promise.resolve().then(function () { return __awaiter(_this, void 0, void 0, function () {
-            var _this = this;
-            var queryRunner, transactionEntityManager, executors_1, finalTarget, metadata, databaseEntityLoader, executor, executorsNeedsToBeExecuted, isTransactionStartedByItself, error_1, rollbackError_2;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        queryRunner = this.queryRunner || this.connection.createQueryRunner("master");
-                        transactionEntityManager = this.connection.createEntityManager(queryRunner);
-                        if (options && options.data)
-                            Object.assign(queryRunner.data, options.data);
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, , 18, 21]);
-                        executors_1 = [];
-                        if (!(entity instanceof Array)) return [3 /*break*/, 3];
-                        return [4 /*yield*/, Promise.all(entity.map(function (entity) { return __awaiter(_this, void 0, void 0, function () {
-                                var entityTarget, metadata, databaseEntityLoader, executor;
-                                return __generator(this, function (_a) {
-                                    switch (_a.label) {
-                                        case 0:
-                                            entityTarget = target ? target : entity.constructor;
-                                            metadata = this.connection.getMetadata(entityTarget);
-                                            databaseEntityLoader = new SubjectBuilder_1.SubjectBuilder(this.connection, queryRunner);
-                                            return [4 /*yield*/, databaseEntityLoader.persist(entity, metadata)];
-                                        case 1:
-                                            _a.sent();
-                                            executor = new SubjectOperationExecutor_1.SubjectOperationExecutor(this.connection, transactionEntityManager, queryRunner, databaseEntityLoader.operateSubjects);
-                                            executors_1.push(executor);
-                                            return [2 /*return*/];
-                                    }
-                                });
-                            }); }))];
-                    case 2:
-                        _a.sent();
-                        return [3 /*break*/, 5];
-                    case 3:
-                        finalTarget = target ? target : entity.constructor;
-                        metadata = this.connection.getMetadata(finalTarget);
-                        databaseEntityLoader = new SubjectBuilder_1.SubjectBuilder(this.connection, queryRunner);
-                        return [4 /*yield*/, databaseEntityLoader.persist(entity, metadata)];
-                    case 4:
-                        _a.sent();
-                        executor = new SubjectOperationExecutor_1.SubjectOperationExecutor(this.connection, transactionEntityManager, queryRunner, databaseEntityLoader.operateSubjects);
-                        executors_1.push(executor);
-                        _a.label = 5;
-                    case 5:
-                        executorsNeedsToBeExecuted = executors_1.filter(function (executor) { return executor.areExecutableOperations(); });
-                        if (!executorsNeedsToBeExecuted.length) return [3 /*break*/, 17];
-                        isTransactionStartedByItself = false;
-                        _a.label = 6;
-                    case 6:
-                        _a.trys.push([6, 12, , 17]);
-                        if (!!queryRunner.isTransactionActive) return [3 /*break*/, 8];
-                        isTransactionStartedByItself = true;
-                        return [4 /*yield*/, queryRunner.startTransaction()];
-                    case 7:
-                        _a.sent();
-                        _a.label = 8;
-                    case 8: return [4 /*yield*/, Promise.all(executorsNeedsToBeExecuted.map(function (executor) {
-                            return executor.execute();
-                        }))];
-                    case 9:
-                        _a.sent();
-                        if (!(isTransactionStartedByItself === true)) return [3 /*break*/, 11];
-                        return [4 /*yield*/, queryRunner.commitTransaction()];
-                    case 10:
-                        _a.sent();
-                        _a.label = 11;
-                    case 11: return [3 /*break*/, 17];
-                    case 12:
-                        error_1 = _a.sent();
-                        if (!isTransactionStartedByItself) return [3 /*break*/, 16];
-                        _a.label = 13;
-                    case 13:
-                        _a.trys.push([13, 15, , 16]);
-                        return [4 /*yield*/, queryRunner.rollbackTransaction()];
-                    case 14:
-                        _a.sent();
-                        return [3 /*break*/, 16];
-                    case 15:
-                        rollbackError_2 = _a.sent();
-                        return [3 /*break*/, 16];
-                    case 16: throw error_1;
-                    case 17: return [3 /*break*/, 21];
-                    case 18:
-                        if (!!this.queryRunner) return [3 /*break*/, 20];
-                        return [4 /*yield*/, queryRunner.release()];
-                    case 19:
-                        _a.sent();
-                        _a.label = 20;
-                    case 20: return [7 /*endfinally*/];
-                    case 21: return [2 /*return*/, entity];
-                }
-            });
-        }); });
+        // execute save operation
+        return new EntityPersistExecutor_1.EntityPersistExecutor(this.connection, this.queryRunner, "remove", target, entity, options)
+            .execute()
+            .then(function () { return entity; });
     };
     /**
      * Inserts a given entity into the database.
      * Unlike save method executes a primitive operation without cascades, relations and other operations included.
-     * Does not modify source entity and does not execute listeners and subscribers.
      * Executes fast and efficient INSERT query.
      * Does not check if entity exist in the database, so query will fail if duplicate entity is being inserted.
      * You can execute bulk inserts using this method.
      */
     EntityManager.prototype.insert = function (target, entity, options) {
         return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            var results;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: 
-                    // todo: in the future create InsertResult with query result information
-                    // todo: think if subscribers and listeners can be executed here as well
-                    return [4 /*yield*/, this.createQueryBuilder()
+                    case 0:
+                        if (!(this.connection.driver instanceof OracleDriver_1.OracleDriver && entity instanceof Array)) return [3 /*break*/, 2];
+                        return [4 /*yield*/, Promise.all(entity.map(function (entity) { return _this.insert(target, entity); }))];
+                    case 1:
+                        results = _a.sent();
+                        return [2 /*return*/, results.reduce(function (mergedResult, result) { return Object.assign(mergedResult, result); }, {})];
+                    case 2: return [2 /*return*/, this.createQueryBuilder()
                             .insert()
                             .into(target)
                             .values(entity)
                             .execute()];
-                    case 1:
-                        // todo: in the future create InsertResult with query result information
-                        // todo: think if subscribers and listeners can be executed here as well
-                        _a.sent();
-                        return [2 /*return*/];
                 }
             });
         });
     };
     /**
-     * Updates entity partially. Entity can be found by a given conditions.
+     * Updates entity partially. Entity can be found by a given condition(s).
      * Unlike save method executes a primitive operation without cascades, relations and other operations included.
-     * Does not modify source entity and does not execute listeners and subscribers.
      * Executes fast and efficient UPDATE query.
      * Does not check if entity exist in the database.
+     * Condition(s) cannot be empty.
      */
-    EntityManager.prototype.update = function (target, conditions, partialEntity, options) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: 
-                    // todo: in the future create UpdateResult with query result information
-                    // todo: think if subscribers and listeners can be executed here as well
-                    return [4 /*yield*/, this.createQueryBuilder()
-                            .update(target)
-                            .set(partialEntity)
-                            .where(conditions)
-                            .execute()];
-                    case 1:
-                        // todo: in the future create UpdateResult with query result information
-                        // todo: think if subscribers and listeners can be executed here as well
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        });
+    EntityManager.prototype.update = function (target, criteria, partialEntity, options) {
+        // if user passed empty criteria or empty list of criterias, then throw an error
+        if (criteria === undefined ||
+            criteria === null ||
+            criteria === "" ||
+            (criteria instanceof Array && criteria.length === 0)) {
+            return Promise.reject(new Error("Empty criteria(s) are not allowed for the update method."));
+        }
+        if (typeof criteria === "string" ||
+            typeof criteria === "number" ||
+            criteria instanceof Date ||
+            criteria instanceof Array) {
+            return this.createQueryBuilder()
+                .update(target)
+                .set(partialEntity)
+                .whereInIds(criteria)
+                .execute();
+        }
+        else {
+            return this.createQueryBuilder()
+                .update(target)
+                .set(partialEntity)
+                .where(criteria)
+                .execute();
+        }
     };
     /**
-     * Updates entity partially. Entity will be found by a given id.
+     * Deletes entities by a given condition(s).
      * Unlike save method executes a primitive operation without cascades, relations and other operations included.
-     * Does not modify source entity and does not execute listeners and subscribers.
-     * Executes fast and efficient UPDATE query.
-     * Does not check if entity exist in the database.
-     */
-    EntityManager.prototype.updateById = function (target, id, partialEntity, options) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: 
-                    // todo: in the future create UpdateResult with query result information
-                    // todo: think if subscribers and listeners can be executed here as well
-                    return [4 /*yield*/, this.createQueryBuilder()
-                            .update(target)
-                            .set(partialEntity)
-                            .whereInIds(id)
-                            .execute()];
-                    case 1:
-                        // todo: in the future create UpdateResult with query result information
-                        // todo: think if subscribers and listeners can be executed here as well
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
-    /**
-     * Removes a given entity from the database.
-     */
-    EntityManager.prototype.remove = function (targetOrEntity, maybeEntityOrOptions, maybeOptions) {
-        var _this = this;
-        var target = (arguments.length > 1 && (targetOrEntity instanceof Function || typeof targetOrEntity === "string")) ? targetOrEntity : undefined;
-        var entity = target ? maybeEntityOrOptions : targetOrEntity;
-        var options = target ? maybeOptions : maybeEntityOrOptions;
-        // if user passed empty array of entities then we don't need to do anything
-        if (entity instanceof Array && entity.length === 0)
-            return Promise.resolve(entity);
-        return Promise.resolve().then(function () { return __awaiter(_this, void 0, void 0, function () {
-            var _this = this;
-            var queryRunner, transactionEntityManager, executors_2, finalTarget, metadata, databaseEntityLoader, executor, executorsNeedsToBeExecuted, isTransactionStartedByItself, error_2, rollbackError_3;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        queryRunner = this.queryRunner || this.connection.createQueryRunner("master");
-                        transactionEntityManager = this.connection.createEntityManager(queryRunner);
-                        if (options && options.data)
-                            Object.assign(queryRunner.data, options.data);
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, , 18, 21]);
-                        executors_2 = [];
-                        if (!(entity instanceof Array)) return [3 /*break*/, 3];
-                        return [4 /*yield*/, Promise.all(entity.map(function (entity) { return __awaiter(_this, void 0, void 0, function () {
-                                var entityTarget, metadata, databaseEntityLoader, executor;
-                                return __generator(this, function (_a) {
-                                    switch (_a.label) {
-                                        case 0:
-                                            entityTarget = target ? target : entity.constructor;
-                                            metadata = this.connection.getMetadata(entityTarget);
-                                            databaseEntityLoader = new SubjectBuilder_1.SubjectBuilder(this.connection, queryRunner);
-                                            return [4 /*yield*/, databaseEntityLoader.remove(entity, metadata)];
-                                        case 1:
-                                            _a.sent();
-                                            executor = new SubjectOperationExecutor_1.SubjectOperationExecutor(this.connection, transactionEntityManager, queryRunner, databaseEntityLoader.operateSubjects);
-                                            executors_2.push(executor);
-                                            return [2 /*return*/];
-                                    }
-                                });
-                            }); }))];
-                    case 2:
-                        _a.sent();
-                        return [3 /*break*/, 5];
-                    case 3:
-                        finalTarget = target ? target : entity.constructor;
-                        metadata = this.connection.getMetadata(finalTarget);
-                        databaseEntityLoader = new SubjectBuilder_1.SubjectBuilder(this.connection, queryRunner);
-                        return [4 /*yield*/, databaseEntityLoader.remove(entity, metadata)];
-                    case 4:
-                        _a.sent();
-                        executor = new SubjectOperationExecutor_1.SubjectOperationExecutor(this.connection, transactionEntityManager, queryRunner, databaseEntityLoader.operateSubjects);
-                        executors_2.push(executor);
-                        _a.label = 5;
-                    case 5:
-                        executorsNeedsToBeExecuted = executors_2.filter(function (executor) { return executor.areExecutableOperations(); });
-                        if (!executorsNeedsToBeExecuted.length) return [3 /*break*/, 17];
-                        isTransactionStartedByItself = false;
-                        _a.label = 6;
-                    case 6:
-                        _a.trys.push([6, 12, , 17]);
-                        if (!!queryRunner.isTransactionActive) return [3 /*break*/, 8];
-                        isTransactionStartedByItself = true;
-                        return [4 /*yield*/, queryRunner.startTransaction()];
-                    case 7:
-                        _a.sent();
-                        _a.label = 8;
-                    case 8: return [4 /*yield*/, Promise.all(executorsNeedsToBeExecuted.map(function (executor) {
-                            return executor.execute();
-                        }))];
-                    case 9:
-                        _a.sent();
-                        if (!(isTransactionStartedByItself === true)) return [3 /*break*/, 11];
-                        return [4 /*yield*/, queryRunner.commitTransaction()];
-                    case 10:
-                        _a.sent();
-                        _a.label = 11;
-                    case 11: return [3 /*break*/, 17];
-                    case 12:
-                        error_2 = _a.sent();
-                        if (!isTransactionStartedByItself) return [3 /*break*/, 16];
-                        _a.label = 13;
-                    case 13:
-                        _a.trys.push([13, 15, , 16]);
-                        return [4 /*yield*/, queryRunner.rollbackTransaction()];
-                    case 14:
-                        _a.sent();
-                        return [3 /*break*/, 16];
-                    case 15:
-                        rollbackError_3 = _a.sent();
-                        return [3 /*break*/, 16];
-                    case 16: throw error_2;
-                    case 17: return [3 /*break*/, 21];
-                    case 18:
-                        if (!!this.queryRunner) return [3 /*break*/, 20];
-                        return [4 /*yield*/, queryRunner.release()];
-                    case 19:
-                        _a.sent();
-                        _a.label = 20;
-                    case 20: return [7 /*endfinally*/];
-                    case 21: return [2 /*return*/, entity];
-                }
-            });
-        }); });
-    };
-    /**
-     * Deletes entities by a given conditions.
-     * Unlike save method executes a primitive operation without cascades, relations and other operations included.
-     * Does not modify source entity and does not execute listeners and subscribers.
      * Executes fast and efficient DELETE query.
      * Does not check if entity exist in the database.
+     * Condition(s) cannot be empty.
      */
-    EntityManager.prototype.delete = function (targetOrEntity, conditions, options) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: 
-                    // todo: in the future create DeleteResult with query result information
-                    // todo: think if subscribers and listeners can be executed here as well
-                    return [4 /*yield*/, this.createQueryBuilder()
-                            .delete()
-                            .from(targetOrEntity)
-                            .where(conditions)
-                            .execute()];
-                    case 1:
-                        // todo: in the future create DeleteResult with query result information
-                        // todo: think if subscribers and listeners can be executed here as well
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
-    /**
-     * Deletes entities by a given entity id or ids.
-     * Unlike save method executes a primitive operation without cascades, relations and other operations included.
-     * Does not modify source entity and does not execute listeners and subscribers.
-     * Executes fast and efficient DELETE query.
-     * Does not check if entity exist in the database.
-     */
-    EntityManager.prototype.deleteById = function (targetOrEntity, id, options) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: 
-                    // todo: in the future create DeleteResult with query result information
-                    // todo: think if subscribers and listeners can be executed here as well
-                    return [4 /*yield*/, this.createQueryBuilder()
-                            .delete()
-                            .from(targetOrEntity)
-                            .whereInIds(id)
-                            .execute()];
-                    case 1:
-                        // todo: in the future create DeleteResult with query result information
-                        // todo: think if subscribers and listeners can be executed here as well
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
-    /**
-     * Deletes entity by a given entity id.
-     *
-     * @deprecated use deleteById method instead.
-     */
-    EntityManager.prototype.removeById = function (targetOrEntity, id, options) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                return [2 /*return*/, this.deleteById(targetOrEntity, id, options)];
-            });
-        });
-    };
-    /**
-     * Deletes entity by a given entity ids.
-     *
-     * @deprecated use deleteById method instead.
-     */
-    EntityManager.prototype.removeByIds = function (targetOrEntity, ids, options) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                return [2 /*return*/, this.deleteById(targetOrEntity, ids, options)];
-            });
-        });
+    EntityManager.prototype.delete = function (targetOrEntity, criteria, options) {
+        // if user passed empty criteria or empty list of criterias, then throw an error
+        if (criteria === undefined ||
+            criteria === null ||
+            criteria === "" ||
+            (criteria instanceof Array && criteria.length === 0)) {
+            return Promise.reject(new Error("Empty criteria(s) are not allowed for the delete method."));
+        }
+        if (typeof criteria === "string" ||
+            typeof criteria === "number" ||
+            criteria instanceof Date ||
+            criteria instanceof Array) {
+            return this.createQueryBuilder()
+                .delete()
+                .from(targetOrEntity)
+                .whereInIds(criteria)
+                .execute();
+        }
+        else {
+            return this.createQueryBuilder()
+                .delete()
+                .from(targetOrEntity)
+                .where(criteria)
+                .execute();
+        }
     };
     /**
      * Counts entities that match given find options or conditions.
@@ -626,7 +385,8 @@ var EntityManager = /** @class */ (function () {
             return __generator(this, function (_a) {
                 metadata = this.connection.getMetadata(entityClass);
                 qb = this.createQueryBuilder(entityClass, FindOptionsUtils_1.FindOptionsUtils.extractFindManyOptionsAlias(optionsOrConditions) || metadata.name);
-                this.joinEagerRelations(qb, qb.alias, metadata);
+                if (!FindOptionsUtils_1.FindOptionsUtils.isFindManyOptions(optionsOrConditions) || optionsOrConditions.loadEagerRelations !== false)
+                    FindOptionsUtils_1.FindOptionsUtils.joinEagerRelations(qb, qb.alias, metadata);
                 return [2 /*return*/, FindOptionsUtils_1.FindOptionsUtils.applyFindManyOptionsOrConditionsToQueryBuilder(qb, optionsOrConditions).getMany()];
             });
         });
@@ -642,7 +402,8 @@ var EntityManager = /** @class */ (function () {
             return __generator(this, function (_a) {
                 metadata = this.connection.getMetadata(entityClass);
                 qb = this.createQueryBuilder(entityClass, FindOptionsUtils_1.FindOptionsUtils.extractFindManyOptionsAlias(optionsOrConditions) || metadata.name);
-                this.joinEagerRelations(qb, qb.alias, metadata);
+                if (!FindOptionsUtils_1.FindOptionsUtils.isFindManyOptions(optionsOrConditions) || optionsOrConditions.loadEagerRelations !== false)
+                    FindOptionsUtils_1.FindOptionsUtils.joinEagerRelations(qb, qb.alias, metadata);
                 return [2 /*return*/, FindOptionsUtils_1.FindOptionsUtils.applyFindManyOptionsOrConditionsToQueryBuilder(qb, optionsOrConditions).getManyAndCount()];
             });
         });
@@ -661,13 +422,8 @@ var EntityManager = /** @class */ (function () {
                 metadata = this.connection.getMetadata(entityClass);
                 qb = this.createQueryBuilder(entityClass, FindOptionsUtils_1.FindOptionsUtils.extractFindManyOptionsAlias(optionsOrConditions) || metadata.name);
                 FindOptionsUtils_1.FindOptionsUtils.applyFindManyOptionsOrConditionsToQueryBuilder(qb, optionsOrConditions);
-                ids = ids.map(function (id) {
-                    if (!metadata.hasMultiplePrimaryKeys && !(id instanceof Object)) {
-                        return metadata.createEntityIdMap([id]);
-                    }
-                    return id;
-                });
-                this.joinEagerRelations(qb, qb.alias, metadata);
+                if (!FindOptionsUtils_1.FindOptionsUtils.isFindManyOptions(optionsOrConditions) || optionsOrConditions.loadEagerRelations !== false)
+                    FindOptionsUtils_1.FindOptionsUtils.joinEagerRelations(qb, qb.alias, metadata);
                 return [2 /*return*/, qb.andWhereInIds(ids).getMany()];
             });
         });
@@ -675,38 +431,55 @@ var EntityManager = /** @class */ (function () {
     /**
      * Finds first entity that matches given conditions.
      */
-    EntityManager.prototype.findOne = function (entityClass, optionsOrConditions) {
+    EntityManager.prototype.findOne = function (entityClass, idOrOptionsOrConditions, maybeOptions) {
         return __awaiter(this, void 0, void 0, function () {
-            var metadata, qb;
+            var findOptions, options, metadata, alias, qb;
             return __generator(this, function (_a) {
+                findOptions = undefined;
+                if (FindOptionsUtils_1.FindOptionsUtils.isFindOneOptions(idOrOptionsOrConditions)) {
+                    findOptions = idOrOptionsOrConditions;
+                }
+                else if (maybeOptions && FindOptionsUtils_1.FindOptionsUtils.isFindOneOptions(maybeOptions)) {
+                    findOptions = maybeOptions;
+                }
+                options = undefined;
+                if (idOrOptionsOrConditions instanceof Object && !FindOptionsUtils_1.FindOptionsUtils.isFindOneOptions(idOrOptionsOrConditions))
+                    options = idOrOptionsOrConditions;
                 metadata = this.connection.getMetadata(entityClass);
-                qb = this.createQueryBuilder(entityClass, FindOptionsUtils_1.FindOptionsUtils.extractFindOneOptionsAlias(optionsOrConditions) || metadata.name);
-                this.joinEagerRelations(qb, qb.alias, metadata);
-                return [2 /*return*/, FindOptionsUtils_1.FindOptionsUtils.applyFindOneOptionsOrConditionsToQueryBuilder(qb, optionsOrConditions).getOne()];
+                alias = metadata.name;
+                if (findOptions && findOptions.join) {
+                    alias = findOptions.join.alias;
+                }
+                else if (maybeOptions && FindOptionsUtils_1.FindOptionsUtils.isFindOneOptions(maybeOptions) && maybeOptions.join) {
+                    alias = maybeOptions.join.alias;
+                }
+                qb = this.createQueryBuilder(entityClass, alias);
+                if (!findOptions || findOptions.loadEagerRelations !== false)
+                    FindOptionsUtils_1.FindOptionsUtils.joinEagerRelations(qb, qb.alias, qb.expressionMap.mainAlias.metadata);
+                if (findOptions)
+                    FindOptionsUtils_1.FindOptionsUtils.applyOptionsToQueryBuilder(qb, findOptions);
+                if (options) {
+                    qb.where(options);
+                }
+                else if (typeof idOrOptionsOrConditions === "string" || typeof idOrOptionsOrConditions === "number" || idOrOptionsOrConditions instanceof Date) {
+                    qb.andWhereInIds(metadata.ensureEntityIdMap(idOrOptionsOrConditions));
+                }
+                return [2 /*return*/, qb.getOne()];
             });
         });
     };
     /**
-     * Finds entity with given id.
-     * Optionally find options or conditions can be applied.
+     * Finds first entity that matches given conditions or rejects the returned promise on error.
      */
-    EntityManager.prototype.findOneById = function (entityClass, id, optionsOrConditions) {
+    EntityManager.prototype.findOneOrFail = function (entityClass, idOrOptionsOrConditions, maybeOptions) {
         return __awaiter(this, void 0, void 0, function () {
-            var metadata, qb;
             return __generator(this, function (_a) {
-                metadata = this.connection.getMetadata(entityClass);
-                qb = this.createQueryBuilder(entityClass, FindOptionsUtils_1.FindOptionsUtils.extractFindOneOptionsAlias(optionsOrConditions) || metadata.name);
-                if (metadata.hasMultiplePrimaryKeys && !(id instanceof Object)) {
-                    // const columnNames = this.metadata.getEntityIdMap({  });
-                    throw new Error("You have multiple primary keys in your entity, to use findOneById with multiple primary keys please provide " +
-                        "complete object with all entity ids, like this: { firstKey: value, secondKey: value }");
-                }
-                if (!metadata.hasMultiplePrimaryKeys && !(id instanceof Object)) {
-                    id = metadata.createEntityIdMap([id]);
-                }
-                this.joinEagerRelations(qb, qb.alias, metadata);
-                FindOptionsUtils_1.FindOptionsUtils.applyFindOneOptionsOrConditionsToQueryBuilder(qb, optionsOrConditions);
-                return [2 /*return*/, qb.andWhereInIds([id]).getOne()];
+                return [2 /*return*/, this.findOne(entityClass, idOrOptionsOrConditions, maybeOptions).then(function (value) {
+                        if (value === undefined) {
+                            return Promise.reject(new EntityNotFoundError_1.EntityNotFoundError(entityClass, idOrOptionsOrConditions));
+                        }
+                        return Promise.resolve(value);
+                    })];
             });
         });
     };
@@ -727,7 +500,7 @@ var EntityManager = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, , 3, 6]);
-                        return [4 /*yield*/, queryRunner.truncate(metadata.tablePath)];
+                        return [4 /*yield*/, queryRunner.clearTable(metadata.tablePath)];
                     case 2: return [2 /*return*/, _a.sent()]; // await is needed here because we are using finally
                     case 3:
                         if (!!this.queryRunner) return [3 /*break*/, 5];
@@ -737,6 +510,64 @@ var EntityManager = /** @class */ (function () {
                         _a.label = 5;
                     case 5: return [7 /*endfinally*/];
                     case 6: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Increments some column by provided value of the entities matched given conditions.
+     */
+    EntityManager.prototype.increment = function (entityClass, conditions, propertyPath, value) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            var metadata, column, _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        metadata = this.connection.getMetadata(entityClass);
+                        column = metadata.findColumnWithPropertyPath(propertyPath);
+                        if (!column)
+                            throw new Error("Column " + propertyPath + " was not found in " + metadata.targetName + " entity.");
+                        return [4 /*yield*/, this
+                                .createQueryBuilder(entityClass, "entity")
+                                .update(entityClass)
+                                .set((_a = {},
+                                _a[propertyPath] = function () { return _this.connection.driver.escape(column.databaseName) + " + " + Number(value); },
+                                _a))
+                                .where(conditions)
+                                .execute()];
+                    case 1:
+                        _b.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Decrements some column by provided value of the entities matched given conditions.
+     */
+    EntityManager.prototype.decrement = function (entityClass, conditions, propertyPath, value) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            var metadata, column, _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        metadata = this.connection.getMetadata(entityClass);
+                        column = metadata.findColumnWithPropertyPath(propertyPath);
+                        if (!column)
+                            throw new Error("Column " + propertyPath + " was not found in " + metadata.targetName + " entity.");
+                        return [4 /*yield*/, this
+                                .createQueryBuilder(entityClass, "entity")
+                                .update(entityClass)
+                                .set((_a = {},
+                                _a[propertyPath] = function () { return _this.connection.driver.escape(column.databaseName) + " - " + Number(value); },
+                                _a))
+                                .where(conditions)
+                                .execute()];
+                    case 1:
+                        _b.sent();
+                        return [2 /*return*/];
                 }
             });
         });
@@ -778,10 +609,10 @@ var EntityManager = /** @class */ (function () {
         return repository;
     };
     /**
-     * Gets mongodb repository for the given entity class or name.
+     * Gets mongodb repository for the given entity class.
      */
-    EntityManager.prototype.getMongoRepository = function (entityClassOrName) {
-        return this.connection.getMongoRepository(entityClassOrName);
+    EntityManager.prototype.getMongoRepository = function (target) {
+        return this.connection.getMongoRepository(target);
     };
     /**
      * Gets custom entity repository marked with @EntityRepository decorator.
@@ -820,20 +651,6 @@ var EntityManager = /** @class */ (function () {
                     throw new NoNeedToReleaseEntityManagerError_1.NoNeedToReleaseEntityManagerError();
                 return [2 /*return*/, this.queryRunner.release()];
             });
-        });
-    };
-    // -------------------------------------------------------------------------
-    // Protected Methods
-    // -------------------------------------------------------------------------
-    /**
-     * Joins all eager relations recursively.
-     */
-    EntityManager.prototype.joinEagerRelations = function (qb, alias, metadata) {
-        var _this = this;
-        metadata.eagerRelations.forEach(function (relation) {
-            var relationAlias = alias + "_" + relation.propertyPath.replace(".", "_");
-            qb.leftJoinAndSelect(alias + "." + relation.propertyPath, relationAlias);
-            _this.joinEagerRelations(qb, relationAlias, relation.inverseEntityMetadata);
         });
     };
     return EntityManager;

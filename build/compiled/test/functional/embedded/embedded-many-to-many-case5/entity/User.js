@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var Column_1 = require("../../../../../src/decorator/columns/Column");
 var Entity_1 = require("../../../../../src/decorator/entity/Entity");
 var ManyToMany_1 = require("../../../../../src/decorator/relations/ManyToMany");
-var Index_1 = require("../../../../../src/decorator/Index");
 var PrimaryColumn_1 = require("../../../../../src/decorator/columns/PrimaryColumn");
 var Post_1 = require("./Post");
 var User = /** @class */ (function () {
@@ -35,8 +34,7 @@ var User = /** @class */ (function () {
         __metadata("design:type", Array)
     ], User.prototype, "likedPosts", void 0);
     User = __decorate([
-        Entity_1.Entity(),
-        Index_1.Index(["id", "personId"], { unique: true })
+        Entity_1.Entity()
     ], User);
     return User;
 }());

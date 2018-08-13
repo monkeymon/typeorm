@@ -19,7 +19,7 @@ var ActivityEntity = /** @class */ (function () {
     }
     __decorate([
         PrimaryGeneratedColumn_1.PrimaryGeneratedColumn({ type: "bigint" }),
-        __metadata("design:type", Number)
+        __metadata("design:type", String)
     ], ActivityEntity.prototype, "id", void 0);
     __decorate([
         Column_1.Column({ type: "datetime" }),
@@ -27,8 +27,7 @@ var ActivityEntity = /** @class */ (function () {
     ], ActivityEntity.prototype, "endDate", void 0);
     __decorate([
         ManyToMany_1.ManyToMany(function (type) { return TileEntity_1.TileEntity; }, function (tile) { return tile.activities; }, {
-            cascadeInsert: true,
-            cascadeUpdate: true
+            cascade: true
         }),
         __metadata("design:type", Array)
     ], ActivityEntity.prototype, "tiles", void 0);

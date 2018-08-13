@@ -1,8 +1,5 @@
 /**
- * Marks a specific property of the class as a parent of the tree.
+ * Marks a entity property as a parent of the tree.
+ * "Tree parent" indicates who owns (is a parent) of this entity in tree structure.
  */
-export declare function TreeParent(options?: {
-    cascadeInsert?: boolean;
-    cascadeUpdate?: boolean;
-    lazy?: boolean;
-}): Function;
+export declare function TreeParent(): Function;

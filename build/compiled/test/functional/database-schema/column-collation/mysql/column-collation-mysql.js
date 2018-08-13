@@ -47,8 +47,6 @@ describe("database schema > column collation > mysql", function () {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
                         enabledDrivers: ["mysql"],
-                        schemaCreate: true,
-                        dropSchema: true,
                     })];
                 case 1:
                     connections = _a.sent();

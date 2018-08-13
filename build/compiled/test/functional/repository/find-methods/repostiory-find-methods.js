@@ -40,6 +40,8 @@ require("reflect-metadata");
 var chai_1 = require("chai");
 var test_utils_1 = require("../../../utils/test-utils");
 var Post_1 = require("./entity/Post");
+var EntityNotFoundError_1 = require("../../../../src/error/EntityNotFoundError");
+var src_1 = require("../../../../src");
 describe("repository > find methods", function () {
     var userSchema;
     try {
@@ -50,15 +52,13 @@ describe("repository > find methods", function () {
         var resourceDir = __dirname + "/";
         userSchema = require(resourceDir + "schema/user.json");
     }
+    var UserEntity = new src_1.EntitySchema(userSchema);
     var connections;
     before(function () { return __awaiter(_this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
-                        entities: [Post_1.Post],
-                        entitySchemas: [userSchema],
-                        schemaCreate: true,
-                        dropSchema: true
+                        entities: [Post_1.Post, UserEntity],
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -568,7 +568,7 @@ describe("repository > find methods", function () {
             });
         }); })); });
     });
-    describe("findOneById", function () {
+    describe("findOne", function () {
         var _this = this;
         it("should return entity by a given id", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
             var userRepository, promises, i, user, savedUsers, loadedUser;
@@ -589,19 +589,19 @@ describe("repository > find methods", function () {
                     case 1:
                         savedUsers = _a.sent();
                         savedUsers.length.should.be.equal(100); // check if they all are saved
-                        return [4 /*yield*/, userRepository.findOneById(0)];
+                        return [4 /*yield*/, userRepository.findOne(0)];
                     case 2:
                         loadedUser = (_a.sent());
                         loadedUser.id.should.be.equal(0);
                         loadedUser.firstName.should.be.equal("name #0");
                         loadedUser.secondName.should.be.equal("Doe");
-                        return [4 /*yield*/, userRepository.findOneById(1)];
+                        return [4 /*yield*/, userRepository.findOne(1)];
                     case 3:
                         loadedUser = (_a.sent());
                         loadedUser.id.should.be.equal(1);
                         loadedUser.firstName.should.be.equal("name #1");
                         loadedUser.secondName.should.be.equal("Doe");
-                        return [4 /*yield*/, userRepository.findOneById(99)];
+                        return [4 /*yield*/, userRepository.findOne(99)];
                     case 4:
                         loadedUser = (_a.sent());
                         loadedUser.id.should.be.equal(99);
@@ -630,7 +630,7 @@ describe("repository > find methods", function () {
                     case 1:
                         savedUsers = _a.sent();
                         savedUsers.length.should.be.equal(100); // check if they all are saved
-                        return [4 /*yield*/, userRepository.findOneById(0, {
+                        return [4 /*yield*/, userRepository.findOne(0, {
                                 where: {
                                     secondName: "Doe"
                                 }
@@ -640,7 +640,7 @@ describe("repository > find methods", function () {
                         loadedUser.id.should.be.equal(0);
                         loadedUser.firstName.should.be.equal("name #0");
                         loadedUser.secondName.should.be.equal("Doe");
-                        return [4 /*yield*/, userRepository.findOneById(1, {
+                        return [4 /*yield*/, userRepository.findOne(1, {
                                 where: {
                                     secondName: "Dorian"
                                 }
@@ -648,6 +648,116 @@ describe("repository > find methods", function () {
                     case 3:
                         loadedUser = _a.sent();
                         chai_1.expect(loadedUser).to.be.undefined;
+                        return [2 /*return*/];
+                }
+            });
+        }); })); });
+    });
+    describe("findOneOrFail", function () {
+        var _this = this;
+        it("should return entity by a given id", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
+            var userRepository, promises, i, user, savedUsers, loadedUser;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        userRepository = connection.getRepository("User");
+                        promises = [];
+                        for (i = 0; i < 100; i++) {
+                            user = {
+                                id: i,
+                                firstName: "name #" + i,
+                                secondName: "Doe"
+                            };
+                            promises.push(userRepository.save(user));
+                        }
+                        return [4 /*yield*/, Promise.all(promises)];
+                    case 1:
+                        savedUsers = _a.sent();
+                        savedUsers.length.should.be.equal(100); // check if they all are saved
+                        return [4 /*yield*/, userRepository.findOneOrFail(0)];
+                    case 2:
+                        loadedUser = (_a.sent());
+                        loadedUser.id.should.be.equal(0);
+                        loadedUser.firstName.should.be.equal("name #0");
+                        loadedUser.secondName.should.be.equal("Doe");
+                        return [4 /*yield*/, userRepository.findOneOrFail(1)];
+                    case 3:
+                        loadedUser = (_a.sent());
+                        loadedUser.id.should.be.equal(1);
+                        loadedUser.firstName.should.be.equal("name #1");
+                        loadedUser.secondName.should.be.equal("Doe");
+                        return [4 /*yield*/, userRepository.findOneOrFail(99)];
+                    case 4:
+                        loadedUser = (_a.sent());
+                        loadedUser.id.should.be.equal(99);
+                        loadedUser.firstName.should.be.equal("name #99");
+                        loadedUser.secondName.should.be.equal("Doe");
+                        return [2 /*return*/];
+                }
+            });
+        }); })); });
+        it("should return entity by a given id and find options", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
+            var userRepository, promises, i, user, savedUsers, loadedUser;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        userRepository = connection.getRepository("User");
+                        promises = [];
+                        for (i = 0; i < 100; i++) {
+                            user = {
+                                id: i,
+                                firstName: "name #" + i,
+                                secondName: "Doe"
+                            };
+                            promises.push(userRepository.save(user));
+                        }
+                        return [4 /*yield*/, Promise.all(promises)];
+                    case 1:
+                        savedUsers = _a.sent();
+                        savedUsers.length.should.be.equal(100); // check if they all are saved
+                        return [4 /*yield*/, userRepository.findOneOrFail(0, {
+                                where: {
+                                    secondName: "Doe"
+                                }
+                            })];
+                    case 2:
+                        loadedUser = _a.sent();
+                        loadedUser.id.should.be.equal(0);
+                        loadedUser.firstName.should.be.equal("name #0");
+                        loadedUser.secondName.should.be.equal("Doe");
+                        return [4 /*yield*/, userRepository.findOneOrFail(1, {
+                                where: {
+                                    secondName: "Dorian"
+                                }
+                            }).should.eventually.be.rejectedWith(EntityNotFoundError_1.EntityNotFoundError)];
+                    case 3:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        }); })); });
+        it("should throw an error if nothing was found", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
+            var userRepository, promises, i, user, savedUsers;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        userRepository = connection.getRepository("User");
+                        promises = [];
+                        for (i = 0; i < 100; i++) {
+                            user = {
+                                id: i,
+                                firstName: "name #" + i,
+                                secondName: "Doe"
+                            };
+                            promises.push(userRepository.save(user));
+                        }
+                        return [4 /*yield*/, Promise.all(promises)];
+                    case 1:
+                        savedUsers = _a.sent();
+                        savedUsers.length.should.be.equal(100); // check if they all are saved
+                        return [4 /*yield*/, userRepository.findOneOrFail(100).should.eventually.be.rejectedWith(EntityNotFoundError_1.EntityNotFoundError)];
+                    case 2:
+                        _a.sent();
                         return [2 /*return*/];
                 }
             });

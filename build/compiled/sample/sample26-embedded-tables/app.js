@@ -30,7 +30,7 @@ index_1.createConnection(options).then(function (connection) {
         .then(function (savedQuestion) {
         console.log("question has been saved: ", savedQuestion);
         // lets load it now:
-        return questionRepository.findOneById(savedQuestion.id);
+        return questionRepository.findOne(savedQuestion.id);
     })
         .then(function (loadedQuestion) {
         console.log("question has been loaded: ", loadedQuestion);

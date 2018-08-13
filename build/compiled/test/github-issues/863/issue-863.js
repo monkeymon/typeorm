@@ -47,8 +47,6 @@ describe("indices > create schema", function () {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [master_1.Master, detail_1.Detail],
-                        schemaCreate: false,
-                        dropSchema: true
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }

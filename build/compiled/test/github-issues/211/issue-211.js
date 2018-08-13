@@ -46,8 +46,6 @@ describe("github issues > #211 where in query issue", function () {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        schemaCreate: true,
-                        dropSchema: true,
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -76,7 +74,7 @@ describe("github issues > #211 where in query issue", function () {
                     return [3 /*break*/, 1];
                 case 4: return [4 /*yield*/, connection.manager
                         .createQueryBuilder(Post_1.Post, "post")
-                        .where("post.id IN (:ids)", { ids: [1, 2, 3] })
+                        .where("post.id IN (:...ids)", { ids: [1, 2, 3] })
                         .getMany()];
                 case 5:
                     loadedPosts1 = _a.sent();
@@ -84,7 +82,7 @@ describe("github issues > #211 where in query issue", function () {
                     return [4 /*yield*/, connection.manager
                             .createQueryBuilder(Post_1.Post, "post")
                             .where("post.text = :text", { text: "about post" })
-                            .andWhere("post.title IN (:titles)", { titles: ["post #1", "post #2", "post #3"] })
+                            .andWhere("post.title IN (:...titles)", { titles: ["post #1", "post #2", "post #3"] })
                             .getMany()];
                 case 6:
                     loadedPosts2 = _a.sent();

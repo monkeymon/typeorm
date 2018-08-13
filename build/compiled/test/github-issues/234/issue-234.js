@@ -49,8 +49,6 @@ describe("github issues > #234 and #223 lazy loading does not work correctly fro
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        schemaCreate: true,
-                        dropSchema: true,
                         enabledDrivers: ["mysql"] // we can properly test lazy-relations only on one platform
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];

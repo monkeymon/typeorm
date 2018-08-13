@@ -10,4 +10,5 @@ export declare class PostWithOptions {
     timestampWithTimeZone: Date;
     time: string;
     timeWithTimeZone: string;
+    int4range: string;
 }

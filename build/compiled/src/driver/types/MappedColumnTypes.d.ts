@@ -37,6 +37,10 @@ export interface MappedColumnTypes {
      */
     treeLevel: ColumnType;
     /**
+     * Column type of id column used for migrations table.
+     */
+    migrationId: ColumnType;
+    /**
      * Column type of timestamp column used for migrations table.
      */
     migrationTimestamp: ColumnType;

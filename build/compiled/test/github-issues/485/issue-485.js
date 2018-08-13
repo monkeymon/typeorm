@@ -48,8 +48,6 @@ describe("github issues > #485 If I set the datatype of PrimaryGeneratedColumn t
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
                         enabledDrivers: ["postgres"],
-                        schemaCreate: true,
-                        dropSchema: true,
                     })];
                 case 1:
                     connections = _a.sent();
@@ -76,7 +74,7 @@ describe("github issues > #485 If I set the datatype of PrimaryGeneratedColumn t
                     return [4 /*yield*/, postRepository.save(post)];
                 case 3:
                     savedPost = _a.sent();
-                    return [4 /*yield*/, postRepository.findOneById(savedPost.id)];
+                    return [4 /*yield*/, postRepository.findOne(savedPost.id)];
                 case 4:
                     loadedPost = _a.sent();
                     chai_1.expect(loadedPost).to.be.not.undefined;

@@ -24,7 +24,7 @@ var PostInformation = /** @class */ (function () {
     ], PostInformation.prototype, "text", void 0);
     __decorate([
         index_1.OneToOne(function (type) { return Post_1.Post; }, function (post) { return post.information; }, {
-            cascadeUpdate: true,
+            cascade: ["update"]
         }),
         __metadata("design:type", Post_1.Post)
     ], PostInformation.prototype, "post", void 0);

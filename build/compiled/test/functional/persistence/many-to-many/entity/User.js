@@ -26,7 +26,7 @@ var User = /** @class */ (function () {
         __metadata("design:type", String)
     ], User.prototype, "name", void 0);
     __decorate([
-        ManyToOne_1.ManyToOne(function (type) { return Post_1.Post; }, { cascadeUpdate: true }),
+        ManyToOne_1.ManyToOne(function (type) { return Post_1.Post; }, { cascade: ["update"] }),
         __metadata("design:type", Post_1.Post)
     ], User.prototype, "post", void 0);
     User = __decorate([

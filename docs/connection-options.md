@@ -5,23 +5,23 @@
 * [`mysql` / `mariadb` connection options](#mysql--mariadb-connection-options)
 * [`postgres` connection options](#postgres-connection-options)
 * [`sqlite` connection options](#sqlite-connection-options)
-* [`websql` connection options](#websql-connection-options)
 * [`cordova` connection options](#cordova-connection-options)
+* [`react-native` connection options](#react-native-connection-options)
 * [`mssql` connection options](#mssql-connection-options)
 * [`mongodb` connection options](#mongodb-connection-options)
-* [`sql.js` connection options](#sql.js-connection-options)
+* [`sql.js` connection options](#sqljs-connection-options)
 * [Connection options example](#connection-options-example)
     
 ## What is `ConnectionOptions`
 
-Connection options is a connection configuration object you pass to `createConnection`
- or create in `ormconfig` file. Different drivers have their own specific connection options.
+Connection options is a connection configuration you pass to `createConnection`
+ or define in `ormconfig` file. Different databases have their own specific connection options.
 
 ## Common connection options
 
 * `type` - Database type. You must specify what database engine you use.
- Possible values are "mysql", "postgres", "mariadb", "sqlite", "cordova", "oracle", "mssql", "websql", "mongodb", "sqljs". 
- This option is required.
+ Possible values are "mysql", "postgres", "mariadb", "sqlite", "cordova", "oracle", "mssql", "mongodb", "sqljs", "react-native". 
+ This option is **required**.
 
 * `name` - Connection name. You'll use it to get connection you need using `getConnection(name: string)` 
 or `ConnectionManager.get(name: string)`. 
@@ -77,7 +77,7 @@ Be careful with this option and don't use this in production - otherwise you'll 
 This option is useful during debug and development.
 
 * `synchronize` - Indicates if database schema should be auto created on every application launch.
- Be careful with this option and don't use this in production - otherwise you can loose production data.
+ Be careful with this option and don't use this in production - otherwise you can lose production data.
  This option is useful during debug and development.
  As an alternative to it, you can use CLI and run schema:sync command.
  Note that for MongoDB database it does not create schema, because MongoDB is schemaless.
@@ -85,6 +85,12 @@ This option is useful during debug and development.
 
 * `migrationsRun` - Indicates if migrations should be auto run on every application launch.
 As an alternative, you can use CLI and run migrations:run command.
+
+* `migrationsTableName` - Name of the table in the database which is going to contain information about executed migrations.
+By default this table is called "migrations".
+
+* `cache` - Enables entity result caching. You can also configure cache type and other cache options here.
+Read more about caching [here](./caching.md).
 
 * `cli.entitiesDir` - Directory where entities should be created by default by CLI.
 
@@ -155,7 +161,7 @@ See [SSL options](https://github.com/mysqljs/mysql#ssl-options).
 
 * `host` - Database host.
 
-* `port` - Database host port. Default mysql port is `5432`.
+* `port` - Database host port. Default postgres port is `5432`.
 
 * `username` - Database username.
 
@@ -171,21 +177,16 @@ See [SSL options](https://github.com/mysqljs/mysql#ssl-options).
 
 * `database` - Database path. For example "./mydb.sql"
 
-## `websql` connection options
-
-* `database` - Database name
-
-* `version` - Version string of the database
-
-* `description` - Database description
-
-* `size` - The size of the database
-
 ## `cordova` connection options
 
 * `database` - Database name
 
 * `location` - Where to save the database. See [cordova-sqlite-storage](https://github.com/litehelpers/Cordova-sqlite-storage#opening-a-database) for options.
+
+## `react-native` connection options
+* `database` - Database name
+
+* `location` - Where to save the database. See [react-native-sqlite-storage](https://github.com/andpor/react-native-sqlite-storage#opening-a-database) for options.
 
 ## `mssql` connection options
 
@@ -443,6 +444,8 @@ See [SSL options](https://github.com/mysqljs/mysql#ssl-options).
 * `loggerLevel` - Specify the log level used by the driver logger (`error/warn/info/debug`).
 
 * `logger` - Specify a customer logger mechanism, can be used to log using your app level logger.
+
+* `authMechanism` - Sets the authentication mechanism that MongoDB will use to authenticate the connection.
 
 ## `sql.js` connection options
 

@@ -11,7 +11,6 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var Column_1 = require("../../../../../../src/decorator/columns/Column");
 var TableInheritance_1 = require("../../../../../../src/decorator/entity/TableInheritance");
-var DiscriminatorColumn_1 = require("../../../../../../src/decorator/columns/DiscriminatorColumn");
 var Entity_1 = require("../../../../../../src/decorator/entity/Entity");
 var PrimaryGeneratedColumn_1 = require("../../../../../../src/decorator/columns/PrimaryGeneratedColumn");
 var Person = /** @class */ (function () {
@@ -27,8 +26,7 @@ var Person = /** @class */ (function () {
     ], Person.prototype, "name", void 0);
     Person = __decorate([
         Entity_1.Entity(),
-        TableInheritance_1.TableInheritance("single-table"),
-        DiscriminatorColumn_1.DiscriminatorColumn({ name: "type", type: "varchar" })
+        TableInheritance_1.TableInheritance({ column: { name: "type", type: "varchar" } })
     ], Person);
     return Person;
 }());

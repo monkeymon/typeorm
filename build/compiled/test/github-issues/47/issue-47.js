@@ -48,8 +48,6 @@ describe("github issues > #47 wrong sql syntax when loading lazy relation", func
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        schemaCreate: true,
-                        dropSchema: true,
                         enabledDrivers: ["mysql"] // we can properly test lazy-relations only on one platform
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];

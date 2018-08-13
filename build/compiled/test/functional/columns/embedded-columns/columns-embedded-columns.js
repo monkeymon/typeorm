@@ -49,7 +49,7 @@ describe("columns > embedded columns", function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
-                        entities: [__dirname + "/entity/*{.js,.ts}"]
+                        entities: [__dirname + "/entity/*{.js,.ts}"],
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -139,13 +139,13 @@ describe("columns > embedded columns", function () {
                 "countersLikes",
                 "countersComments",
                 "countersFavorites",
-                "countersInformationDescription",
-                "countersTestDataDescription",
+                "countersInfoDescr",
+                "countersTestDataDescr",
                 "testCountersLikes",
                 "testCountersComments",
                 "testCountersFavorites",
-                "testCountersInformationDescription",
-                "testCountersTestDataDescription",
+                "testCountersInfoDescr",
+                "testCountersTestDataDescr",
             ]);
             return [2 /*return*/];
         });

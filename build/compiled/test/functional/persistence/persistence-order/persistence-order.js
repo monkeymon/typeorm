@@ -42,6 +42,7 @@ var Post_1 = require("./entity/Post");
 var Category_1 = require("./entity/Category");
 var ConnectionMetadataBuilder_1 = require("../../../../src/connection/ConnectionMetadataBuilder");
 var EntityMetadataValidator_1 = require("../../../../src/metadata-builder/EntityMetadataValidator");
+var chai_1 = require("chai");
 describe("persistence > order of persistence execution operations", function () {
     describe("should throw exception when non-resolvable circular relations found", function () {
         it("should throw CircularRelationsError", function () {
@@ -54,9 +55,9 @@ describe("persistence > order of persistence execution operations", function () 
                 entities: [__dirname + "/entity/*{.js,.ts}"]
             });
             var connectionMetadataBuilder = new ConnectionMetadataBuilder_1.ConnectionMetadataBuilder(connection);
-            var entityMetadatas = connectionMetadataBuilder.buildEntityMetadatas([__dirname + "/entity/*{.js,.ts}"], []);
+            var entityMetadatas = connectionMetadataBuilder.buildEntityMetadatas([__dirname + "/entity/*{.js,.ts}"]);
             var entityMetadataValidator = new EntityMetadataValidator_1.EntityMetadataValidator();
-            return entityMetadataValidator.validateMany(entityMetadatas, connection.driver).should.be.rejected;
+            chai_1.expect(function () { return entityMetadataValidator.validateMany(entityMetadatas, connection.driver); }).to.throw(Error);
         });
     });
     describe.skip("should persist all entities in correct order", function () {
@@ -67,8 +68,6 @@ describe("persistence > order of persistence execution operations", function () 
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                             entities: [__dirname + "/entity/*{.js,.ts}"],
-                            schemaCreate: true,
-                            dropSchema: true,
                         })];
                     case 1: return [2 /*return*/, connections = _a.sent()];
                 }

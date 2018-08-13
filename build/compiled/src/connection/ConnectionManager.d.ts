@@ -8,7 +8,7 @@ export declare class ConnectionManager {
     /**
      * List of connections registered in this connection manager.
      */
-    protected readonly connections: Connection[];
+    readonly connections: Connection[];
     /**
      * Checks if connection with the given name exist in the manager.
      */

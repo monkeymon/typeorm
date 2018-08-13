@@ -34,7 +34,7 @@ var Category = /** @class */ (function () {
     ], Category.prototype, "metadataId", void 0);
     __decorate([
         OneToOne_1.OneToOne(function (type) { return CategoryMetadata_1.CategoryMetadata; }, function (metadata) { return metadata.category; }, {
-            cascadeInsert: true
+            cascade: ["insert"]
         }),
         JoinColumn_1.JoinColumn({ name: "metadataId" }),
         __metadata("design:type", CategoryMetadata_1.CategoryMetadata)

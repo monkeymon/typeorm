@@ -1,6 +1,6 @@
 import { TileEntity } from "./TileEntity";
 export declare class ActivityEntity {
-    id: number;
+    id: string;
     endDate: Date;
     tiles: TileEntity[];
 }

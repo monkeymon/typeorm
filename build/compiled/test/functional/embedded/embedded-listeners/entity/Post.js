@@ -32,7 +32,7 @@ var Post = /** @class */ (function () {
         __metadata("design:type", String)
     ], Post.prototype, "text", void 0);
     __decorate([
-        Column_1.Column(function (type) { return PostInformation_1.PostInformation; }),
+        Column_1.Column(function (type) { return PostInformation_1.PostInformation; }, { prefix: "info" }),
         __metadata("design:type", PostInformation_1.PostInformation)
     ], Post.prototype, "information", void 0);
     Post = __decorate([

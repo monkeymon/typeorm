@@ -190,7 +190,7 @@ const timber = await manager.findOne(User, { firstName: "Timber", lastName: "Saw
 Just like separate like `MongoEntityManager` there is a `MongoRepository` with extended `Repository`:
 
 ```typescript
-import {getMongoManager} from "typeorm";
+import {getMongoRepository} from "typeorm";
 
 const userRepository = getMongoRepository(User); // or connection.getMongoManager
 const timber = await userRepository.findOne({ firstName: "Timber", lastName: "Saw" });
@@ -259,7 +259,7 @@ Drops all indexes from the collection.
 
 #### `findOneAndUpdate`
 
-Find a document and delete it in one atomic operation, requires a write lock for the duration of the operation.
+Find a document and update it in one atomic operation, requires a write lock for the duration of the operation.
 
 #### `geoHaystackSearch`
 
@@ -335,9 +335,9 @@ Reindex all indexes on the collection Warning: reIndex is a blocking operation (
 
 #### `updateMany`
 
-Reindex all indexes on the collection Warning: reIndex is a blocking operation (indexes are rebuilt in the foreground) and will be slow for large collections.
+Updates multiple documents within the collection based on the filter.
 
 #### `updateOne`
 
-Replace a document on MongoDB.
+Updates a single document within the collection based on the filter.
 

@@ -48,8 +48,6 @@ describe("github issues > Join query on ManyToMany relations not working", funct
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        schemaCreate: true,
-                        dropSchema: true,
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -87,7 +85,7 @@ describe("github issues > Join query on ManyToMany relations not working", funct
                             .manager
                             .createQueryBuilder(Post_1.Post, "post")
                             .leftJoinAndSelect("post.categories", "category")
-                            .where("category.category_id IN (:ids)", { ids: [21] })
+                            .where("category.category_id IN (:...ids)", { ids: [21] })
                             .getOne()];
                 case 6:
                     loadedPost = _a.sent();

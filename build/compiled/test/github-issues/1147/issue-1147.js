@@ -70,7 +70,7 @@ describe("github issues > #1147 FindOptions should be able to accept custom wher
                     return [4 /*yield*/, Promise.all(promises)];
                 case 1:
                     _a.sent();
-                    return [4 /*yield*/, connection.manager.find(Post_1.Post, { where: "title LIKE '%3'" })];
+                    return [4 /*yield*/, connection.manager.find(Post_1.Post, { where: "Post.title LIKE '%3'" })];
                 case 2:
                     posts = _a.sent();
                     posts.length.should.be.equal(1);

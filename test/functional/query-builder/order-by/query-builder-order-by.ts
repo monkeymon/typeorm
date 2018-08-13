@@ -11,8 +11,6 @@ describe("query builder > order-by", () => {
     let connections: Connection[];
     before(async () => connections = await createTestingConnections({
         entities: [__dirname + "/entity/*{.js,.ts}"],
-        schemaCreate: true,
-        dropSchema: true,
     }));
     beforeEach(() => reloadTestingDatabases(connections));
     after(() => closeTestingConnections(connections));
@@ -73,6 +71,33 @@ describe("query builder > order-by", () => {
         const loadedPost2 = await connection.manager
             .createQueryBuilder(Post, "post")
             .addOrderBy("post.myOrder", "ASC", "NULLS LAST")
+            .getOne();
+
+        expect(loadedPost2!.myOrder).to.be.equal(1);
+
+    })));
+
+    it("should be always in right order(custom order)", () => Promise.all(connections.map(async connection => {
+        if (!(connection.driver instanceof MysqlDriver)) // IS NULL / IS NOT NULL only supported by mysql
+            return;
+
+        const post1 = new Post();
+        post1.myOrder = 1;
+
+        const post2 = new Post();
+        post2.myOrder = 2;
+        await connection.manager.save([post1, post2]);
+
+        const loadedPost1 = await connection.manager
+            .createQueryBuilder(Post, "post")
+            .addOrderBy("post.myOrder IS NULL", "ASC")
+            .getOne();
+
+        expect(loadedPost1!.myOrder).to.be.equal(1);
+
+        const loadedPost2 = await connection.manager
+            .createQueryBuilder(Post, "post")
+            .addOrderBy("post.myOrder IS NOT NULL", "ASC")
             .getOne();
 
         expect(loadedPost2!.myOrder).to.be.equal(1);

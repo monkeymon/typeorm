@@ -10,10 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var Entity_1 = require("../../../../src/decorator/entity/Entity");
-var Index_1 = require("../../../../src/decorator/Index");
 var Column_1 = require("../../../../src/decorator/columns/Column");
-var CreateDateColumn_1 = require("../../../../src/decorator/columns/CreateDateColumn");
-var UpdateDateColumn_1 = require("../../../../src/decorator/columns/UpdateDateColumn");
 var OneToOne_1 = require("../../../../src/decorator/relations/OneToOne");
 var JoinColumn_1 = require("../../../../src/decorator/relations/JoinColumn");
 var User_1 = require("./User");
@@ -23,23 +20,14 @@ var UserCredential = /** @class */ (function () {
     __decorate([
         OneToOne_1.OneToOne(function () { return User_1.User; }, {
             primary: true,
-            cascadeAll: true,
+            cascade: true,
         }),
         JoinColumn_1.JoinColumn({
             name: "id",
             referencedColumnName: "id",
         }),
-        Index_1.Index(),
         __metadata("design:type", User_1.User)
     ], UserCredential.prototype, "user", void 0);
-    __decorate([
-        CreateDateColumn_1.CreateDateColumn(),
-        __metadata("design:type", String)
-    ], UserCredential.prototype, "createdAt", void 0);
-    __decorate([
-        UpdateDateColumn_1.UpdateDateColumn(),
-        __metadata("design:type", String)
-    ], UserCredential.prototype, "updatedAt", void 0);
     __decorate([
         Column_1.Column(),
         __metadata("design:type", String)

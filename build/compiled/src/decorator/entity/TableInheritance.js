@@ -1,16 +1,16 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var index_1 = require("../../index");
+var _1 = require("../../");
 /**
- * Sets what kind of table-inheritance table will use.
+ * Sets for entity to use table inheritance pattern.
  */
-function TableInheritance(type) {
+function TableInheritance(options) {
     return function (target) {
-        var args = {
+        _1.getMetadataArgsStorage().inheritances.push({
             target: target,
-            type: type
-        };
-        index_1.getMetadataArgsStorage().inheritances.push(args);
+            pattern: options && options.pattern ? options.pattern : "STI",
+            column: options && options.column ? typeof options.column === "string" ? { name: options.column } : options.column : undefined
+        });
     };
 }
 exports.TableInheritance = TableInheritance;

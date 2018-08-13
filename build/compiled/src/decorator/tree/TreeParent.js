@@ -1,31 +1,24 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var index_1 = require("../../index");
+var _1 = require("../../");
 /**
- * Marks a specific property of the class as a parent of the tree.
+ * Marks a entity property as a parent of the tree.
+ * "Tree parent" indicates who owns (is a parent) of this entity in tree structure.
  */
-function TreeParent(options) {
+function TreeParent() {
     return function (object, propertyName) {
-        if (!options)
-            options = {};
         // now try to determine it its lazy relation
-        var isLazy = options && options.lazy === true ? true : false;
-        if (!isLazy && Reflect && Reflect.getMetadata) {
-            var reflectedType = Reflect.getMetadata("design:type", object, propertyName);
-            if (reflectedType && typeof reflectedType.name === "string" && reflectedType.name.toLowerCase() === "promise")
-                isLazy = true;
-        }
-        var args = {
+        var reflectedType = Reflect && Reflect.getMetadata ? Reflect.getMetadata("design:type", object, propertyName) : undefined;
+        var isLazy = (reflectedType && typeof reflectedType.name === "string" && reflectedType.name.toLowerCase() === "promise") || false;
+        _1.getMetadataArgsStorage().relations.push({
             isTreeParent: true,
             target: object.constructor,
             propertyName: propertyName,
-            // propertyType: reflectedType,
             isLazy: isLazy,
             relationType: "many-to-one",
             type: function () { return object.constructor; },
-            options: options
-        };
-        index_1.getMetadataArgsStorage().relations.push(args);
+            options: {}
+        });
     };
 }
 exports.TreeParent = TreeParent;

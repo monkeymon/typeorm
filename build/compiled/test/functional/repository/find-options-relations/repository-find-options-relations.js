@@ -149,7 +149,7 @@ describe("repository > find options > relations", function () {
         var loadedPost;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, connection.getRepository(Post_1.Post).findOneById(1)];
+                case 0: return [4 /*yield*/, connection.getRepository(Post_1.Post).findOne(1)];
                 case 1:
                     loadedPost = _a.sent();
                     loadedPost.should.be.eql({
@@ -168,7 +168,7 @@ describe("repository > find options > relations", function () {
         var loadedPost;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, connection.getRepository(Post_1.Post).findOneById(1, { relations: ["photos"] })];
+                case 0: return [4 /*yield*/, connection.getRepository(Post_1.Post).findOne(1, { relations: ["photos"] })];
                 case 1:
                     loadedPost = _a.sent();
                     loadedPost.id.should.be.equal(1);
@@ -207,7 +207,7 @@ describe("repository > find options > relations", function () {
         var loadedPost;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, connection.getRepository(Post_1.Post).findOneById(1, { relations: ["photos", "user", "categories"] })];
+                case 0: return [4 /*yield*/, connection.getRepository(Post_1.Post).findOne(1, { relations: ["photos", "user", "categories"] })];
                 case 1:
                     loadedPost = _a.sent();
                     loadedPost.id.should.be.equal(1);
@@ -258,7 +258,7 @@ describe("repository > find options > relations", function () {
         var loadedPost;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, connection.getRepository(Post_1.Post).findOneById(1, { relations: ["photos", "user", "categories", "photos.user"] })];
+                case 0: return [4 /*yield*/, connection.getRepository(Post_1.Post).findOne(1, { relations: ["photos", "user", "categories", "photos.user"] })];
                 case 1:
                     loadedPost = _a.sent();
                     loadedPost.id.should.be.equal(1);
@@ -283,7 +283,8 @@ describe("repository > find options > relations", function () {
                         counters: {
                             stars: 3,
                             commentCount: 20
-                        }
+                        },
+                        user: null
                     });
                     loadedPost.photos.should.include({
                         id: 3,
@@ -291,7 +292,8 @@ describe("repository > find options > relations", function () {
                         counters: {
                             stars: 4,
                             commentCount: 21
-                        }
+                        },
+                        user: null
                     });
                     loadedPost.user.should.be.eql({
                         id: 1,
@@ -313,7 +315,7 @@ describe("repository > find options > relations", function () {
         var loadedPost;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, connection.getRepository(Post_1.Post).findOneById(1, { relations: ["photos", "user", "photos.user", "counters.author"] })];
+                case 0: return [4 /*yield*/, connection.getRepository(Post_1.Post).findOne(1, { relations: ["photos", "user", "photos.user", "counters.author"] })];
                 case 1:
                     loadedPost = _a.sent();
                     loadedPost.id.should.be.equal(1);
@@ -338,7 +340,8 @@ describe("repository > find options > relations", function () {
                         counters: {
                             stars: 3,
                             commentCount: 20
-                        }
+                        },
+                        user: null
                     });
                     loadedPost.photos.should.include({
                         id: 3,
@@ -346,7 +349,8 @@ describe("repository > find options > relations", function () {
                         counters: {
                             stars: 4,
                             commentCount: 21
-                        }
+                        },
+                        user: null
                     });
                     loadedPost.user.should.be.eql({
                         id: 1,
@@ -364,7 +368,7 @@ describe("repository > find options > relations", function () {
         var loadedPost;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, connection.getRepository(Post_1.Post).findOneById(1, { relations: ["photos", "user", "photos.user", "counters.author", "photos.counters.author"] })];
+                case 0: return [4 /*yield*/, connection.getRepository(Post_1.Post).findOne(1, { relations: ["photos", "user", "photos.user", "counters.author", "photos.counters.author"] })];
                 case 1:
                     loadedPost = _a.sent();
                     loadedPost.id.should.be.equal(1);
@@ -392,16 +396,20 @@ describe("repository > find options > relations", function () {
                         filename: "photo2.jpg",
                         counters: {
                             stars: 3,
-                            commentCount: 20
-                        }
+                            commentCount: 20,
+                            author: null
+                        },
+                        user: null
                     });
                     loadedPost.photos.should.include({
                         id: 3,
                         filename: "photo3.jpg",
                         counters: {
                             stars: 4,
-                            commentCount: 21
-                        }
+                            commentCount: 21,
+                            author: null
+                        },
+                        user: null
                     });
                     loadedPost.user.should.be.eql({
                         id: 1,
@@ -418,7 +426,7 @@ describe("repository > find options > relations", function () {
     it("should throw error if specified relations were not found case 1", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, connection.getRepository(Post_1.Post).findOneById(1, { relations: ["photos2"] }).should.eventually.be.rejectedWith(FindRelationsNotFoundError_1.FindRelationsNotFoundError)];
+                case 0: return [4 /*yield*/, connection.getRepository(Post_1.Post).findOne(1, { relations: ["photos2"] }).should.eventually.be.rejectedWith(FindRelationsNotFoundError_1.FindRelationsNotFoundError)];
                 case 1:
                     _a.sent();
                     return [2 /*return*/];
@@ -428,7 +436,7 @@ describe("repository > find options > relations", function () {
     it("should throw error if specified relations were not found case 2", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, connection.getRepository(Post_1.Post).findOneById(1, { relations: ["photos", "counters.author2"] }).should.eventually.be.rejectedWith(FindRelationsNotFoundError_1.FindRelationsNotFoundError)];
+                case 0: return [4 /*yield*/, connection.getRepository(Post_1.Post).findOne(1, { relations: ["photos", "counters.author2"] }).should.eventually.be.rejectedWith(FindRelationsNotFoundError_1.FindRelationsNotFoundError)];
                 case 1:
                     _a.sent();
                     return [2 /*return*/];
@@ -438,7 +446,7 @@ describe("repository > find options > relations", function () {
     it("should throw error if specified relations were not found case 3", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, connection.getRepository(Post_1.Post).findOneById(1, { relations: ["photos", "counters2.author"] }).should.eventually.be.rejectedWith(FindRelationsNotFoundError_1.FindRelationsNotFoundError)];
+                case 0: return [4 /*yield*/, connection.getRepository(Post_1.Post).findOne(1, { relations: ["photos", "counters2.author"] }).should.eventually.be.rejectedWith(FindRelationsNotFoundError_1.FindRelationsNotFoundError)];
                 case 1:
                     _a.sent();
                     return [2 /*return*/];
@@ -448,7 +456,7 @@ describe("repository > find options > relations", function () {
     it("should throw error if specified relations were not found case 4", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, connection.getRepository(Post_1.Post).findOneById(1, { relations: ["photos", "photos.user.haha"] }).should.eventually.be.rejectedWith(FindRelationsNotFoundError_1.FindRelationsNotFoundError)];
+                case 0: return [4 /*yield*/, connection.getRepository(Post_1.Post).findOne(1, { relations: ["photos", "photos.user.haha"] }).should.eventually.be.rejectedWith(FindRelationsNotFoundError_1.FindRelationsNotFoundError)];
                 case 1:
                     _a.sent();
                     return [2 /*return*/];
@@ -458,7 +466,7 @@ describe("repository > find options > relations", function () {
     it("should throw error if specified relations were not found case 5", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, connection.getRepository(Post_1.Post).findOneById(1, { relations: ["questions"] }).should.eventually.be.rejectedWith(FindRelationsNotFoundError_1.FindRelationsNotFoundError)];
+                case 0: return [4 /*yield*/, connection.getRepository(Post_1.Post).findOne(1, { relations: ["questions"] }).should.eventually.be.rejectedWith(FindRelationsNotFoundError_1.FindRelationsNotFoundError)];
                 case 1:
                     _a.sent();
                     return [2 /*return*/];
@@ -468,7 +476,7 @@ describe("repository > find options > relations", function () {
     it("should throw error if specified relations were not found case 6", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, connection.getRepository(Post_1.Post).findOneById(1, { relations: ["questions.haha"] }).should.eventually.be.rejectedWith(FindRelationsNotFoundError_1.FindRelationsNotFoundError)];
+                case 0: return [4 /*yield*/, connection.getRepository(Post_1.Post).findOne(1, { relations: ["questions.haha"] }).should.eventually.be.rejectedWith(FindRelationsNotFoundError_1.FindRelationsNotFoundError)];
                 case 1:
                     _a.sent();
                     return [2 /*return*/];

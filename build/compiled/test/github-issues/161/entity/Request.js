@@ -34,10 +34,7 @@ var Request = /** @class */ (function () {
         __metadata("design:type", Boolean)
     ], Request.prototype, "success", void 0);
     __decorate([
-        OneToOne_1.OneToOne(function (type) { return Ticket_1.Ticket; }, function (ticket) { return ticket.request; }, {
-            cascadeInsert: true,
-            cascadeUpdate: true
-        }),
+        OneToOne_1.OneToOne(function (type) { return Ticket_1.Ticket; }, function (ticket) { return ticket.request; }),
         __metadata("design:type", Ticket_1.Ticket)
     ], Request.prototype, "ticket", void 0);
     Request = __decorate([

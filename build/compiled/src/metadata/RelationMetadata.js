@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+var EntityMetadata_1 = require("./EntityMetadata");
 /**
  * Contains all information about some entity's relation.
  */
@@ -29,6 +30,13 @@ var RelationMetadata = /** @class */ (function () {
          * Indicates if this relation is eagerly loaded.
          */
         this.isEager = false;
+        /**
+         * Indicates if persistence is enabled for the relation.
+         * By default its enabled, but if you want to avoid any changes in the relation to be reflected in the database you can disable it.
+         * If its disabled you can only change a relation from inverse side of a relation or using relation query builder functionality.
+         * This is useful for performance optimization since its disabling avoid multiple extra queries during entity save.
+         */
+        this.persistenceEnabled = true;
         /**
          * If set to true then related objects are allowed to be inserted to the database.
          */
@@ -117,13 +125,14 @@ var RelationMetadata = /** @class */ (function () {
         if (args.inverseSideProperty)
             this.givenInverseSidePropertyFactory = args.inverseSideProperty;
         this.isLazy = args.isLazy || false;
-        this.isCascadeInsert = args.options.cascadeInsert || args.options.cascadeAll || false;
-        this.isCascadeUpdate = args.options.cascadeUpdate || args.options.cascadeAll || false;
-        this.isCascadeRemove = args.options.cascadeRemove || args.options.cascadeAll || false;
+        this.isCascadeInsert = args.options.cascade === true || (args.options.cascade instanceof Array && args.options.cascade.indexOf("insert") !== -1);
+        this.isCascadeUpdate = args.options.cascade === true || (args.options.cascade instanceof Array && args.options.cascade.indexOf("update") !== -1);
+        this.isCascadeRemove = args.options.cascade === true || (args.options.cascade instanceof Array && args.options.cascade.indexOf("remove") !== -1);
+        this.isPrimary = args.options.primary || false;
         this.isNullable = args.options.nullable === false || this.isPrimary ? false : true;
         this.onDelete = args.options.onDelete;
-        this.isPrimary = args.options.primary || false;
         this.isEager = args.options.eager || false;
+        this.persistenceEnabled = args.options.persistence === false ? false : true;
         this.isTreeParent = args.isTreeParent || false;
         this.isTreeChildren = args.isTreeChildren || false;
         this.type = args.type instanceof Function ? args.type() : args.type;
@@ -138,10 +147,36 @@ var RelationMetadata = /** @class */ (function () {
     // Public Methods
     // ---------------------------------------------------------------------
     /**
+     * Creates join column ids map from the given related entity ids array.
+     */
+    RelationMetadata.prototype.getRelationIdMap = function (entity) {
+        var joinColumns = this.isOwning ? this.joinColumns : this.inverseRelation.joinColumns;
+        var referencedColumns = joinColumns.map(function (joinColumn) { return joinColumn.referencedColumn; });
+        // console.log("entity", entity);
+        // console.log("referencedColumns", referencedColumns);
+        return EntityMetadata_1.EntityMetadata.getValueMap(entity, referencedColumns);
+    };
+    /**
+     * Ensures that given object is an entity id map.
+     * If given id is an object then it means its already id map.
+     * If given id isn't an object then it means its a value of the id column
+     * and it creates a new id map with this value and name of the primary column.
+     */
+    RelationMetadata.prototype.ensureRelationIdMap = function (id) {
+        if (id instanceof Object)
+            return id;
+        var joinColumns = this.isOwning ? this.joinColumns : this.inverseRelation.joinColumns;
+        var referencedColumns = joinColumns.map(function (joinColumn) { return joinColumn.referencedColumn; });
+        if (referencedColumns.length > 1)
+            throw new Error("Cannot create relation id map for a single value because relation contains multiple referenced columns.");
+        return referencedColumns[0].createValueMap(id);
+    };
+    /**
      * Extracts column value from the given entity.
      * If column is in embedded (or recursive embedded) it extracts its value from there.
      */
-    RelationMetadata.prototype.getEntityValue = function (entity) {
+    RelationMetadata.prototype.getEntityValue = function (entity, getLazyRelationsPromiseValue) {
+        if (getLazyRelationsPromiseValue === void 0) { getLazyRelationsPromiseValue = false; }
         // extract column value from embeddeds of entity if column is in embedded
         if (this.embeddedMetadata) {
             // example: post[data][information][counters].id where "data", "information" and "counters" are embeddeds
@@ -152,22 +187,44 @@ var RelationMetadata = /** @class */ (function () {
             // this recursive function takes array of generated property names and gets the post[data][information][counters] embed
             var extractEmbeddedColumnValue_1 = function (propertyNames, value) {
                 var propertyName = propertyNames.shift();
-                return propertyName ? extractEmbeddedColumnValue_1(propertyNames, value[propertyName]) : value;
+                if (propertyName) {
+                    if (value[propertyName]) {
+                        return extractEmbeddedColumnValue_1(propertyNames, value[propertyName]);
+                    }
+                    return undefined;
+                }
+                return value;
             };
             // once we get nested embed object we get its column, e.g. post[data][information][counters][this.propertyName]
             var embeddedObject = extractEmbeddedColumnValue_1(propertyNames, entity);
+            if (this.isLazy) {
+                if (embeddedObject["__" + this.propertyName + "__"] !== undefined)
+                    return embeddedObject["__" + this.propertyName + "__"];
+                if (getLazyRelationsPromiseValue === true)
+                    return embeddedObject[this.propertyName];
+                return undefined;
+            }
             return embeddedObject ? embeddedObject[this.isLazy ? "__" + this.propertyName + "__" : this.propertyName] : undefined;
         }
-        else {
-            return entity[this.isLazy ? "__" + this.propertyName + "__" : this.propertyName];
+        else { // no embeds - no problems. Simply return column name by property name of the entity
+            if (this.isLazy) {
+                if (entity["__" + this.propertyName + "__"] !== undefined)
+                    return entity["__" + this.propertyName + "__"];
+                if (getLazyRelationsPromiseValue === true)
+                    return entity[this.propertyName];
+                return undefined;
+            }
+            return entity[this.propertyName];
         }
     };
     /**
      * Sets given entity's relation's value.
      * Using of this method helps to set entity relation's value of the lazy and non-lazy relations.
+     *
+     * If merge is set to true, it merges given value into currently
      */
     RelationMetadata.prototype.setEntityValue = function (entity, value) {
-        var _this = this;
+        var propertyName = this.isLazy ? "__" + this.propertyName + "__" : this.propertyName;
         if (this.embeddedMetadata) {
             // first step - we extract all parent properties of the entity relative to this column, e.g. [data, information, counters]
             var extractEmbeddedColumnValue_2 = function (embeddedMetadatas, map) {
@@ -180,13 +237,13 @@ var RelationMetadata = /** @class */ (function () {
                     extractEmbeddedColumnValue_2(embeddedMetadatas, map[embeddedMetadata.propertyName]);
                     return map;
                 }
-                map[_this.propertyName] = value;
+                map[propertyName] = value;
                 return map;
             };
             return extractEmbeddedColumnValue_2(this.embeddedMetadata.embeddedMetadataTree.slice(), entity);
         }
         else {
-            entity[this.propertyName] = value;
+            entity[propertyName] = value;
         }
     };
     /**
@@ -218,7 +275,7 @@ var RelationMetadata = /** @class */ (function () {
             };
             return extractEmbeddedColumnValue_3(propertyNames, {});
         }
-        else {
+        else { // no embeds - no problems. Simply return column property name and its value of the entity
             return _a = {}, _a[this.propertyName] = value, _a;
         }
         var _a;

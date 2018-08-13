@@ -8,6 +8,12 @@ import { RemoveOptions } from "./RemoveOptions";
 import { EntityManager } from "../entity-manager/EntityManager";
 import { QueryRunner } from "../query-runner/QueryRunner";
 import { SelectQueryBuilder } from "../query-builder/SelectQueryBuilder";
+import { DeleteResult } from "../query-builder/result/DeleteResult";
+import { UpdateResult } from "../query-builder/result/UpdateResult";
+import { InsertResult } from "../query-builder/result/InsertResult";
+import { QueryPartialEntity } from "../query-builder/QueryPartialEntity";
+import { ObjectID } from "../driver/mongodb/typings";
+import { FindConditions } from "../find-options/FindConditions";
 /**
  * Repository is supposed to work with your entity objects. Find entities, insert, update, delete, etc.
  */
@@ -82,22 +88,6 @@ export declare class Repository<Entity extends ObjectLiteral> {
      */
     save<T extends DeepPartial<Entity>>(entity: T, options?: SaveOptions): Promise<T>;
     /**
-     * Inserts a given entity into the database.
-     * Unlike save method executes a primitive operation without cascades, relations and other operations included.
-     * Does not modify source entity and does not execute listeners and subscribers.
-     * Executes fast and efficient INSERT query.
-     * Does not check if entity exist in the database, so query will fail if duplicate entity is being inserted.
-     */
-    insert(entity: Partial<Entity> | Partial<Entity>[], options?: SaveOptions): Promise<void>;
-    /**
-     * Updates entity partially. Entity can be found by a given conditions.
-     */
-    update(conditions: Partial<Entity>, partialEntity: DeepPartial<Entity>, options?: SaveOptions): Promise<void>;
-    /**
-     * Updates entity partially. Entity will be found by a given id.
-     */
-    updateById(id: any, partialEntity: DeepPartial<Entity>, options?: SaveOptions): Promise<void>;
-    /**
      * Removes a given entities from the database.
      */
     remove(entities: Entity[], options?: RemoveOptions): Promise<Entity[]>;
@@ -106,33 +96,26 @@ export declare class Repository<Entity extends ObjectLiteral> {
      */
     remove(entity: Entity, options?: RemoveOptions): Promise<Entity>;
     /**
-     * Deletes entities by a given conditions.
+     * Inserts a given entity into the database.
      * Unlike save method executes a primitive operation without cascades, relations and other operations included.
-     * Does not modify source entity and does not execute listeners and subscribers.
+     * Executes fast and efficient INSERT query.
+     * Does not check if entity exist in the database, so query will fail if duplicate entity is being inserted.
+     */
+    insert(entity: QueryPartialEntity<Entity> | (QueryPartialEntity<Entity>[]), options?: SaveOptions): Promise<InsertResult>;
+    /**
+     * Updates entity partially. Entity can be found by a given conditions.
+     * Unlike save method executes a primitive operation without cascades, relations and other operations included.
+     * Executes fast and efficient UPDATE query.
+     * Does not check if entity exist in the database.
+     */
+    update(criteria: string | string[] | number | number[] | Date | Date[] | ObjectID | ObjectID[] | FindConditions<Entity>, partialEntity: DeepPartial<Entity>, options?: SaveOptions): Promise<UpdateResult>;
+    /**
+     * Deletes entities by a given criteria.
+     * Unlike save method executes a primitive operation without cascades, relations and other operations included.
      * Executes fast and efficient DELETE query.
      * Does not check if entity exist in the database.
      */
-    delete(conditions: Partial<Entity>, options?: RemoveOptions): Promise<void>;
-    /**
-     * Deletes entities by a given conditions.
-     * Unlike save method executes a primitive operation without cascades, relations and other operations included.
-     * Does not modify source entity and does not execute listeners and subscribers.
-     * Executes fast and efficient DELETE query.
-     * Does not check if entity exist in the database.
-     */
-    deleteById(id: any, options?: RemoveOptions): Promise<void>;
-    /**
-     * Removes entity by a given entity id.
-     *
-     * @deprecated use deleteById method instead.
-     */
-    removeById(id: any, options?: RemoveOptions): Promise<void>;
-    /**
-     * Removes entity by a given entity id.
-     *
-     * @deprecated use deleteById method instead.
-     */
-    removeByIds(ids: any[], options?: RemoveOptions): Promise<void>;
+    delete(criteria: string | string[] | number | number[] | Date | Date[] | ObjectID | ObjectID[] | FindConditions<Entity>, options?: RemoveOptions): Promise<DeleteResult>;
     /**
      * Counts entities that match given options.
      */
@@ -140,7 +123,7 @@ export declare class Repository<Entity extends ObjectLiteral> {
     /**
      * Counts entities that match given conditions.
      */
-    count(conditions?: DeepPartial<Entity>): Promise<number>;
+    count(conditions?: FindConditions<Entity>): Promise<number>;
     /**
      * Finds entities that match given options.
      */
@@ -148,7 +131,7 @@ export declare class Repository<Entity extends ObjectLiteral> {
     /**
      * Finds entities that match given conditions.
      */
-    find(conditions?: DeepPartial<Entity>): Promise<Entity[]>;
+    find(conditions?: FindConditions<Entity>): Promise<Entity[]>;
     /**
      * Finds entities that match given find options.
      * Also counts all entities that match given conditions,
@@ -160,7 +143,7 @@ export declare class Repository<Entity extends ObjectLiteral> {
      * Also counts all entities that match given conditions,
      * but ignores pagination settings (from and take options).
      */
-    findAndCount(conditions?: DeepPartial<Entity>): Promise<[Entity[], number]>;
+    findAndCount(conditions?: FindConditions<Entity>): Promise<[Entity[], number]>;
     /**
      * Finds entities by ids.
      * Optionally find options can be applied.
@@ -170,7 +153,11 @@ export declare class Repository<Entity extends ObjectLiteral> {
      * Finds entities by ids.
      * Optionally conditions can be applied.
      */
-    findByIds(ids: any[], conditions?: DeepPartial<Entity>): Promise<Entity[]>;
+    findByIds(ids: any[], conditions?: FindConditions<Entity>): Promise<Entity[]>;
+    /**
+     * Finds first entity that matches given options.
+     */
+    findOne(id?: string | number | Date | ObjectID, options?: FindOneOptions<Entity>): Promise<Entity | undefined>;
     /**
      * Finds first entity that matches given options.
      */
@@ -178,17 +165,19 @@ export declare class Repository<Entity extends ObjectLiteral> {
     /**
      * Finds first entity that matches given conditions.
      */
-    findOne(conditions?: DeepPartial<Entity>): Promise<Entity | undefined>;
+    findOne(conditions?: FindConditions<Entity>, options?: FindOneOptions<Entity>): Promise<Entity | undefined>;
     /**
-     * Finds entity by given id.
-     * Optionally find options can be applied.
+     * Finds first entity that matches given options.
      */
-    findOneById(id: any, options?: FindOneOptions<Entity>): Promise<Entity | undefined>;
+    findOneOrFail(id?: string | number | Date | ObjectID, options?: FindOneOptions<Entity>): Promise<Entity>;
     /**
-     * Finds entity by given id.
-     * Optionally conditions can be applied.
+     * Finds first entity that matches given options.
      */
-    findOneById(id: any, conditions?: DeepPartial<Entity>): Promise<Entity | undefined>;
+    findOneOrFail(options?: FindOneOptions<Entity>): Promise<Entity>;
+    /**
+     * Finds first entity that matches given conditions.
+     */
+    findOneOrFail(conditions?: FindConditions<Entity>, options?: FindOneOptions<Entity>): Promise<Entity>;
     /**
      * Executes a raw SQL query and returns a raw database results.
      * Raw query execution is supported only by relational databases (MongoDB is not supported).
@@ -201,4 +190,12 @@ export declare class Repository<Entity extends ObjectLiteral> {
      * @see https://stackoverflow.com/a/5972738/925151
      */
     clear(): Promise<void>;
+    /**
+     * Increments some column by provided value of the entities matched given conditions.
+     */
+    increment(conditions: FindConditions<Entity>, propertyPath: string, value: number): Promise<void>;
+    /**
+     * Decrements some column by provided value of the entities matched given conditions.
+     */
+    decrement(conditions: FindConditions<Entity>, propertyPath: string, value: number): Promise<void>;
 }

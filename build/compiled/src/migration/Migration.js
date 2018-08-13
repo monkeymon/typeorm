@@ -7,7 +7,8 @@ var Migration = /** @class */ (function () {
     // -------------------------------------------------------------------------
     // Constructor
     // -------------------------------------------------------------------------
-    function Migration(timestamp, name, instance) {
+    function Migration(id, timestamp, name, instance) {
+        this.id = id;
         this.timestamp = timestamp;
         this.name = name;
         this.instance = instance;

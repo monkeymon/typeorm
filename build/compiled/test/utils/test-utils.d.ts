@@ -21,6 +21,11 @@ export declare type TestingConnectionOptions = ConnectionOptions & {
  */
 export interface TestingOptions {
     /**
+     * Dirname of the test directory.
+     * If specified, entities will be loaded from that directory.
+     */
+    __dirname?: string;
+    /**
      * Connection name to be overridden.
      * This can be used to create multiple connections with single connection configuration.
      */
@@ -32,15 +37,11 @@ export interface TestingOptions {
     /**
      * Entities needs to be included in the connection for the given test suite.
      */
-    entities?: string[] | Function[];
+    entities?: (string | Function | EntitySchema<any>)[];
     /**
      * Subscribers needs to be included in the connection for the given test suite.
      */
     subscribers?: string[] | Function[];
-    /**
-     * Entity schemas needs to be included in the connection for the given test suite.
-     */
-    entitySchemas?: string[] | EntitySchema[];
     /**
      * Indicates if schema sync should be performed or not.
      */
@@ -49,6 +50,10 @@ export interface TestingOptions {
      * Indicates if schema should be dropped on connection setup.
      */
     dropSchema?: boolean;
+    /**
+     * Enables or disables logging.
+     */
+    logging?: boolean;
     /**
      * Schema name used for postgres driver.
      */
@@ -85,6 +90,11 @@ export interface TestingOptions {
          */
         duration?: number;
     };
+    /**
+     * Options that may be specific to a driver.
+     * They are passed down to the enabled drivers.
+     */
+    driverSpecific?: Object;
 }
 /**
  * Creates a testing connection options for the given driver type based on the configuration in the ormconfig.json

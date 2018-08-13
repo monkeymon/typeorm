@@ -49,8 +49,6 @@ describe("embedded > multiple-primary-columns-with-nested-embed", function () {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
-                        schemaCreate: true,
-                        dropSchema: true,
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }
@@ -126,7 +124,7 @@ describe("embedded > multiple-primary-columns-with-nested-embed", function () {
                             }
                         }
                     }));
-                    return [4 /*yield*/, postRepository.findOneById({ id: 1, counters: { code: 1, subcounters: { version: 1 } } })];
+                    return [4 /*yield*/, postRepository.findOne({ id: 1, counters: { code: 1, subcounters: { version: 1 } } })];
                 case 4:
                     loadedPost = (_a.sent());
                     chai_1.expect(loadedPost.should.be.eql({
@@ -148,7 +146,7 @@ describe("embedded > multiple-primary-columns-with-nested-embed", function () {
                     return [4 /*yield*/, postRepository.save(loadedPost)];
                 case 5:
                     _a.sent();
-                    return [4 /*yield*/, postRepository.findOneById({ id: 1, counters: { code: 1, subcounters: { version: 1 } } })];
+                    return [4 /*yield*/, postRepository.findOne({ id: 1, counters: { code: 1, subcounters: { version: 1 } } })];
                 case 6:
                     loadedPost2 = (_a.sent());
                     chai_1.expect(loadedPost2.should.be.eql({

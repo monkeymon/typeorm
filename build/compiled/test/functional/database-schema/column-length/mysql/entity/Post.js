@@ -20,36 +20,6 @@ var Post = /** @class */ (function () {
         __metadata("design:type", Number)
     ], Post.prototype, "id", void 0);
     __decorate([
-        Column_1.Column("int", {
-            length: 5
-        }),
-        __metadata("design:type", Number)
-    ], Post.prototype, "int", void 0);
-    __decorate([
-        Column_1.Column("tinyint", {
-            length: 5
-        }),
-        __metadata("design:type", Number)
-    ], Post.prototype, "tinyint", void 0);
-    __decorate([
-        Column_1.Column("smallint", {
-            length: 5
-        }),
-        __metadata("design:type", Number)
-    ], Post.prototype, "smallint", void 0);
-    __decorate([
-        Column_1.Column("mediumint", {
-            length: 5
-        }),
-        __metadata("design:type", Number)
-    ], Post.prototype, "mediumint", void 0);
-    __decorate([
-        Column_1.Column("bigint", {
-            length: 5
-        }),
-        __metadata("design:type", Number)
-    ], Post.prototype, "bigint", void 0);
-    __decorate([
         Column_1.Column("char", {
             length: 50
         }),

@@ -11,7 +11,6 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var Entity_1 = require("../../../../../../../src/decorator/entity/Entity");
 var PrimaryColumn_1 = require("../../../../../../../src/decorator/columns/PrimaryColumn");
-var Index_1 = require("../../../../../../../src/decorator/Index");
 var ManyToMany_1 = require("../../../../../../../src/decorator/relations/ManyToMany");
 var Post_1 = require("./Post");
 var User = /** @class */ (function () {
@@ -26,12 +25,11 @@ var User = /** @class */ (function () {
         __metadata("design:type", String)
     ], User.prototype, "name", void 0);
     __decorate([
-        ManyToMany_1.ManyToMany(function (type) { return Post_1.Post; }, function (post) { return post.counters.subcounters.watchedUsers; }),
+        ManyToMany_1.ManyToMany(function (type) { return Post_1.Post; }, function (post) { return post.counters.subcntrs.watchedUsers; }),
         __metadata("design:type", Array)
     ], User.prototype, "posts", void 0);
     User = __decorate([
-        Entity_1.Entity(),
-        Index_1.Index(["id", "name"])
+        Entity_1.Entity()
     ], User);
     return User;
 }());

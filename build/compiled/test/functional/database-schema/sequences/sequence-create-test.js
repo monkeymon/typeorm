@@ -48,8 +48,6 @@ describe("sequences > creating a sequence and marking the column as generated", 
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [Person_1.Person],
                         enabledDrivers: ["postgres"],
-                        schemaCreate: true,
-                        dropSchema: true
                     })];
                 case 1: return [2 /*return*/, connections = _a.sent()];
             }

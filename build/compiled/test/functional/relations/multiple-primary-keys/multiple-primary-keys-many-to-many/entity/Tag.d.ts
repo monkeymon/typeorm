@@ -5,5 +5,5 @@ export declare class Tag {
     description: string;
     categories: Category[];
     categoriesWithOptions: Category[];
-    categoriesWithNonPrimaryColumns: Category[];
+    categoriesWithNonPKColumns: Category[];
 }
