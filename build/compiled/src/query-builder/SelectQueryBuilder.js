@@ -1456,6 +1456,9 @@ var SelectQueryBuilder = /** @class */ (function (_super) {
             .map(function (orderCriteria) {
             if (orderCriteria.indexOf(".") !== -1) {
                 var _a = orderCriteria.split("."), aliasName = _a[0], propertyPath = _a[1];
+                if ((_this.connection.driver.options.type == "mysql" || _this.connection.driver.options.type == "mariadb") && aliasName.indexOf('-') === 0 && parentAlias == 'distinctAlias') {
+                    aliasName = aliasName.substring(1);
+                }
                 var alias = _this.expressionMap.findAliasByName(aliasName);
                 var column = alias.metadata.findColumnWithPropertyName(propertyPath);
                 return _this.escape(parentAlias) + "." + _this.escape(_this.buildColumnAlias(aliasName, column.databaseName));
@@ -1471,9 +1474,14 @@ var SelectQueryBuilder = /** @class */ (function (_super) {
         Object.keys(orderBys).forEach(function (orderCriteria) {
             if (orderCriteria.indexOf(".") !== -1) {
                 var _a = orderCriteria.split("."), aliasName = _a[0], propertyPath = _a[1];
+                var haveMinus = false;
+                if ((_this.connection.driver.options.type == "mysql" || _this.connection.driver.options.type == "mariadb") && aliasName.indexOf('-') === 0 && parentAlias == 'distinctAlias') {
+                    aliasName = aliasName.substring(1);
+                    haveMinus = true;
+                }
                 var alias = _this.expressionMap.findAliasByName(aliasName);
                 var column = alias.metadata.findColumnWithPropertyName(propertyPath);
-                orderByObject[_this.escape(parentAlias) + "." + _this.escape(_this.buildColumnAlias(aliasName, column.databaseName))] = orderBys[orderCriteria];
+                orderByObject[(haveMinus ? "-" : "") + _this.escape(parentAlias) + "." + _this.escape(_this.buildColumnAlias(aliasName, column.databaseName))] = orderBys[orderCriteria];
             }
             else {
                 if (_this.expressionMap.selects.find(function (select) { return select.selection === orderCriteria || select.aliasName === orderCriteria; })) {

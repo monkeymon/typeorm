@@ -211,6 +211,9 @@ var QueryExpressionMap = /** @class */ (function () {
      */
     QueryExpressionMap.prototype.findAliasByName = function (aliasName) {
         var alias = this.aliases.find(function (alias) { return alias.name === aliasName; });
+        if ((this.connection.driver.options.type == "mysql" || this.connection.driver.options.type == "mariadb") && aliasName.indexOf('-') === 0) {
+            aliasName = aliasName.substring(1);
+        }
         if (!alias)
             throw new Error("\"" + aliasName + "\" alias was not found. Maybe you forgot to join it?");
         return alias;
