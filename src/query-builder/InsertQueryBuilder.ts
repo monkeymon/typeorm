@@ -226,6 +226,29 @@ export class InsertQueryBuilder<Entity> extends QueryBuilder<Entity> {
         return this;
     }
 
+    /**
+     * Adds additional ignore statement supported in databases.
+     */
+    orIgnore(statement: string | boolean = true): this {
+        this.expressionMap.onIgnore = statement;
+        return this;
+    }
+
+    /**
+     * Adds additional update statement supported in databases.
+     */
+    orUpdate(statement?: { columns?: string[], conflict_target?: string | string[] }): this {
+      this.expressionMap.onUpdate = {};
+      if (statement && statement.conflict_target instanceof Array)
+          this.expressionMap.onUpdate.conflict = ` ( ${statement.conflict_target.join(", ")} ) `;
+      if (statement && typeof statement.conflict_target === "string")
+          this.expressionMap.onUpdate.conflict = ` ON CONSTRAINT ${statement.conflict_target} `;
+      if (statement && statement.columns instanceof Array)
+          this.expressionMap.onUpdate.columns = statement.columns.map(column => `${column} = :${column}`).join(", ");
+      return this;
+  }
+
+
     // -------------------------------------------------------------------------
     // Protected Methods
     // -------------------------------------------------------------------------
@@ -234,14 +257,17 @@ export class InsertQueryBuilder<Entity> extends QueryBuilder<Entity> {
      * Creates INSERT express used to perform insert query.
      */
     protected createInsertExpression() {
-
         const tableName = this.getTableName(this.getMainTableName());
         const valuesExpression = this.createValuesExpression(); // its important to get values before returning expression because oracle rely on native parameters and ordering of them is important
         const returningExpression = this.createReturningExpression();
         const columnsExpression = this.createColumnNamesExpression();
+        let query = "INSERT "
 
-        // generate INSERT query
-        let query = `INSERT INTO ${tableName}`;
+        if(this.connection.driver instanceof MysqlDriver) {
+          query+= `${this.expressionMap.onIgnore ? " IGNORE " : ""}`
+        }
+
+        query += `INTO ${tableName}`;
 
         // add columns expression
         if (columnsExpression) {
@@ -266,9 +292,12 @@ export class InsertQueryBuilder<Entity> extends QueryBuilder<Entity> {
                 query += ` DEFAULT VALUES`;
             }
         }
-
-        if (this.expressionMap.onConflict && this.connection.driver instanceof PostgresDriver) {
-            query += ` ON CONFLICT ` + this.expressionMap.onConflict;
+        if (this.connection.driver instanceof PostgresDriver) {
+            query += `${this.expressionMap.onIgnore ? " ON CONFLICT DO NOTHING " : ""}`
+            query += `${this.expressionMap.onUpdate ? " ON CONFLICT " + this.expressionMap.onUpdate.conflict + " DO UPDATE SET " + this.expressionMap.onUpdate.columns : ""}`
+            query += `${this.expressionMap.onConflict ? " ON CONFLICT " + this.expressionMap.onConflict : ""}`
+        } else if (this.connection.driver instanceof MysqlDriver) {
+            query+= `${this.expressionMap.onUpdate ? " ON DUPLICATE KEY UPDATE " + this.expressionMap.onUpdate.columns : ""}`;
         }
 
         // add RETURNING expression
@@ -418,6 +447,12 @@ export class InsertQueryBuilder<Entity> extends QueryBuilder<Entity> {
                         this.expressionMap.nativeParameters[paramName] = value;
                         if (this.connection.driver instanceof MysqlDriver && this.connection.driver.spatialTypes.indexOf(column.type) !== -1) {
                             expression += `GeomFromText(${this.connection.driver.createParameter(paramName, parametersCount)})`;
+                        } else if (this.connection.driver instanceof PostgresDriver && this.connection.driver.spatialTypes.indexOf(column.type) !== -1) {
+                            if (column.srid != null) {
+                              expression += `ST_SetSRID(ST_GeomFromGeoJSON(${this.connection.driver.createParameter(paramName, parametersCount)}), ${column.srid})::${column.type}`;
+                            } else {
+                              expression += `ST_GeomFromGeoJSON(${this.connection.driver.createParameter(paramName, parametersCount)})::${column.type}`;
+                            }
                         } else {
                             expression += this.connection.driver.createParameter(paramName, parametersCount);
                         }

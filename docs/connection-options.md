@@ -7,9 +7,11 @@
 * [`sqlite` connection options](#sqlite-connection-options)
 * [`cordova` connection options](#cordova-connection-options)
 * [`react-native` connection options](#react-native-connection-options)
+* [`nativescript` connection options](#nativescript-connection-options)
 * [`mssql` connection options](#mssql-connection-options)
 * [`mongodb` connection options](#mongodb-connection-options)
 * [`sql.js` connection options](#sqljs-connection-options)
+* [`expo` connection options](#expo-connection-options)
 * [Connection options example](#connection-options-example)
     
 ## What is `ConnectionOptions`
@@ -20,7 +22,8 @@ Connection options is a connection configuration you pass to `createConnection`
 ## Common connection options
 
 * `type` - Database type. You must specify what database engine you use.
- Possible values are "mysql", "postgres", "mariadb", "sqlite", "cordova", "oracle", "mssql", "mongodb", "sqljs", "react-native". 
+ Possible values are "mysql", "postgres", "mariadb", "sqlite", "cordova", "nativescript",
+ "oracle", "mssql", "mongodb", "sqljs", "react-native".
  This option is **required**.
 
 * `name` - Connection name. You'll use it to get connection you need using `getConnection(name: string)` 
@@ -121,6 +124,8 @@ values to JavaScript Date object and vice versa. This can be `local`, `Z`, or an
 
 * `connectTimeout` - The milliseconds before a timeout occurs during the initial connection to the MySQL server.
  (Default: `10000`)
+
+* `acquireTimeout` - The milliseconds before a timeout occurs during the initial connection to the MySql server. It differs from `connectTimeout` as it governs the TCP connection timeout where as connectTimeout does not. (default: `10000`)
  
 * `insecureAuth` - Allow connecting to MySQL instances that ask for the old (insecure) authentication method. 
 (Default: `false`)
@@ -187,6 +192,9 @@ See [SSL options](https://github.com/mysqljs/mysql#ssl-options).
 * `database` - Database name
 
 * `location` - Where to save the database. See [react-native-sqlite-storage](https://github.com/andpor/react-native-sqlite-storage#opening-a-database) for options.
+
+## `nativescript` connection options
+* `database` - Database name
 
 ## `mssql` connection options
 
@@ -456,6 +464,10 @@ See [SSL options](https://github.com/mysqljs/mysql#ssl-options).
 * `autoSaveCallback`: A function that get's called when changes to the database are made and `autoSave` is enabled. The function gets a `UInt8Array` that represents the database.
 
 * `location`: The file location to load and save the database to.
+
+## `expo` connection options
+
+* `database` - Name of the database. For example "mydb".
 
 ## Connection options example
 

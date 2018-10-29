@@ -372,7 +372,9 @@ export class UpdateQueryBuilder<Entity> extends QueryBuilder<Entity> implements 
                     if (column.referencedColumn && value instanceof Object) {
                         value = column.referencedColumn.getEntityValue(value);
                     }
-                    value = this.connection.driver.preparePersistentValue(value, column);
+                    else if (!(value instanceof Function)) {
+                        value = this.connection.driver.preparePersistentValue(value, column);
+                    }
 
                     // todo: duplication zone
                     if (value instanceof Function) { // support for SQL expressions in update query
@@ -393,7 +395,19 @@ export class UpdateQueryBuilder<Entity> extends QueryBuilder<Entity> implements 
                             this.expressionMap.nativeParameters[paramName] = value;
                         }
 
-                        updateColumnAndValues.push(this.escape(column.databaseName) + " = " + this.connection.driver.createParameter(paramName, parametersCount));
+                        let expression = null;
+                        if (this.connection.driver instanceof MysqlDriver && this.connection.driver.spatialTypes.indexOf(column.type) !== -1) {
+                            expression = `GeomFromText(${this.connection.driver.createParameter(paramName, parametersCount)})`;
+                        } else if (this.connection.driver instanceof PostgresDriver && this.connection.driver.spatialTypes.indexOf(column.type) !== -1) {
+                            if (column.srid != null) {
+                              expression = `ST_SetSRID(ST_GeomFromGeoJSON(${this.connection.driver.createParameter(paramName, parametersCount)}), ${column.srid})::${column.type}`;
+                            } else {
+                              expression = `ST_GeomFromGeoJSON(${this.connection.driver.createParameter(paramName, parametersCount)})::${column.type}`;
+                            }
+                        } else {
+                            expression = this.connection.driver.createParameter(paramName, parametersCount);
+                        }
+                        updateColumnAndValues.push(this.escape(column.databaseName) + " = " + expression);
                         parametersCount++;
                     }
                 });

@@ -1,5 +1,5 @@
 <div align="center">
-  <a href="https://typeorm.io/">
+  <a href="http://typeorm.io/">
     <img src="https://github.com/typeorm/typeorm/raw/master/resources/logo_big.png" width="492" height="228">
   </a>
   <br>
@@ -16,12 +16,15 @@
 	<a href="https://gitter.im/typeorm/typeorm?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge">
 		<img src="https://badges.gitter.im/typeorm/typeorm.svg">
 	</a>
+	<a href="https://join.slack.com/t/typeorm/shared_invite/enQtNDQ1MzA3MDA5MTExLTFiNDEyOGUxZGQyYWIwOTA0NDQxODdkOGQ0OTUxNzFjYjUwY2E0ZmFlODc5OTYyYzAzNGM3MGZjYzhjYTBiZTY">
+		<img src="https://img.shields.io/badge/chat-on%20slack-blue.svg">
+	</a>
   <br>
   <br>
 </div>
 
 TypeORM is an [ORM](https://en.wikipedia.org/wiki/Object-relational_mapping) 
-that can run in NodeJS, Browser, Cordova, PhoneGap, Ionic, React Native and Electron platforms
+that can run in NodeJS, Browser, Cordova, PhoneGap, Ionic, React Native, NativeScript, Expo, and Electron platforms
 and can be used with TypeScript and JavaScript (ES5, ES6, ES7, ES8).
 Its goal is to always support the latest JavaScript features and provide additional features
 that help you to develop any kind of application that uses databases - from
@@ -29,7 +32,7 @@ small applications with a few tables to large scale enterprise applications
 with multiple databases.
 
 TypeORM supports both Active Record and Data Mapper patterns, 
-unlike all other JavaScript ORMs currently in existance, 
+unlike all other JavaScript ORMs currently in existence, 
 which means you can write high quality, loosely coupled, scalable,
 maintainable applications the most productive way.
 
@@ -69,7 +72,7 @@ Some TypeORM features:
 * connection configuration in json / xml / yml / env formats
 * supports MySQL / MariaDB / Postgres / SQLite / Microsoft SQL Server / Oracle / sql.js
 * supports MongoDB NoSQL database
-* works in NodeJS / Browser / Ionic / Cordova / React Native / Electron platforms
+* works in NodeJS / Browser / Ionic / Cordova / React Native / NativeScript / Expo / Electron platforms
 * TypeScript and JavaScript support
 * produced code is performant, flexible, clean and maintainable
 * follows all possible best practices
@@ -200,14 +203,20 @@ await timber.remove();
     
         `npm install oracledb --save`
     
-    Install only *one* of them, depending on which database you use.
-    
-    To make the Oracle driver work, you need to follow the installation instructions from 
-    [their](https://github.com/oracle/node-oracledb) site.
+        Install only *one* of them, depending on which database you use.
+
+        To make the Oracle driver work, you need to follow the installation instructions from
+        [their](https://github.com/oracle/node-oracledb) site.
 
     * for **MongoDB** (experimental)
 
         `npm install mongodb --save`
+
+    * for **NativeScript**, **react-native** and **Cordova**
+
+        Check [documentation of supported platforms](docs/supported-platforms.md)
+
+
 
 ##### TypeScript configuration
 
@@ -240,7 +249,8 @@ typeorm init --name MyProject --database mysql
 ```
 
 Where `name` is the name of your project and `database` is the database you'll use.
-Database can be one of the following values: `mysql`, `mariadb`, `postgres`, `sqlite`, `mssql`, `oracle`, `mongodb`, `cordova`, `react-native`.
+Database can be one of the following values: `mysql`, `mariadb`, `postgres`, `sqlite`, `mssql`, `oracle`, `mongodb`,
+`cordova`, `react-native`, `expo`, `nativescript`.
 
 This command will generate a new project in the `MyProject` directory with the following files:
 
@@ -535,7 +545,7 @@ createConnection({
 
 We are using MySQL in this example, but you can use any other supported database. 
 To use another database, simply change the `type` in the options to the database type you are using: 
-mysql, mariadb, postgres, sqlite, mssql, oracle, cordova, react-native or mongodb.
+mysql, mariadb, postgres, sqlite, mssql, oracle, cordova, nativescript, react-native, expo, or mongodb.
 Also make sure to use your own host, port, username, password and database settings.
 
 We added our Photo entity to the list of entities for this connection. 
@@ -572,7 +582,7 @@ If you are using `ts-node` then you need to specify paths to `.ts` files instead
 If you are using `outDir` then you'll need to specify paths to `.js` files inside outDir directory.
 If you are using `outDir` and when you remove or rename your entities make sure to clear `outDir` directory
 and re-compile your project again, because when you remove your source `.ts` files their compiled `.js` versions
-aren't removed from output directory and still are loaded by TypeORM because they present in outDir directory.
+aren't removed from output directory and still are loaded by TypeORM because they are present in the `outDir` directory.
 
 ### Running the application
 

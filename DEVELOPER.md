@@ -9,7 +9,7 @@ This document describes how to set up your development environment and run TypeO
 * [Running Tests Locally](#running-tests-locally)
 
 See the [contribution guidelines](https://github.com/typeorm/typeorm/blob/master/CONTRIBUTING.md)
-if you'd like to contribute to Angular.
+if you'd like to contribute to TypeORM.
 
 ## Prerequisite Software
 
@@ -66,7 +66,7 @@ For example to proper install oracle driver you need to follow all instructions 
 To create an initial `ormconfig.json` file, run the following command:
 
 ```shell
-npm run setup:config
+cp ormconfig.json.dist ormconfig.json
 ```
 
 ## Building
