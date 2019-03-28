@@ -59,6 +59,12 @@ export class Subject {
     databaseEntity?: ObjectLiteral;
 
     /**
+     * Indicates if database entity was loaded.
+     * No matter if it was found or not, it indicates the fact of loading.
+     */
+    databaseEntityLoaded: boolean = false;
+
+    /**
      * Changes needs to be applied in the database for the given subject.
      */
     changeMaps: SubjectChangeMap[] = [];
@@ -117,7 +123,6 @@ export class Subject {
         metadata: EntityMetadata,
         parentSubject?: Subject,
         entity?: ObjectLiteral,
-        databaseEntity?: ObjectLiteral,
         canBeInserted?: boolean,
         canBeUpdated?: boolean,
         mustBeRemoved?: boolean,
@@ -126,7 +131,6 @@ export class Subject {
     }) {
         this.metadata = options.metadata;
         this.entity = options.entity;
-        this.databaseEntity = options.databaseEntity;
         this.parentSubject = options.parentSubject;
         if (options.canBeInserted !== undefined)
             this.canBeInserted = options.canBeInserted;
@@ -139,20 +143,7 @@ export class Subject {
         if (options.changeMaps !== undefined)
             this.changeMaps.push(...options.changeMaps);
 
-        if (this.entity) {
-            this.entityWithFulfilledIds = Object.assign({}, this.entity);
-            if (this.parentSubject) {
-                this.metadata.primaryColumns.forEach(primaryColumn => {
-                    if (primaryColumn.relationMetadata && primaryColumn.relationMetadata.inverseEntityMetadata === this.parentSubject!.metadata) {
-                        primaryColumn.setEntityValue(this.entityWithFulfilledIds!, this.parentSubject!.entity);
-                    }
-                });
-            }
-            this.identifier = this.metadata.getEntityIdMap(this.entityWithFulfilledIds);
-
-        } else if (this.databaseEntity) {
-            this.identifier = this.metadata.getEntityIdMap(this.databaseEntity);
-        }
+        this.recompute();
     }
 
     // -------------------------------------------------------------------------
@@ -174,7 +165,11 @@ export class Subject {
      * and if it does have differentiated columns or relations.
      */
     get mustBeUpdated() {
-        return this.canBeUpdated && this.identifier && (this.changeMaps.length > 0 || !!this.metadata.objectIdColumn); // for mongodb we do not compute changes - we always update entity
+        return this.canBeUpdated &&
+            this.identifier &&
+            (this.databaseEntityLoaded === false || (this.databaseEntityLoaded && this.databaseEntity)) &&
+            // ((this.entity && this.databaseEntity) || (!this.entity && !this.databaseEntity)) &&
+            this.changeMaps.length > 0;
     }
 
     // -------------------------------------------------------------------------
@@ -242,6 +237,27 @@ export class Subject {
         }, {} as ObjectLiteral);
         this.changeMaps = changeMapsWithoutValues;
         return changeSet;
+    }
+
+    /**
+     * Recomputes entityWithFulfilledIds and identifier when entity changes.
+     */
+    recompute(): void {
+
+        if (this.entity) {
+            this.entityWithFulfilledIds = Object.assign({}, this.entity);
+            if (this.parentSubject) {
+                this.metadata.primaryColumns.forEach(primaryColumn => {
+                    if (primaryColumn.relationMetadata && primaryColumn.relationMetadata.inverseEntityMetadata === this.parentSubject!.metadata) {
+                        primaryColumn.setEntityValue(this.entityWithFulfilledIds!, this.parentSubject!.entity);
+                    }
+                });
+            }
+            this.identifier = this.metadata.getEntityIdMap(this.entityWithFulfilledIds);
+
+        } else if (this.databaseEntity) {
+            this.identifier = this.metadata.getEntityIdMap(this.databaseEntity);
+        }
     }
 
 }

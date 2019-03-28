@@ -31,9 +31,9 @@ import {AbstractSqliteDriver} from "../driver/sqlite-abstract/AbstractSqliteDriv
 import {QueryResultCacheOptions} from "../cache/QueryResultCacheOptions";
 import {OffsetWithoutLimitNotSupportedError} from "../error/OffsetWithoutLimitNotSupportedError";
 import {BroadcasterResult} from "../subscriber/BroadcasterResult";
-import {abbreviate} from "../util/StringUtils";
 import {SelectQueryBuilderOption} from "./SelectQueryBuilderOption";
 import {ObjectUtils} from "../util/ObjectUtils";
+import {DriverUtils} from "../driver/DriverUtils";
 
 /**
  * Allows to build complex sql queries in a fashion way and execute those queries.
@@ -736,7 +736,7 @@ export class SelectQueryBuilder<Entity> extends QueryBuilder<Entity> implements 
      * for example [{ firstId: 1, secondId: 2 }, { firstId: 2, secondId: 3 }, ...]
      */
     andWhereInIds(ids: any|any[]): this {
-        return this.andWhere("(" + this.createWhereIdsExpression(ids) + ")");
+        return this.andWhere(this.createWhereIdsExpression(ids));
     }
 
     /**
@@ -748,7 +748,7 @@ export class SelectQueryBuilder<Entity> extends QueryBuilder<Entity> implements 
      * for example [{ firstId: 1, secondId: 2 }, { firstId: 2, secondId: 3 }, ...]
      */
     orWhereInIds(ids: any|any[]): this {
-        return this.orWhere("(" + this.createWhereIdsExpression(ids) + ")");
+        return this.orWhere(this.createWhereIdsExpression(ids));
     }
 
     /**
@@ -1531,13 +1531,22 @@ export class SelectQueryBuilder<Entity> extends QueryBuilder<Entity> implements 
         }
 
         if (this.connection.driver instanceof SqlServerDriver) {
+            // Due to a limitation in SQL Server's parser implementation it does not support using
+            // OFFSET or FETCH NEXT without an ORDER BY clause being provided. In cases where the
+            // user does not request one we insert a dummy ORDER BY that does nothing and should
+            // have no effect on the query planner or on the order of the results returned.
+            // https://dba.stackexchange.com/a/193799
+            let prefix = "";
+            if ((limit || offset) && Object.keys(this.expressionMap.allOrderBys).length <= 0) {
+                prefix = " ORDER BY (SELECT NULL)";
+            }
 
             if (limit && offset)
-                return " OFFSET " + offset + " ROWS FETCH NEXT " + limit + " ROWS ONLY";
+                return prefix + " OFFSET " + offset + " ROWS FETCH NEXT " + limit + " ROWS ONLY";
             if (limit)
-                return " OFFSET 0 ROWS FETCH NEXT " + limit + " ROWS ONLY";
+                return prefix + " OFFSET 0 ROWS FETCH NEXT " + limit + " ROWS ONLY";
             if (offset)
-                return " OFFSET " + offset + " ROWS";
+                return prefix + " OFFSET " + offset + " ROWS";
 
         } else if (this.connection.driver instanceof MysqlDriver) {
 
@@ -1671,7 +1680,7 @@ export class SelectQueryBuilder<Entity> extends QueryBuilder<Entity> implements 
             }
             return {
                 selection: selectionPath,
-                aliasName: selection && selection.aliasName ? selection.aliasName : this.buildColumnAlias(aliasName, column.databaseName),
+                aliasName: selection && selection.aliasName ? selection.aliasName : DriverUtils.buildColumnAlias(this.connection.driver, aliasName, column.databaseName),
                 // todo: need to keep in mind that custom selection.aliasName breaks hydrator. fix it later!
                 virtual: selection ? selection.virtual === true : (hasMainAlias ? false : true),
             };
@@ -1773,16 +1782,16 @@ export class SelectQueryBuilder<Entity> extends QueryBuilder<Entity> implements 
 
             const querySelects = metadata.primaryColumns.map(primaryColumn => {
                 const distinctAlias = this.escape("distinctAlias");
-                const columnAlias = this.escape(this.buildColumnAlias(mainAliasName, primaryColumn.databaseName));
+                const columnAlias = this.escape(DriverUtils.buildColumnAlias(this.connection.driver, mainAliasName, primaryColumn.databaseName));
                 if (!orderBys[columnAlias]) // make sure we aren't overriding user-defined order in inverse direction
                     orderBys[columnAlias] = "ASC";
-                return `${distinctAlias}.${columnAlias} as "ids_${this.buildColumnAlias(mainAliasName, primaryColumn.databaseName)}"`;
+                return `${distinctAlias}.${columnAlias} as "ids_${DriverUtils.buildColumnAlias(this.connection.driver, mainAliasName, primaryColumn.databaseName)}"`;
             });
 
             rawResults = await new SelectQueryBuilder(this.connection, queryRunner)
                 .select(`DISTINCT ${querySelects.join(", ")}`)
                 .addSelect(selects)
-                .from(`(${this.clone().orderBy().groupBy().getQuery()})`, "distinctAlias")
+                .from(`(${this.clone().orderBy().getQuery()})`, "distinctAlias")
                 .offset(this.expressionMap.skip)
                 .limit(this.expressionMap.take)
                 .orderBy(orderBys)
@@ -1802,7 +1811,7 @@ export class SelectQueryBuilder<Entity> extends QueryBuilder<Entity> implements 
                         }).join(" AND ");
                     }).join(" OR ");
                 } else {
-                    const ids = rawResults.map(result => result["ids_" + this.buildColumnAlias(mainAliasName, metadata.primaryColumns[0].databaseName)]);
+                    const ids = rawResults.map(result => result["ids_" + DriverUtils.buildColumnAlias(this.connection.driver, mainAliasName, metadata.primaryColumns[0].databaseName)]);
                     const areAllNumbers = ids.every((id: any) => typeof id === "number");
                     if (areAllNumbers) {
                         // fixes #190. if all numbers then its safe to perform query without parameter
@@ -1852,12 +1861,12 @@ export class SelectQueryBuilder<Entity> extends QueryBuilder<Entity> implements 
             .map(orderCriteria => {
                 if (orderCriteria.indexOf(".") !== -1) {
                     let [aliasName, propertyPath] = orderCriteria.split(".");
-                    if((this.connection.driver.options.type == "mysql" || this.connection.driver.options.type == "mariadb") && aliasName.indexOf('-') === 0 && parentAlias=='distinctAlias') {
-                      aliasName = aliasName.substring(1)
+                    if ((this.connection.driver.options.type === "mysql" || this.connection.driver.options.type === "mariadb") && aliasName.indexOf("-") === 0 && parentAlias === "distinctAlias") {
+                      aliasName = aliasName.substring(1);
                     }
                     const alias = this.expressionMap.findAliasByName(aliasName);
                     const column = alias.metadata.findColumnWithPropertyName(propertyPath);
-                    return this.escape(parentAlias) + "." + this.escape(this.buildColumnAlias(aliasName, column!.databaseName));
+                    return this.escape(parentAlias) + "." + this.escape(DriverUtils.buildColumnAlias(this.connection.driver, aliasName, column!.databaseName));
                 } else {
                     if (this.expressionMap.selects.find(select => select.selection === orderCriteria || select.aliasName === orderCriteria))
                         return this.escape(parentAlias) + "." + orderCriteria;
@@ -1871,14 +1880,14 @@ export class SelectQueryBuilder<Entity> extends QueryBuilder<Entity> implements 
         Object.keys(orderBys).forEach(orderCriteria => {
             if (orderCriteria.indexOf(".") !== -1) {
                 let [aliasName, propertyPath] = orderCriteria.split(".");
-                var haveMinus = false
-                if((this.connection.driver.options.type == "mysql" || this.connection.driver.options.type == "mariadb") && aliasName.indexOf('-') === 0 && parentAlias=='distinctAlias') {
-                  aliasName = aliasName.substring(1)
-                  haveMinus = true
+                let haveMinus = false;
+                if ((this.connection.driver.options.type === "mysql" || this.connection.driver.options.type === "mariadb") && aliasName.indexOf("-") === 0 && parentAlias === "distinctAlias") {
+                  aliasName = aliasName.substring(1);
+                  haveMinus = true;
                 }
                 const alias = this.expressionMap.findAliasByName(aliasName);
                 const column = alias.metadata.findColumnWithPropertyName(propertyPath);
-                orderByObject[(haveMinus?"-":"")+this.escape(parentAlias) + "." + this.escape(this.buildColumnAlias(aliasName, column!.databaseName))] = orderBys[orderCriteria];
+                orderByObject[(haveMinus ? "-" : "") + this.escape(parentAlias) + "." + this.escape(DriverUtils.buildColumnAlias(this.connection.driver, aliasName, column!.databaseName))] = orderBys[orderCriteria];
             } else {
                 if (this.expressionMap.selects.find(select => select.selection === orderCriteria || select.aliasName === orderCriteria)) {
                     orderByObject[this.escape(parentAlias) + "." + orderCriteria] = orderBys[orderCriteria];
@@ -1922,18 +1931,6 @@ export class SelectQueryBuilder<Entity> extends QueryBuilder<Entity> implements 
         }
 
         return results;
-    }
-
-    /**
-     * Builds column alias from given alias name and column name,
-     * If alias length is more than 29, abbreviates column name.
-     */
-    protected buildColumnAlias(aliasName: string, columnName: string): string {
-        const columnAliasName = aliasName + "_" + columnName;
-        if (columnAliasName.length > 29 && this.connection.driver instanceof OracleDriver)
-            return aliasName  + "_" + abbreviate(columnName, 2);
-
-        return columnAliasName;
     }
 
     /**

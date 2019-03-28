@@ -22,6 +22,8 @@ import {TreeMetadataArgs} from "../metadata-args/TreeMetadataArgs";
 import {UniqueMetadata} from "./UniqueMetadata";
 import {CheckMetadata} from "./CheckMetadata";
 import {QueryRunner} from "..";
+import {ExclusionMetadata} from "./ExclusionMetadata";
+import { shorten } from "../util/StringUtils";
 
 /**
  * Contains all entity metadata.
@@ -399,9 +401,19 @@ export class EntityMetadata {
     uniques: UniqueMetadata[] = [];
 
     /**
+     * Entity's own uniques.
+     */
+    ownUniques: UniqueMetadata[] = [];
+
+    /**
      * Entity's check metadatas.
      */
     checks: CheckMetadata[] = [];
+
+    /**
+     * Entity's exclusion metadatas.
+     */
+    exclusions: ExclusionMetadata[] = [];
 
     /**
      * Entity's own listener metadatas.
@@ -758,6 +770,10 @@ export class EntityMetadata {
             this.tableNameWithoutPrefix = namingStrategy.tableName(this.parentEntityMetadata.targetName, this.parentEntityMetadata.givenTableName);
         } else {
             this.tableNameWithoutPrefix = namingStrategy.tableName(this.targetName, this.givenTableName);
+
+            if (this.connection.driver.maxAliasLength && this.connection.driver.maxAliasLength > 0 && this.tableNameWithoutPrefix.length > this.connection.driver.maxAliasLength) {
+                this.tableNameWithoutPrefix = shorten(this.tableNameWithoutPrefix, { separator: "_", segmentLength: 3 });
+            }
         }
         this.tableName = entityPrefix ? namingStrategy.prefixTableName(entityPrefix, this.tableNameWithoutPrefix) : this.tableNameWithoutPrefix;
         this.target = this.target ? this.target : this.tableName;

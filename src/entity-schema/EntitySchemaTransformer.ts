@@ -12,6 +12,7 @@ import {ColumnMode} from "../metadata-args/types/ColumnMode";
 import {GeneratedMetadataArgs} from "../metadata-args/GeneratedMetadataArgs";
 import {UniqueMetadataArgs} from "../metadata-args/UniqueMetadataArgs";
 import {CheckMetadataArgs} from "../metadata-args/CheckMetadataArgs";
+import {ExclusionMetadataArgs} from "../metadata-args/ExclusionMetadataArgs";
 
 /**
  * Transforms entity schema into metadata args storage.
@@ -102,6 +103,9 @@ export class EntitySchemaTransformer {
                     };
                     metadataArgsStorage.generations.push(generationArgs);
                 }
+
+                if (column.unique)
+                    metadataArgsStorage.uniques.push({ target: options.target || options.name, columns: [columnName] });
             });
 
             // add relation metadata args from the schema
@@ -212,6 +216,18 @@ export class EntitySchemaTransformer {
                         expression: check.expression
                     };
                     metadataArgsStorage.checks.push(checkAgrs);
+                });
+            }
+
+            // add exclusion metadata args from the schema
+            if (options.exclusions) {
+                options.exclusions.forEach(exclusion => {
+                    const exclusionArgs: ExclusionMetadataArgs = {
+                        target: options.target || options.name,
+                        name: exclusion.name,
+                        expression: exclusion.expression
+                    };
+                    metadataArgsStorage.exclusions.push(exclusionArgs);
                 });
             }
 
