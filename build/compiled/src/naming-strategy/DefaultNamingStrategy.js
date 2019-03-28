@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = require("tslib");
 var RandomGenerator_1 = require("../util/RandomGenerator");
 var StringUtils_1 = require("../util/StringUtils");
 var Table_1 = require("../schema-builder/table/Table");
@@ -36,7 +37,7 @@ var DefaultNamingStrategy = /** @class */ (function () {
     };
     DefaultNamingStrategy.prototype.primaryKeyName = function (tableOrName, columnNames) {
         // sort incoming column names to avoid issue when ["id", "name"] and ["name", "id"] arrays
-        var clonedColumnNames = columnNames.slice();
+        var clonedColumnNames = tslib_1.__spread(columnNames);
         clonedColumnNames.sort();
         var tableName = tableOrName instanceof Table_1.Table ? tableOrName.name : tableOrName;
         var replacedTableName = tableName.replace(".", "_");
@@ -45,7 +46,7 @@ var DefaultNamingStrategy = /** @class */ (function () {
     };
     DefaultNamingStrategy.prototype.uniqueConstraintName = function (tableOrName, columnNames) {
         // sort incoming column names to avoid issue when ["id", "name"] and ["name", "id"] arrays
-        var clonedColumnNames = columnNames.slice();
+        var clonedColumnNames = tslib_1.__spread(columnNames);
         clonedColumnNames.sort();
         var tableName = tableOrName instanceof Table_1.Table ? tableOrName.name : tableOrName;
         var replacedTableName = tableName.replace(".", "_");
@@ -54,7 +55,7 @@ var DefaultNamingStrategy = /** @class */ (function () {
     };
     DefaultNamingStrategy.prototype.relationConstraintName = function (tableOrName, columnNames, where) {
         // sort incoming column names to avoid issue when ["id", "name"] and ["name", "id"] arrays
-        var clonedColumnNames = columnNames.slice();
+        var clonedColumnNames = tslib_1.__spread(columnNames);
         clonedColumnNames.sort();
         var tableName = tableOrName instanceof Table_1.Table ? tableOrName.name : tableOrName;
         var replacedTableName = tableName.replace(".", "_");
@@ -71,7 +72,7 @@ var DefaultNamingStrategy = /** @class */ (function () {
     };
     DefaultNamingStrategy.prototype.foreignKeyName = function (tableOrName, columnNames) {
         // sort incoming column names to avoid issue when ["id", "name"] and ["name", "id"] arrays
-        var clonedColumnNames = columnNames.slice();
+        var clonedColumnNames = tslib_1.__spread(columnNames);
         clonedColumnNames.sort();
         var tableName = tableOrName instanceof Table_1.Table ? tableOrName.name : tableOrName;
         var replacedTableName = tableName.replace(".", "_");
@@ -80,7 +81,7 @@ var DefaultNamingStrategy = /** @class */ (function () {
     };
     DefaultNamingStrategy.prototype.indexName = function (tableOrName, columnNames, where) {
         // sort incoming column names to avoid issue when ["id", "name"] and ["name", "id"] arrays
-        var clonedColumnNames = columnNames.slice();
+        var clonedColumnNames = tslib_1.__spread(columnNames);
         clonedColumnNames.sort();
         var tableName = tableOrName instanceof Table_1.Table ? tableOrName.name : tableOrName;
         var replacedTableName = tableName.replace(".", "_");
@@ -94,6 +95,12 @@ var DefaultNamingStrategy = /** @class */ (function () {
         var replacedTableName = tableName.replace(".", "_");
         var key = replacedTableName + "_" + expression;
         return "CHK_" + RandomGenerator_1.RandomGenerator.sha1(key).substr(0, 26);
+    };
+    DefaultNamingStrategy.prototype.exclusionConstraintName = function (tableOrName, expression) {
+        var tableName = tableOrName instanceof Table_1.Table ? tableOrName.name : tableOrName;
+        var replacedTableName = tableName.replace(".", "_");
+        var key = replacedTableName + "_" + expression;
+        return "XCL_" + RandomGenerator_1.RandomGenerator.sha1(key).substr(0, 26);
     };
     DefaultNamingStrategy.prototype.joinColumnName = function (relationName, referencedColumnName) {
         return StringUtils_1.camelCase(relationName + "_" + referencedColumnName);

@@ -25,8 +25,10 @@ var FindOptionsUtils = /** @class */ (function () {
                 possibleOptions.cache instanceof Object ||
                 typeof possibleOptions.cache === "boolean" ||
                 typeof possibleOptions.cache === "number" ||
+                possibleOptions.lock instanceof Object ||
                 possibleOptions.loadRelationIds instanceof Object ||
-                typeof possibleOptions.loadRelationIds === "boolean");
+                typeof possibleOptions.loadRelationIds === "boolean" ||
+                typeof possibleOptions.loadEagerRelations === "boolean");
     };
     /**
      * Checks if given object is really instance of FindManyOptions interface.
@@ -71,7 +73,7 @@ var FindOptionsUtils = /** @class */ (function () {
         if (options.select) {
             qb.select([]);
             options.select.forEach(function (select) {
-                if (!metadata.findColumnWithPropertyPath(select))
+                if (!metadata.findColumnWithPropertyPath(String(select)))
                     throw new Error(select + " column was not found in the " + metadata.name + " entity.");
                 qb.addSelect(qb.alias + "." + select);
             });
@@ -138,6 +140,14 @@ var FindOptionsUtils = /** @class */ (function () {
                 qb.cache(options.cache);
             }
         }
+        if (options.lock) {
+            if (options.lock.mode === "optimistic") {
+                qb.setLock(options.lock.mode, options.lock.version);
+            }
+            else if (options.lock.mode === "pessimistic_read" || options.lock.mode === "pessimistic_write") {
+                qb.setLock(options.lock.mode);
+            }
+        }
         if (options.loadRelationIds === true) {
             qb.loadAllRelationIds();
         }
@@ -170,11 +180,11 @@ var FindOptionsUtils = /** @class */ (function () {
         matchedBaseRelations.forEach(function (relation) {
             // add a join for the found relation
             var selection = alias + "." + relation;
-            qb.leftJoinAndSelect(selection, alias + "_" + relation);
+            qb.leftJoinAndSelect(selection, alias + "__" + relation);
             // join the eager relations of the found relation
             var relMetadata = metadata.relations.find(function (metadata) { return metadata.propertyName === relation; });
             if (relMetadata) {
-                _this.joinEagerRelations(qb, alias + "_" + relation, relMetadata.inverseEntityMetadata);
+                _this.joinEagerRelations(qb, alias + "__" + relation, relMetadata.inverseEntityMetadata);
             }
             // remove added relations from the allRelations array, this is needed to find all not found relations at the end
             allRelations.splice(allRelations.indexOf(prefix ? prefix + "." + relation : relation), 1);

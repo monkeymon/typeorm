@@ -3,5 +3,5 @@ export declare class Category {
     id: number;
     name: string;
     post?: Post | null | number;
-    constructor(name: string, post?: Post);
+    constructor(id: number, name: string, post?: Post);
 }

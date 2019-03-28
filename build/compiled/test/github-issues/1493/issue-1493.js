@@ -1,10 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = require("tslib");
 var DriverUtils_1 = require("../../../src/driver/DriverUtils");
 var chai_1 = require("chai");
 // import {exec} from "child_process";
 describe("github issues > #1493 Error parsing pg connection string", function () {
     it("should parse common connection url", function () {
+        var e_1, _a;
         var obj = {
             username: "username",
             password: "password",
@@ -14,9 +16,18 @@ describe("github issues > #1493 Error parsing pg connection string", function ()
         };
         var url = "postgres://" + obj.username + ":" + obj.password + "@" + obj.host + ":" + obj.port + "/" + obj.database;
         var options = DriverUtils_1.DriverUtils.buildDriverOptions({ url: url });
-        for (var _i = 0, _a = Object.keys(obj); _i < _a.length; _i++) {
-            var key = _a[_i];
-            chai_1.expect(options[key]).to.eql(obj[key]);
+        try {
+            for (var _b = tslib_1.__values(Object.keys(obj)), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var key = _c.value;
+                chai_1.expect(options[key]).to.eql(obj[key]);
+            }
+        }
+        catch (e_1_1) { e_1 = { error: e_1_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            }
+            finally { if (e_1) throw e_1.error; }
         }
     });
     it("should parse url with password contains colons", function () {

@@ -65,6 +65,8 @@ var TableColumn = /** @class */ (function () {
             this.enum = options.enum;
             this.asExpression = options.asExpression;
             this.generatedType = options.generatedType;
+            this.spatialFeatureType = options.spatialFeatureType;
+            this.srid = options.srid;
         }
     }
     // -------------------------------------------------------------------------
@@ -96,7 +98,9 @@ var TableColumn = /** @class */ (function () {
             isPrimary: this.isPrimary,
             isUnique: this.isUnique,
             isArray: this.isArray,
-            comment: this.comment
+            comment: this.comment,
+            spatialFeatureType: this.spatialFeatureType,
+            srid: this.srid
         });
     };
     return TableColumn;

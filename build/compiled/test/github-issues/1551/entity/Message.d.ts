@@ -4,7 +4,7 @@ import { Recipient } from "./Recipient";
 export declare enum MessageType {
     TEXT = 0,
     LOCATION = 1,
-    PICTURE = 2,
+    PICTURE = 2
 }
 export interface MessageConstructor {
     sender?: User;
@@ -15,7 +15,7 @@ export interface MessageConstructor {
     chat?: Chat;
 }
 export declare class Message {
-    constructor({sender, content, type, recipients, holders, chat}?: MessageConstructor);
+    constructor({ sender, content, type, recipients, holders, chat }?: MessageConstructor);
     id: number;
     sender: User;
     content: string;

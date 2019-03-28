@@ -63,4 +63,5 @@ export declare class Post {
     simpleJson: {
         param: string;
     };
+    simpleEnum: string;
 }

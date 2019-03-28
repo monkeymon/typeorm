@@ -1,3 +1,7 @@
+export declare enum SampleEnum {
+    ONE = "one",
+    TWO = "two"
+}
 export declare class EverythingEntity {
     id: number;
     name: string;
@@ -19,6 +23,7 @@ export declare class EverythingEntity {
     jsonColumn: any;
     alsoJson: any;
     simpleArrayColumn: string[];
+    enum: SampleEnum;
     createdDate: Date;
     updatedDate: Date;
 }

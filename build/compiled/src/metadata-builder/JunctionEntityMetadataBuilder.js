@@ -1,7 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var EntityMetadata_1 = require("../metadata/EntityMetadata");
+var tslib_1 = require("tslib");
+var MysqlDriver_1 = require("../driver/mysql/MysqlDriver");
 var ColumnMetadata_1 = require("../metadata/ColumnMetadata");
+var EntityMetadata_1 = require("../metadata/EntityMetadata");
 var ForeignKeyMetadata_1 = require("../metadata/ForeignKeyMetadata");
 var IndexMetadata_1 = require("../metadata/IndexMetadata");
 /**
@@ -55,7 +57,11 @@ var JunctionEntityMetadataBuilder = /** @class */ (function () {
                     propertyName: columnName,
                     options: {
                         name: columnName,
-                        length: referencedColumn.length,
+                        length: !referencedColumn.length
+                            && (_this.connection.driver instanceof MysqlDriver_1.MysqlDriver)
+                            && (referencedColumn.generationStrategy === "uuid" || referencedColumn.type === "uuid")
+                            ? "36"
+                            : referencedColumn.length,
                         width: referencedColumn.width,
                         type: referencedColumn.type,
                         precision: referencedColumn.precision,
@@ -87,7 +93,11 @@ var JunctionEntityMetadataBuilder = /** @class */ (function () {
                     mode: "virtual",
                     propertyName: columnName,
                     options: {
-                        length: inverseReferencedColumn.length,
+                        length: !inverseReferencedColumn.length
+                            && (_this.connection.driver instanceof MysqlDriver_1.MysqlDriver)
+                            && (inverseReferencedColumn.generationStrategy === "uuid" || inverseReferencedColumn.type === "uuid")
+                            ? "36"
+                            : inverseReferencedColumn.length,
                         type: inverseReferencedColumn.type,
                         precision: inverseReferencedColumn.precision,
                         scale: inverseReferencedColumn.scale,
@@ -106,7 +116,7 @@ var JunctionEntityMetadataBuilder = /** @class */ (function () {
         // set junction table columns
         entityMetadata.ownerColumns = junctionColumns;
         entityMetadata.inverseColumns = inverseJunctionColumns;
-        entityMetadata.ownColumns = junctionColumns.concat(inverseJunctionColumns);
+        entityMetadata.ownColumns = tslib_1.__spread(junctionColumns, inverseJunctionColumns);
         entityMetadata.ownColumns.forEach(function (column) { return column.relationMetadata = relation; });
         // create junction table foreign keys
         entityMetadata.foreignKeys = [
@@ -115,32 +125,32 @@ var JunctionEntityMetadataBuilder = /** @class */ (function () {
                 referencedEntityMetadata: relation.entityMetadata,
                 columns: junctionColumns,
                 referencedColumns: referencedColumns,
-                onDelete: "CASCADE"
+                onDelete: relation.onDelete || "CASCADE"
             }),
             new ForeignKeyMetadata_1.ForeignKeyMetadata({
                 entityMetadata: entityMetadata,
                 referencedEntityMetadata: relation.inverseEntityMetadata,
                 columns: inverseJunctionColumns,
                 referencedColumns: inverseReferencedColumns,
-                onDelete: "CASCADE"
+                onDelete: relation.onDelete || "CASCADE"
             }),
         ];
         // create junction table indices
-        entityMetadata.indices = [
+        entityMetadata.ownIndices = [
             new IndexMetadata_1.IndexMetadata({
                 entityMetadata: entityMetadata,
                 columns: junctionColumns,
                 args: {
-                    target: "",
-                    unique: false
+                    target: entityMetadata.target,
+                    synchronize: true
                 }
             }),
             new IndexMetadata_1.IndexMetadata({
                 entityMetadata: entityMetadata,
                 columns: inverseJunctionColumns,
                 args: {
-                    target: "",
-                    unique: false
+                    target: entityMetadata.target,
+                    synchronize: true
                 }
             })
         ];

@@ -2,16 +2,8 @@
 ///<reference path="node_modules/@types/node/index.d.ts"/>
 ///<reference path="node_modules/@types/chai/index.d.ts"/>
 ///<reference path="node_modules/@types/mocha/index.d.ts"/>
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
 Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = require("tslib");
 var gulpclass_1 = require("gulpclass");
 var gulp = require("gulp");
 var del = require("del");
@@ -21,7 +13,6 @@ var rename = require("gulp-rename");
 var mocha = require("gulp-mocha");
 var chai = require("chai");
 var tslint = require("gulp-tslint");
-var stylish = require("tslint-stylish");
 var sourcemaps = require("gulp-sourcemaps");
 var istanbul = require("gulp-istanbul");
 var remapIstanbul = require("remap-istanbul/lib/gulpRemapIstanbul");
@@ -77,6 +68,14 @@ var Gulpfile = /** @class */ (function () {
             .pipe(rename("PlatformTools.ts"))
             .pipe(gulp.dest("./build/browser/src/platform"));
     };
+    /**
+     * Adds dummy classes for disabled drivers (replacement is done via browser entry point in package.json)
+     */
+    Gulpfile.prototype.browserCopyDisabledDriversDummy = function () {
+        return gulp.src("./src/platform/BrowserDisabledDriversDummy.template")
+            .pipe(rename("BrowserDisabledDriversDummy.ts"))
+            .pipe(gulp.dest("./build/browser/src/platform"));
+    };
     Gulpfile.prototype.browserCompile = function () {
         var tsProject = ts.createProject("tsconfig.json", {
             module: "es2015",
@@ -123,8 +122,13 @@ var Gulpfile = /** @class */ (function () {
      * Copies all sources to the package directory.
      */
     Gulpfile.prototype.packageCompile = function () {
-        var tsProject = ts.createProject("tsconfig.json", { typescript: require("typescript") });
-        var tsResult = gulp.src(["./src/**/*.ts", "./node_modules/@types/**/*.ts"])
+        var tsProject = ts.createProject("tsconfig.json", {
+            typescript: require("typescript")
+        });
+        var tsResult = gulp.src([
+            "./src/**/*.ts",
+            "./node_modules/@types/**/*.ts",
+        ])
             .pipe(sourcemaps.init())
             .pipe(tsProject());
         return [
@@ -187,7 +191,7 @@ var Gulpfile = /** @class */ (function () {
     Gulpfile.prototype.package = function () {
         return [
             "clean",
-            ["browserCopySources", "browserCopyPlatformTools"],
+            ["browserCopySources", "browserCopyPlatformTools", "browserCopyDisabledDriversDummy"],
             ["packageCompile", "browserCompile"],
             "packageMoveCompiledFiles",
             [
@@ -220,8 +224,10 @@ var Gulpfile = /** @class */ (function () {
      */
     Gulpfile.prototype.tslint = function () {
         return gulp.src(["./src/**/*.ts", "./test/**/*.ts", "./sample/**/*.ts"])
-            .pipe(tslint())
-            .pipe(tslint.report(stylish, {
+            .pipe(tslint({
+            formatter: "stylish"
+        }))
+            .pipe(tslint.report({
             emitError: true,
             sort: true,
             bell: true
@@ -296,169 +302,175 @@ var Gulpfile = /** @class */ (function () {
             .pipe(rename("ormconfig.json"))
             .pipe(gulp.dest("./"));
     };
-    __decorate([
+    tslib_1.__decorate([
         gulpclass_1.Task(),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", [Function]),
-        __metadata("design:returntype", void 0)
+        tslib_1.__metadata("design:type", Function),
+        tslib_1.__metadata("design:paramtypes", [Function]),
+        tslib_1.__metadata("design:returntype", void 0)
     ], Gulpfile.prototype, "wait", null);
-    __decorate([
+    tslib_1.__decorate([
         gulpclass_1.Task(),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", [Function]),
-        __metadata("design:returntype", void 0)
+        tslib_1.__metadata("design:type", Function),
+        tslib_1.__metadata("design:paramtypes", [Function]),
+        tslib_1.__metadata("design:returntype", void 0)
     ], Gulpfile.prototype, "clean", null);
-    __decorate([
+    tslib_1.__decorate([
         gulpclass_1.Task(),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", []),
-        __metadata("design:returntype", void 0)
+        tslib_1.__metadata("design:type", Function),
+        tslib_1.__metadata("design:paramtypes", []),
+        tslib_1.__metadata("design:returntype", void 0)
     ], Gulpfile.prototype, "compile", null);
-    __decorate([
+    tslib_1.__decorate([
         gulpclass_1.Task(),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", []),
-        __metadata("design:returntype", void 0)
+        tslib_1.__metadata("design:type", Function),
+        tslib_1.__metadata("design:paramtypes", []),
+        tslib_1.__metadata("design:returntype", void 0)
     ], Gulpfile.prototype, "browserCopySources", null);
-    __decorate([
+    tslib_1.__decorate([
         gulpclass_1.Task(),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", []),
-        __metadata("design:returntype", void 0)
+        tslib_1.__metadata("design:type", Function),
+        tslib_1.__metadata("design:paramtypes", []),
+        tslib_1.__metadata("design:returntype", void 0)
     ], Gulpfile.prototype, "browserCopyPlatformTools", null);
-    __decorate([
+    tslib_1.__decorate([
+        gulpclass_1.Task(),
+        tslib_1.__metadata("design:type", Function),
+        tslib_1.__metadata("design:paramtypes", []),
+        tslib_1.__metadata("design:returntype", void 0)
+    ], Gulpfile.prototype, "browserCopyDisabledDriversDummy", null);
+    tslib_1.__decorate([
         gulpclass_1.MergedTask(),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", []),
-        __metadata("design:returntype", void 0)
+        tslib_1.__metadata("design:type", Function),
+        tslib_1.__metadata("design:paramtypes", []),
+        tslib_1.__metadata("design:returntype", void 0)
     ], Gulpfile.prototype, "browserCompile", null);
-    __decorate([
+    tslib_1.__decorate([
         gulpclass_1.Task(),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", [Function]),
-        __metadata("design:returntype", void 0)
+        tslib_1.__metadata("design:type", Function),
+        tslib_1.__metadata("design:paramtypes", [Function]),
+        tslib_1.__metadata("design:returntype", void 0)
     ], Gulpfile.prototype, "browserClearPackageDirectory", null);
-    __decorate([
+    tslib_1.__decorate([
         gulpclass_1.Task(),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", []),
-        __metadata("design:returntype", void 0)
+        tslib_1.__metadata("design:type", Function),
+        tslib_1.__metadata("design:paramtypes", []),
+        tslib_1.__metadata("design:returntype", void 0)
     ], Gulpfile.prototype, "packagePublish", null);
-    __decorate([
+    tslib_1.__decorate([
         gulpclass_1.Task(),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", []),
-        __metadata("design:returntype", void 0)
+        tslib_1.__metadata("design:type", Function),
+        tslib_1.__metadata("design:paramtypes", []),
+        tslib_1.__metadata("design:returntype", void 0)
     ], Gulpfile.prototype, "packagePublishNext", null);
-    __decorate([
+    tslib_1.__decorate([
         gulpclass_1.MergedTask(),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", []),
-        __metadata("design:returntype", void 0)
+        tslib_1.__metadata("design:type", Function),
+        tslib_1.__metadata("design:paramtypes", []),
+        tslib_1.__metadata("design:returntype", void 0)
     ], Gulpfile.prototype, "packageCompile", null);
-    __decorate([
+    tslib_1.__decorate([
         gulpclass_1.Task(),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", []),
-        __metadata("design:returntype", void 0)
+        tslib_1.__metadata("design:type", Function),
+        tslib_1.__metadata("design:paramtypes", []),
+        tslib_1.__metadata("design:returntype", void 0)
     ], Gulpfile.prototype, "packageMoveCompiledFiles", null);
-    __decorate([
+    tslib_1.__decorate([
         gulpclass_1.Task(),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", []),
-        __metadata("design:returntype", void 0)
+        tslib_1.__metadata("design:type", Function),
+        tslib_1.__metadata("design:paramtypes", []),
+        tslib_1.__metadata("design:returntype", void 0)
     ], Gulpfile.prototype, "packageReplaceReferences", null);
-    __decorate([
+    tslib_1.__decorate([
         gulpclass_1.Task(),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", [Function]),
-        __metadata("design:returntype", void 0)
+        tslib_1.__metadata("design:type", Function),
+        tslib_1.__metadata("design:paramtypes", [Function]),
+        tslib_1.__metadata("design:returntype", void 0)
     ], Gulpfile.prototype, "packageClearPackageDirectory", null);
-    __decorate([
+    tslib_1.__decorate([
         gulpclass_1.Task(),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", []),
-        __metadata("design:returntype", void 0)
+        tslib_1.__metadata("design:type", Function),
+        tslib_1.__metadata("design:paramtypes", []),
+        tslib_1.__metadata("design:returntype", void 0)
     ], Gulpfile.prototype, "packagePreparePackageFile", null);
-    __decorate([
+    tslib_1.__decorate([
         gulpclass_1.Task(),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", []),
-        __metadata("design:returntype", void 0)
+        tslib_1.__metadata("design:type", Function),
+        tslib_1.__metadata("design:paramtypes", []),
+        tslib_1.__metadata("design:returntype", void 0)
     ], Gulpfile.prototype, "packageCopyReadme", null);
-    __decorate([
+    tslib_1.__decorate([
         gulpclass_1.Task(),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", []),
-        __metadata("design:returntype", void 0)
+        tslib_1.__metadata("design:type", Function),
+        tslib_1.__metadata("design:paramtypes", []),
+        tslib_1.__metadata("design:returntype", void 0)
     ], Gulpfile.prototype, "packageCopyShims", null);
-    __decorate([
+    tslib_1.__decorate([
         gulpclass_1.SequenceTask(),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", []),
-        __metadata("design:returntype", void 0)
+        tslib_1.__metadata("design:type", Function),
+        tslib_1.__metadata("design:paramtypes", []),
+        tslib_1.__metadata("design:returntype", void 0)
     ], Gulpfile.prototype, "package", null);
-    __decorate([
+    tslib_1.__decorate([
         gulpclass_1.SequenceTask(),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", []),
-        __metadata("design:returntype", void 0)
+        tslib_1.__metadata("design:type", Function),
+        tslib_1.__metadata("design:paramtypes", []),
+        tslib_1.__metadata("design:returntype", void 0)
     ], Gulpfile.prototype, "publish", null);
-    __decorate([
+    tslib_1.__decorate([
         gulpclass_1.SequenceTask("publish-next"),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", []),
-        __metadata("design:returntype", void 0)
+        tslib_1.__metadata("design:type", Function),
+        tslib_1.__metadata("design:paramtypes", []),
+        tslib_1.__metadata("design:returntype", void 0)
     ], Gulpfile.prototype, "publishNext", null);
-    __decorate([
+    tslib_1.__decorate([
         gulpclass_1.Task(),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", []),
-        __metadata("design:returntype", void 0)
+        tslib_1.__metadata("design:type", Function),
+        tslib_1.__metadata("design:paramtypes", []),
+        tslib_1.__metadata("design:returntype", void 0)
     ], Gulpfile.prototype, "tslint", null);
-    __decorate([
+    tslib_1.__decorate([
         gulpclass_1.Task(),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", []),
-        __metadata("design:returntype", void 0)
+        tslib_1.__metadata("design:type", Function),
+        tslib_1.__metadata("design:paramtypes", []),
+        tslib_1.__metadata("design:returntype", void 0)
     ], Gulpfile.prototype, "coveragePre", null);
-    __decorate([
+    tslib_1.__decorate([
         gulpclass_1.Task(),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", []),
-        __metadata("design:returntype", void 0)
+        tslib_1.__metadata("design:type", Function),
+        tslib_1.__metadata("design:paramtypes", []),
+        tslib_1.__metadata("design:returntype", void 0)
     ], Gulpfile.prototype, "coveragePost", null);
-    __decorate([
+    tslib_1.__decorate([
         gulpclass_1.Task(),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", []),
-        __metadata("design:returntype", void 0)
+        tslib_1.__metadata("design:type", Function),
+        tslib_1.__metadata("design:paramtypes", []),
+        tslib_1.__metadata("design:returntype", void 0)
     ], Gulpfile.prototype, "runTests", null);
-    __decorate([
+    tslib_1.__decorate([
         gulpclass_1.Task(),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", []),
-        __metadata("design:returntype", void 0)
+        tslib_1.__metadata("design:type", Function),
+        tslib_1.__metadata("design:paramtypes", []),
+        tslib_1.__metadata("design:returntype", void 0)
     ], Gulpfile.prototype, "coverageRemap", null);
-    __decorate([
+    tslib_1.__decorate([
         gulpclass_1.SequenceTask(),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", []),
-        __metadata("design:returntype", void 0)
+        tslib_1.__metadata("design:type", Function),
+        tslib_1.__metadata("design:paramtypes", []),
+        tslib_1.__metadata("design:returntype", void 0)
     ], Gulpfile.prototype, "tests", null);
-    __decorate([
+    tslib_1.__decorate([
         gulpclass_1.SequenceTask("ci-tests"),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", []),
-        __metadata("design:returntype", void 0)
+        tslib_1.__metadata("design:type", Function),
+        tslib_1.__metadata("design:paramtypes", []),
+        tslib_1.__metadata("design:returntype", void 0)
     ], Gulpfile.prototype, "ciTests", null);
-    __decorate([
+    tslib_1.__decorate([
         gulpclass_1.Task(),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", []),
-        __metadata("design:returntype", void 0)
+        tslib_1.__metadata("design:type", Function),
+        tslib_1.__metadata("design:paramtypes", []),
+        tslib_1.__metadata("design:returntype", void 0)
     ], Gulpfile.prototype, "createTravisOrmConfig", null);
-    Gulpfile = __decorate([
+    Gulpfile = tslib_1.__decorate([
         gulpclass_1.Gulpclass()
     ], Gulpfile);
     return Gulpfile;

@@ -5,4 +5,5 @@ export declare class Post {
     text: string;
     counters: Counters;
     otherCounters: Counters;
+    countersWithoutPrefix: Counters;
 }

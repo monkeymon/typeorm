@@ -1,13 +1,6 @@
 "use strict";
-var __assign = (this && this.__assign) || Object.assign || function(t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-        s = arguments[i];
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-            t[p] = s[p];
-    }
-    return t;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = require("tslib");
 var Alias_1 = require("./Alias");
 var JoinAttribute_1 = require("./JoinAttribute");
 var RelationIdAttribute_1 = require("./relation-id/RelationIdAttribute");
@@ -48,6 +41,10 @@ var QueryExpressionMap = /** @class */ (function () {
          * Optional on conflict statement used in insertion query in postgres.
          */
         this.onConflict = "";
+        /**
+         * Optional on ignore statement used in insertion query in databases.
+         */
+        this.onIgnore = false;
         /**
          * JOIN queries.
          */
@@ -219,7 +216,7 @@ var QueryExpressionMap = /** @class */ (function () {
         return alias;
     };
     QueryExpressionMap.prototype.findColumnByAliasExpression = function (aliasExpression) {
-        var _a = aliasExpression.split("."), aliasName = _a[0], propertyPath = _a[1];
+        var _a = tslib_1.__read(aliasExpression.split("."), 2), aliasName = _a[0], propertyPath = _a[1];
         var alias = this.findAliasByName(aliasName);
         return alias.metadata.findColumnWithPropertyName(propertyPath);
     };
@@ -254,11 +251,13 @@ var QueryExpressionMap = /** @class */ (function () {
         map.valuesSet = this.valuesSet;
         map.returning = this.returning;
         map.onConflict = this.onConflict;
+        map.onIgnore = this.onIgnore;
+        map.onUpdate = this.onUpdate;
         map.joinAttributes = this.joinAttributes.map(function (join) { return new JoinAttribute_1.JoinAttribute(_this.connection, _this, join); });
         map.relationIdAttributes = this.relationIdAttributes.map(function (relationId) { return new RelationIdAttribute_1.RelationIdAttribute(_this, relationId); });
         map.relationCountAttributes = this.relationCountAttributes.map(function (relationCount) { return new RelationCountAttribute_1.RelationCountAttribute(_this, relationCount); });
-        map.wheres = this.wheres.map(function (where) { return (__assign({}, where)); });
-        map.havings = this.havings.map(function (having) { return (__assign({}, having)); });
+        map.wheres = this.wheres.map(function (where) { return (tslib_1.__assign({}, where)); });
+        map.havings = this.havings.map(function (having) { return (tslib_1.__assign({}, having)); });
         map.orderBys = Object.assign({}, this.orderBys);
         map.groupBys = this.groupBys.map(function (groupBy) { return groupBy; });
         map.limit = this.limit;

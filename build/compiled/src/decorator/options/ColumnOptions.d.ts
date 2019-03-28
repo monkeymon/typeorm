@@ -1,9 +1,10 @@
 import { ColumnType } from "../../driver/types/ColumnTypes";
 import { ValueTransformer } from "./ValueTransformer";
+import { ColumnCommonOptions } from "./ColumnCommonOptions";
 /**
  * Describes all column's options.
  */
-export interface ColumnOptions {
+export interface ColumnOptions extends ColumnCommonOptions {
     /**
      * Column type. Must be one of the value from the ColumnTypes class.
      */
@@ -89,7 +90,7 @@ export interface ColumnOptions {
     /**
      * Array of possible enumerated values.
      */
-    enum?: any[] | Object;
+    enum?: (string | number)[] | Object;
     /**
      * Generated column expression. Supports only in MySQL.
      */
@@ -114,4 +115,12 @@ export interface ColumnOptions {
      * this column when reading or writing to the database.
      */
     transformer?: ValueTransformer;
+    /**
+     * Spatial Feature Type (Geometry, Point, Polygon, etc.)
+     */
+    spatialFeatureType?: string;
+    /**
+     * SRID (Spatial Reference ID (EPSG code))
+     */
+    srid?: number;
 }

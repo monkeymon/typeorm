@@ -29,7 +29,7 @@ export interface TableColumnOptions {
     /**
      * Specifies generation strategy if this column will use auto increment.
      */
-    generationStrategy?: "uuid" | "increment";
+    generationStrategy?: "uuid" | "increment" | "rowid";
     /**
      * Indicates if column is a primary key.
      */
@@ -86,7 +86,7 @@ export interface TableColumnOptions {
     /**
      * Array of possible enumerated values.
      */
-    enum?: any[];
+    enum?: string[];
     /**
      * Generated column expression. Supports only in MySQL.
      */
@@ -95,4 +95,12 @@ export interface TableColumnOptions {
      * Generated column type. Supports only in MySQL.
      */
     generatedType?: "VIRTUAL" | "STORED";
+    /**
+     * Spatial Feature Type (Geometry, Point, Polygon, etc.)
+     */
+    spatialFeatureType?: string;
+    /**
+     * SRID (Spatial Reference ID (EPSG code))
+     */
+    srid?: number;
 }

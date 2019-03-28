@@ -1,21 +1,37 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-require("reflect-metadata");
+var tslib_1 = require("tslib");
 var chai_1 = require("chai");
-var Post_1 = require("./entity/Post");
+require("reflect-metadata");
+var src_1 = require("../../../../src");
+var test_utils_1 = require("../../../utils/test-utils");
 var Category_1 = require("./entity/Category");
 var CategoryMetadata_1 = require("./entity/CategoryMetadata");
-var test_utils_1 = require("../../../utils/test-utils");
+var Post_1 = require("./entity/Post");
 describe("persistence > custom-column-names", function () {
     // -------------------------------------------------------------------------
     // Configuration
     // -------------------------------------------------------------------------
+    var _this = this;
     // connect to db
     var connection;
-    before(test_utils_1.setupConnection(function (con) { return connection = con; }, [Post_1.Post, Category_1.Category, CategoryMetadata_1.CategoryMetadata]));
+    before(function () { return tslib_1.__awaiter(_this, void 0, void 0, function () {
+        var options;
+        return tslib_1.__generator(this, function (_a) {
+            options = test_utils_1.setupSingleTestingConnection("mysql", {
+                entities: [Post_1.Post, Category_1.Category, CategoryMetadata_1.CategoryMetadata]
+            });
+            if (!options)
+                return [2 /*return*/];
+            connection = src_1.getConnectionManager().create(options);
+            return [2 /*return*/];
+        });
+    }); });
     after(function () { return connection.close(); });
     // clean up database before each test
     function reloadDatabase() {
+        if (!connection)
+            return;
         return connection
             .synchronize(true)
             .catch(function (e) {
@@ -27,6 +43,8 @@ describe("persistence > custom-column-names", function () {
     var categoryRepository;
     var metadataRepository;
     before(function () {
+        if (!connection)
+            return;
         postRepository = connection.getRepository(Post_1.Post);
         categoryRepository = connection.getRepository(Category_1.Category);
         metadataRepository = connection.getRepository(CategoryMetadata_1.CategoryMetadata);
@@ -35,6 +53,8 @@ describe("persistence > custom-column-names", function () {
     // Specifications
     // -------------------------------------------------------------------------
     describe("attach exist entity to exist entity with many-to-one relation", function () {
+        if (!connection)
+            return;
         var newPost, newCategory, loadedPost;
         before(reloadDatabase);
         // save a new category
@@ -61,12 +81,14 @@ describe("persistence > custom-column-names", function () {
                 .then(function (post) { return loadedPost = post; });
         });
         it("should contain attached category", function () {
-            chai_1.expect(loadedPost).not.to.be.empty;
-            chai_1.expect(loadedPost.category).not.to.be.empty;
-            chai_1.expect(loadedPost.categoryId).not.to.be.empty;
+            chai_1.expect(loadedPost).not.to.be.undefined;
+            chai_1.expect(loadedPost.category).not.to.be.undefined;
+            chai_1.expect(loadedPost.categoryId).not.to.be.undefined;
         });
     });
     describe("attach new entity to exist entity with many-to-one relation", function () {
+        if (!connection)
+            return;
         var newPost, newCategory, loadedPost;
         before(reloadDatabase);
         // save a new category
@@ -89,12 +111,14 @@ describe("persistence > custom-column-names", function () {
                 .then(function (post) { return loadedPost = post; });
         });
         it("should contain attached category", function () {
-            chai_1.expect(loadedPost).not.to.be.empty;
-            chai_1.expect(loadedPost.category).not.to.be.empty;
-            chai_1.expect(loadedPost.categoryId).not.to.be.empty;
+            chai_1.expect(loadedPost).not.to.be.undefined;
+            chai_1.expect(loadedPost.category).not.to.be.undefined;
+            chai_1.expect(loadedPost.categoryId).not.to.be.undefined;
         });
     });
     describe("attach new entity to new entity with many-to-one relation", function () {
+        if (!connection)
+            return;
         var newPost, newCategory, loadedPost;
         before(reloadDatabase);
         // save a new category, post and attach category to post
@@ -113,12 +137,14 @@ describe("persistence > custom-column-names", function () {
                 .then(function (post) { return loadedPost = post; });
         });
         it("should contain attached category", function () {
-            chai_1.expect(loadedPost).not.to.be.empty;
-            chai_1.expect(loadedPost.category).not.to.be.empty;
-            chai_1.expect(loadedPost.categoryId).not.to.be.empty;
+            chai_1.expect(loadedPost).not.to.be.undefined;
+            chai_1.expect(loadedPost.category).not.to.be.undefined;
+            chai_1.expect(loadedPost.categoryId).not.to.be.undefined;
         });
     });
     describe("attach exist entity to exist entity with one-to-one relation", function () {
+        if (!connection)
+            return;
         var newPost, newCategory, newMetadata, loadedPost;
         before(reloadDatabase);
         // save a new post
@@ -152,14 +178,16 @@ describe("persistence > custom-column-names", function () {
                 .then(function (post) { return loadedPost = post; });
         });
         it("should contain attached category and metadata in the category", function () {
-            chai_1.expect(loadedPost).not.to.be.empty;
-            chai_1.expect(loadedPost.category).not.to.be.empty;
-            chai_1.expect(loadedPost.categoryId).not.to.be.empty;
-            chai_1.expect(loadedPost.category.metadata).not.to.be.empty;
-            chai_1.expect(loadedPost.category.metadataId).not.to.be.empty;
+            chai_1.expect(loadedPost).not.to.be.undefined;
+            chai_1.expect(loadedPost.category).not.to.be.undefined;
+            chai_1.expect(loadedPost.categoryId).not.to.be.undefined;
+            chai_1.expect(loadedPost.category.metadata).not.to.be.undefined;
+            chai_1.expect(loadedPost.category.metadataId).not.to.be.undefined;
         });
     });
     describe("attach new entity to exist entity with one-to-one relation", function () {
+        if (!connection)
+            return;
         var newPost, newCategory, newMetadata, loadedPost;
         before(reloadDatabase);
         // save a new post
@@ -189,11 +217,11 @@ describe("persistence > custom-column-names", function () {
                 .then(function (post) { return loadedPost = post; });
         });
         it("should contain attached category and metadata in the category", function () {
-            chai_1.expect(loadedPost).not.to.be.empty;
-            chai_1.expect(loadedPost.category).not.to.be.empty;
-            chai_1.expect(loadedPost.categoryId).not.to.be.empty;
-            chai_1.expect(loadedPost.category.metadata).not.to.be.empty;
-            chai_1.expect(loadedPost.category.metadataId).not.to.be.empty;
+            chai_1.expect(loadedPost).not.to.be.undefined;
+            chai_1.expect(loadedPost.category).not.to.be.undefined;
+            chai_1.expect(loadedPost.categoryId).not.to.be.undefined;
+            chai_1.expect(loadedPost.category.metadata).not.to.be.undefined;
+            chai_1.expect(loadedPost.category.metadataId).not.to.be.undefined;
         });
     });
 });

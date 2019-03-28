@@ -13,7 +13,7 @@ exports.AuthorSchema = {
     columns: {
         id: {
             primary: true,
-            type: "int"
+            type: Number
         },
         name: {
             type: "varchar"

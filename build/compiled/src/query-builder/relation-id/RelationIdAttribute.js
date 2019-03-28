@@ -1,6 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = require("tslib");
 var QueryBuilderUtils_1 = require("../QueryBuilderUtils");
+var ObjectUtils_1 = require("../../util/ObjectUtils");
 /**
  * Stores all join relation id attributes which will be used to build a JOIN query.
  */
@@ -14,7 +16,7 @@ var RelationIdAttribute = /** @class */ (function () {
          * Indicates if relation id should NOT be loaded as id map.
          */
         this.disableMixedMap = false;
-        Object.assign(this, relationIdAttribute || {});
+        ObjectUtils_1.ObjectUtils.assign(this, relationIdAttribute || {});
     }
     Object.defineProperty(RelationIdAttribute.prototype, "joinInverseSideMetadata", {
         // -------------------------------------------------------------------------
@@ -80,7 +82,7 @@ var RelationIdAttribute = /** @class */ (function () {
          * Generates alias of junction table, whose ids we get.
          */
         get: function () {
-            var _a = this.relationName.split("."), parentAlias = _a[0], relationProperty = _a[1];
+            var _a = tslib_1.__read(this.relationName.split("."), 2), parentAlias = _a[0], relationProperty = _a[1];
             return parentAlias + "_" + relationProperty + "_rid";
         },
         enumerable: true,

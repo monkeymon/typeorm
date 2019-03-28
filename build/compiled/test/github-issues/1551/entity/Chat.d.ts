@@ -11,7 +11,7 @@ export interface ChatConstructor {
     messages?: Message[];
 }
 export declare class Chat {
-    constructor({name, picture, allTimeMembers, listingMembers, actualGroupMembers, admins, owner, messages}?: ChatConstructor);
+    constructor({ name, picture, allTimeMembers, listingMembers, actualGroupMembers, admins, owner, messages }?: ChatConstructor);
     id: number;
     name?: string;
     picture?: string;

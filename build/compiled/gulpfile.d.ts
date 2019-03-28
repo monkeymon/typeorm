@@ -1,6 +1,3 @@
-/// <reference path="../../node_modules/@types/node/index.d.ts" />
-/// <reference path="../../node_modules/@types/chai/index.d.ts" />
-/// <reference path="../../node_modules/@types/mocha/index.d.ts" />
 export declare class Gulpfile {
     /**
      * Creates a delay and resolves after 15 seconds.
@@ -22,6 +19,10 @@ export declare class Gulpfile {
      * Replaces PlatformTools with browser-specific implementation called BrowserPlatformTools.
      */
     browserCopyPlatformTools(): any;
+    /**
+     * Adds dummy classes for disabled drivers (replacement is done via browser entry point in package.json)
+     */
+    browserCopyDisabledDriversDummy(): any;
     browserCompile(): any[];
     browserClearPackageDirectory(cb: Function): any;
     /**

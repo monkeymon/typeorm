@@ -35,6 +35,7 @@ index_1.createConnection(options).then(function (connection) {
     entity.simpleArrayColumn = ["hello", "world", "of", "typescript"];
     entity.jsonColumn = [{ hello: "olleh" }, { world: "dlrow" }];
     entity.alsoJson = { hello: "olleh", world: "dlrow" };
+    entity.enum = EverythingEntity_1.SampleEnum.ONE;
     var postRepository = connection.getRepository(EverythingEntity_1.EverythingEntity);
     postRepository
         .save(entity)
@@ -64,6 +65,7 @@ index_1.createConnection(options).then(function (connection) {
         entity.simpleArrayColumn = ["hello!", "world!", "of!", "typescript!"];
         entity.jsonColumn = [{ olleh: "hello" }, { dlrow: "world" }];
         entity.alsoJson = { olleh: "hello", dlrow: "world" };
+        entity.enum = EverythingEntity_1.SampleEnum.TWO;
         return postRepository.save(entity);
     })
         .then(function (entity) {

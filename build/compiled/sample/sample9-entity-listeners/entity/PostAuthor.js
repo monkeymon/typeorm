@@ -1,14 +1,6 @@
 "use strict";
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
 Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = require("tslib");
 var index_1 = require("../../../src/index");
 var Post_1 = require("./Post");
 var OneToMany_1 = require("../../../src/decorator/relations/OneToMany");
@@ -39,55 +31,55 @@ var PostAuthor = /** @class */ (function () {
     PostAuthor.prototype.doSomethingAfterRemove = function () {
         console.log("event: PostAuthor entity has been removed and callback executed");
     };
-    __decorate([
+    tslib_1.__decorate([
         index_1.PrimaryGeneratedColumn(),
-        __metadata("design:type", Number)
+        tslib_1.__metadata("design:type", Number)
     ], PostAuthor.prototype, "id", void 0);
-    __decorate([
+    tslib_1.__decorate([
         index_1.Column(),
-        __metadata("design:type", String)
+        tslib_1.__metadata("design:type", String)
     ], PostAuthor.prototype, "name", void 0);
-    __decorate([
+    tslib_1.__decorate([
         OneToMany_1.OneToMany(function (type) { return Post_1.Post; }, function (post) { return post.author; }),
-        __metadata("design:type", Array)
+        tslib_1.__metadata("design:type", Array)
     ], PostAuthor.prototype, "posts", void 0);
-    __decorate([
+    tslib_1.__decorate([
         BeforeInsert_1.BeforeInsert(),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", []),
-        __metadata("design:returntype", void 0)
+        tslib_1.__metadata("design:type", Function),
+        tslib_1.__metadata("design:paramtypes", []),
+        tslib_1.__metadata("design:returntype", void 0)
     ], PostAuthor.prototype, "doSomethingBeforeInsertion", null);
-    __decorate([
+    tslib_1.__decorate([
         AfterInsert_1.AfterInsert(),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", []),
-        __metadata("design:returntype", void 0)
+        tslib_1.__metadata("design:type", Function),
+        tslib_1.__metadata("design:paramtypes", []),
+        tslib_1.__metadata("design:returntype", void 0)
     ], PostAuthor.prototype, "doSomethingAfterInsertion", null);
-    __decorate([
+    tslib_1.__decorate([
         BeforeUpdate_1.BeforeUpdate(),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", []),
-        __metadata("design:returntype", void 0)
+        tslib_1.__metadata("design:type", Function),
+        tslib_1.__metadata("design:paramtypes", []),
+        tslib_1.__metadata("design:returntype", void 0)
     ], PostAuthor.prototype, "doSomethingBeforeUpdate", null);
-    __decorate([
+    tslib_1.__decorate([
         AfterUpdate_1.AfterUpdate(),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", []),
-        __metadata("design:returntype", void 0)
+        tslib_1.__metadata("design:type", Function),
+        tslib_1.__metadata("design:paramtypes", []),
+        tslib_1.__metadata("design:returntype", void 0)
     ], PostAuthor.prototype, "doSomethingAfterUpdate", null);
-    __decorate([
+    tslib_1.__decorate([
         BeforeRemove_1.BeforeRemove(),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", []),
-        __metadata("design:returntype", void 0)
+        tslib_1.__metadata("design:type", Function),
+        tslib_1.__metadata("design:paramtypes", []),
+        tslib_1.__metadata("design:returntype", void 0)
     ], PostAuthor.prototype, "doSomethingBeforeRemove", null);
-    __decorate([
+    tslib_1.__decorate([
         AfterRemove_1.AfterRemove(),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", []),
-        __metadata("design:returntype", void 0)
+        tslib_1.__metadata("design:type", Function),
+        tslib_1.__metadata("design:paramtypes", []),
+        tslib_1.__metadata("design:returntype", void 0)
     ], PostAuthor.prototype, "doSomethingAfterRemove", null);
-    PostAuthor = __decorate([
+    PostAuthor = tslib_1.__decorate([
         index_1.Entity("sample9_post_author")
     ], PostAuthor);
     return PostAuthor;

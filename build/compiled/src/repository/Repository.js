@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = require("tslib");
 /**
  * Repository is supposed to work with your entity objects. Find entities, insert, update, delete, etc.
  */
@@ -55,8 +56,8 @@ var Repository = /** @class */ (function () {
         for (var _i = 1; _i < arguments.length; _i++) {
             entityLikes[_i - 1] = arguments[_i];
         }
-        return (_a = this.manager).merge.apply(_a, [this.metadata.target, mergeIntoEntity].concat(entityLikes));
         var _a;
+        return (_a = this.manager).merge.apply(_a, tslib_1.__spread([this.metadata.target, mergeIntoEntity], entityLikes));
     };
     /**
      * Creates a new entity from the given plan javascript object. If entity already exist in the database, then
@@ -88,8 +89,8 @@ var Repository = /** @class */ (function () {
      * Executes fast and efficient INSERT query.
      * Does not check if entity exist in the database, so query will fail if duplicate entity is being inserted.
      */
-    Repository.prototype.insert = function (entity, options) {
-        return this.manager.insert(this.metadata.target, entity, options);
+    Repository.prototype.insert = function (entity) {
+        return this.manager.insert(this.metadata.target, entity);
     };
     /**
      * Updates entity partially. Entity can be found by a given conditions.
@@ -97,8 +98,8 @@ var Repository = /** @class */ (function () {
      * Executes fast and efficient UPDATE query.
      * Does not check if entity exist in the database.
      */
-    Repository.prototype.update = function (criteria, partialEntity, options) {
-        return this.manager.update(this.metadata.target, criteria, partialEntity, options);
+    Repository.prototype.update = function (criteria, partialEntity) {
+        return this.manager.update(this.metadata.target, criteria, partialEntity);
     };
     /**
      * Deletes entities by a given criteria.
@@ -106,8 +107,8 @@ var Repository = /** @class */ (function () {
      * Executes fast and efficient DELETE query.
      * Does not check if entity exist in the database.
      */
-    Repository.prototype.delete = function (criteria, options) {
-        return this.manager.delete(this.metadata.target, criteria, options);
+    Repository.prototype.delete = function (criteria) {
+        return this.manager.delete(this.metadata.target, criteria);
     };
     /**
      * Counts entities that match given find options or conditions.

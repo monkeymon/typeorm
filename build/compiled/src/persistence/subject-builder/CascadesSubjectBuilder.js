@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = require("tslib");
 var Subject_1 = require("../Subject");
 /**
  * Finds all cascade operations of the given subject and cascade operations of the found cascaded subjects,
@@ -23,7 +24,7 @@ var CascadesSubjectBuilder = /** @class */ (function () {
         subject.metadata
             .extractRelationValuesFromEntity(subject.entity, subject.metadata.relations) // todo: we can create EntityMetadata.cascadeRelations
             .forEach(function (_a) {
-            var relation = _a[0], relationEntity = _a[1], relationEntityMetadata = _a[2];
+            var _b = tslib_1.__read(_a, 3), relation = _b[0], relationEntity = _b[1], relationEntityMetadata = _b[2];
             // we need only defined values and insert or update cascades of the relation should be set
             if (relationEntity === undefined ||
                 relationEntity === null ||

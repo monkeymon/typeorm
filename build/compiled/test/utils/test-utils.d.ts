@@ -1,7 +1,7 @@
-import { ConnectionOptions } from "../../src/connection/ConnectionOptions";
 import { Connection } from "../../src/connection/Connection";
-import { EntitySchema } from "../../src/entity-schema/EntitySchema";
+import { ConnectionOptions } from "../../src/connection/ConnectionOptions";
 import { DatabaseType } from "../../src/driver/types/DatabaseType";
+import { EntitySchema } from "../../src/entity-schema/EntitySchema";
 import { NamingStrategyInterface } from "../../src/naming-strategy/NamingStrategyInterface";
 /**
  * Interface in which data is stored in ormconfig.json of the project.
@@ -38,6 +38,10 @@ export interface TestingOptions {
      * Entities needs to be included in the connection for the given test suite.
      */
     entities?: (string | Function | EntitySchema<any>)[];
+    /**
+     * Migrations needs to be included in connection for the given test suite.
+     */
+    migrations?: string[];
     /**
      * Subscribers needs to be included in the connection for the given test suite.
      */
@@ -100,7 +104,7 @@ export interface TestingOptions {
  * Creates a testing connection options for the given driver type based on the configuration in the ormconfig.json
  * and given options that can override some of its configuration for the test-specific use case.
  */
-export declare function setupSingleTestingConnection(driverType: DatabaseType, options: TestingOptions): ConnectionOptions;
+export declare function setupSingleTestingConnection(driverType: DatabaseType, options: TestingOptions): ConnectionOptions | undefined;
 /**
  * Loads test connection options from ormconfig.json file.
  */
@@ -123,12 +127,6 @@ export declare function closeTestingConnections(connections: Connection[]): Prom
  * Reloads all databases for all given connections.
  */
 export declare function reloadTestingDatabases(connections: Connection[]): Promise<void[]>;
-/**
- * Setups connection.
- *
- * @deprecated Old method of creating connection. Don't use it anymore. Use createTestingConnections instead.
- */
-export declare function setupConnection(callback: (connection: Connection) => any, entities: Function[]): () => Promise<Connection>;
 /**
  * Generates random text array with custom length.
  */

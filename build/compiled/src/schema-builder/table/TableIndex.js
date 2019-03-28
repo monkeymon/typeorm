@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = require("tslib");
 /**
  * Database's table index stored in this class.
  */
@@ -14,10 +15,10 @@ var TableIndex = /** @class */ (function () {
         this.columnNames = [];
         this.name = options.name;
         this.columnNames = options.columnNames;
-        this.isUnique = options.isUnique;
-        this.isSpatial = options.isSpatial;
-        this.isFulltext = options.isFulltext;
-        this.where = options.where;
+        this.isUnique = !!options.isUnique;
+        this.isSpatial = !!options.isSpatial;
+        this.isFulltext = !!options.isFulltext;
+        this.where = options.where ? options.where : "";
     }
     // -------------------------------------------------------------------------
     // Public Methods
@@ -28,7 +29,7 @@ var TableIndex = /** @class */ (function () {
     TableIndex.prototype.clone = function () {
         return new TableIndex({
             name: this.name,
-            columnNames: this.columnNames.slice(),
+            columnNames: tslib_1.__spread(this.columnNames),
             isUnique: this.isUnique,
             isSpatial: this.isSpatial,
             isFulltext: this.isFulltext,

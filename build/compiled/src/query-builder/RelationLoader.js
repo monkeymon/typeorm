@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = require("tslib");
 /**
  * Wraps entities and creates getters/setters for their relations
  * to be able to lazily load relations when accessing these relations.
@@ -130,7 +131,7 @@ var RelationLoader = /** @class */ (function () {
             .createQueryBuilder(queryRunner)
             .select(mainAlias)
             .from(relation.type, mainAlias)
-            .innerJoin(joinAlias, joinAlias, joinColumnConditions.concat(inverseJoinColumnConditions).join(" AND "))
+            .innerJoin(joinAlias, joinAlias, tslib_1.__spread(joinColumnConditions, inverseJoinColumnConditions).join(" AND "))
             .setParameters(parameters)
             .getMany();
     };
@@ -161,7 +162,7 @@ var RelationLoader = /** @class */ (function () {
             .createQueryBuilder(queryRunner)
             .select(mainAlias)
             .from(relation.type, mainAlias)
-            .innerJoin(joinAlias, joinAlias, joinColumnConditions.concat(inverseJoinColumnConditions).join(" AND "))
+            .innerJoin(joinAlias, joinAlias, tslib_1.__spread(joinColumnConditions, inverseJoinColumnConditions).join(" AND "))
             .setParameters(parameters)
             .getMany();
     };
@@ -177,7 +178,7 @@ var RelationLoader = /** @class */ (function () {
         Object.defineProperty(entity, relation.propertyName, {
             get: function () {
                 var _this = this;
-                if (this[resolveIndex] === true) // if related data already was loaded then simply return it
+                if (this[resolveIndex] === true || this[dataIndex]) // if related data already was loaded then simply return it
                     return Promise.resolve(this[dataIndex]);
                 if (this[promiseIndex]) // if related data is loading then return a promise relationLoader loads it
                     return this[promiseIndex];

@@ -1,43 +1,10 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [0, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
 var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = require("tslib");
 require("reflect-metadata");
 var chai_1 = require("chai");
+var CockroachDriver_1 = require("../../../../src/driver/cockroachdb/CockroachDriver");
 var test_utils_1 = require("../../../utils/test-utils");
 var Tag_1 = require("./entity/Tag");
 var Post_1 = require("./entity/Post");
@@ -46,8 +13,8 @@ var Image_1 = require("./entity/Image");
 var User_1 = require("./entity/User");
 describe("query builder > joins", function () {
     var connections;
-    before(function () { return __awaiter(_this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
+    before(function () { return tslib_1.__awaiter(_this, void 0, void 0, function () {
+        return tslib_1.__generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, test_utils_1.createTestingConnections({
                         entities: [__dirname + "/entity/*{.js,.ts}"],
@@ -59,9 +26,9 @@ describe("query builder > joins", function () {
     beforeEach(function () { return test_utils_1.reloadTestingDatabases(connections); });
     after(function () { return test_utils_1.closeTestingConnections(connections); });
     describe("leftJoinAndSelect", function () {
-        it("should load data for all relation types", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
+        it("should load data for all relation types", function () { return Promise.all(connections.map(function (connection) { return tslib_1.__awaiter(_this, void 0, void 0, function () {
             var user, tag, image1, image2, image3, category1, category2, category3, post1, post2, loadedPosts, loadedPost;
-            return __generator(this, function (_a) {
+            return tslib_1.__generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         user = new User_1.User();
@@ -129,18 +96,18 @@ describe("query builder > joins", function () {
                                 .getMany()];
                     case 11:
                         loadedPosts = _a.sent();
-                        chai_1.expect(loadedPosts[0].tag).to.not.be.empty;
+                        chai_1.expect(loadedPosts[0].tag).to.not.be.undefined;
                         chai_1.expect(loadedPosts[0].tag.id).to.be.equal(1);
-                        chai_1.expect(loadedPosts[0].categories).to.not.be.empty;
+                        chai_1.expect(loadedPosts[0].categories).to.not.be.eql([]);
                         chai_1.expect(loadedPosts[0].categories.length).to.be.equal(2);
-                        chai_1.expect(loadedPosts[0].categories[0].images).to.not.be.empty;
+                        chai_1.expect(loadedPosts[0].categories[0].images).to.not.be.eql([]);
                         chai_1.expect(loadedPosts[0].categories[0].images.length).to.be.equal(2);
                         chai_1.expect(loadedPosts[0].categories[0].images.map(function (image) { return image.id; })).to.have.members([1, 2]);
-                        chai_1.expect(loadedPosts[0].author).to.not.be.empty;
+                        chai_1.expect(loadedPosts[0].author).to.not.be.undefined;
                         chai_1.expect(loadedPosts[0].author.id).to.be.equal(1);
-                        chai_1.expect(loadedPosts[1].categories).to.not.be.empty;
+                        chai_1.expect(loadedPosts[1].categories).to.not.be.eql([]);
                         chai_1.expect(loadedPosts[1].categories.length).to.be.equal(1);
-                        chai_1.expect(loadedPosts[1].categories[0].images).to.not.be.empty;
+                        chai_1.expect(loadedPosts[1].categories[0].images).to.not.be.eql([]);
                         chai_1.expect(loadedPosts[1].categories[0].images.length).to.be.equal(1);
                         chai_1.expect(loadedPosts[1].categories[0].images[0].id).to.be.equal(3);
                         return [4 /*yield*/, connection.manager
@@ -153,29 +120,29 @@ describe("query builder > joins", function () {
                                 .getOne()];
                     case 12:
                         loadedPost = _a.sent();
-                        chai_1.expect(loadedPost.tag).to.not.be.empty;
+                        chai_1.expect(loadedPost.tag).to.not.be.undefined;
                         chai_1.expect(loadedPost.tag instanceof Tag_1.Tag).to.be.true;
                         chai_1.expect(loadedPost.tag.id).to.be.equal(1);
-                        chai_1.expect(loadedPost.categories).to.not.be.empty;
+                        chai_1.expect(loadedPost.categories).to.not.be.eql([]);
                         chai_1.expect(loadedPost.categories.length).to.be.equal(2);
                         chai_1.expect(loadedPost.categories[0] instanceof Category_1.Category).to.be.true;
                         chai_1.expect(loadedPost.categories[0].id).to.be.equal(1);
                         chai_1.expect(loadedPost.categories[1].id).to.be.equal(2);
                         chai_1.expect(loadedPost.categories[0].images[0] instanceof Image_1.Image).to.be.true;
-                        chai_1.expect(loadedPost.categories[0].images).to.not.be.empty;
+                        chai_1.expect(loadedPost.categories[0].images).to.not.be.eql([]);
                         chai_1.expect(loadedPost.categories[0].images.length).to.be.equal(2);
                         chai_1.expect(loadedPost.categories[0].images.map(function (image) { return image.id; })).to.have.members([1, 2]);
-                        chai_1.expect(loadedPost.categories[1].images).to.be.empty;
-                        chai_1.expect(loadedPost.author).to.not.be.empty;
+                        chai_1.expect(loadedPost.categories[1].images).to.be.eql([]);
+                        chai_1.expect(loadedPost.author).to.not.be.undefined;
                         chai_1.expect(loadedPost.author instanceof User_1.User).to.be.true;
                         chai_1.expect(loadedPost.author.id).to.be.equal(1);
                         return [2 /*return*/];
                 }
             });
         }); })); });
-        it("should load data when additional condition used", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
+        it("should load data when additional condition used", function () { return Promise.all(connections.map(function (connection) { return tslib_1.__awaiter(_this, void 0, void 0, function () {
             var image1, image2, category1, category2, post, loadedPost;
-            return __generator(this, function (_a) {
+            return tslib_1.__generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         image1 = new Image_1.Image();
@@ -214,19 +181,19 @@ describe("query builder > joins", function () {
                                 .getOne()];
                     case 6:
                         loadedPost = _a.sent();
-                        chai_1.expect(loadedPost.categories).to.not.be.empty;
+                        chai_1.expect(loadedPost.categories).to.not.be.eql([]);
                         chai_1.expect(loadedPost.categories.length).to.be.equal(1);
                         chai_1.expect(loadedPost.categories[0].id).to.be.equal(1);
-                        chai_1.expect(loadedPost.categories[0].images).to.not.be.empty;
+                        chai_1.expect(loadedPost.categories[0].images).to.not.be.eql([]);
                         chai_1.expect(loadedPost.categories[0].images.length).to.be.equal(1);
                         chai_1.expect(loadedPost.categories[0].images[0].id).to.be.equal(2);
                         return [2 /*return*/];
                 }
             });
         }); })); });
-        it("should load data when join tables does not have direct relation", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
+        it("should load data when join tables does not have direct relation", function () { return Promise.all(connections.map(function (connection) { return tslib_1.__awaiter(_this, void 0, void 0, function () {
             var category, post, loadedRawPost;
-            return __generator(this, function (_a) {
+            return tslib_1.__generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         category = new Category_1.Category();
@@ -248,16 +215,21 @@ describe("query builder > joins", function () {
                                 .getRawOne()];
                     case 3:
                         loadedRawPost = _a.sent();
-                        chai_1.expect(loadedRawPost["categories_id"]).to.be.equal(1);
+                        if (connection.driver instanceof CockroachDriver_1.CockroachDriver) {
+                            chai_1.expect(loadedRawPost["categories_id"]).to.be.equal("1");
+                        }
+                        else {
+                            chai_1.expect(loadedRawPost["categories_id"]).to.be.equal(1);
+                        }
                         return [2 /*return*/];
                 }
             });
         }); })); });
     });
     describe("innerJoinAndSelect", function () {
-        it("should load only exist data for all relation types", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
+        it("should load only exist data for all relation types", function () { return Promise.all(connections.map(function (connection) { return tslib_1.__awaiter(_this, void 0, void 0, function () {
             var user, tag, image1, image2, category1, category2, post, loadedPost;
-            return __generator(this, function (_a) {
+            return tslib_1.__generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         user = new User_1.User();
@@ -309,21 +281,21 @@ describe("query builder > joins", function () {
                                 .getOne()];
                     case 8:
                         loadedPost = _a.sent();
-                        chai_1.expect(loadedPost.tag).to.not.be.empty;
+                        chai_1.expect(loadedPost.tag).to.not.be.undefined;
                         chai_1.expect(loadedPost.tag.id).to.be.equal(1);
-                        chai_1.expect(loadedPost.categories).to.not.be.empty;
+                        chai_1.expect(loadedPost.categories).to.not.be.eql([]);
                         chai_1.expect(loadedPost.categories.length).to.be.equal(1);
-                        chai_1.expect(loadedPost.categories[0].images).to.not.be.empty;
+                        chai_1.expect(loadedPost.categories[0].images).to.not.be.eql([]);
                         chai_1.expect(loadedPost.categories[0].images.length).to.be.equal(2);
-                        chai_1.expect(loadedPost.author).to.not.be.empty;
+                        chai_1.expect(loadedPost.author).to.not.be.undefined;
                         chai_1.expect(loadedPost.author.id).to.be.equal(1);
                         return [2 /*return*/];
                 }
             });
         }); })); });
-        it("should load data when additional condition used", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
+        it("should load data when additional condition used", function () { return Promise.all(connections.map(function (connection) { return tslib_1.__awaiter(_this, void 0, void 0, function () {
             var image1, image2, category1, category2, post, loadedPost;
-            return __generator(this, function (_a) {
+            return tslib_1.__generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         image1 = new Image_1.Image();
@@ -362,19 +334,19 @@ describe("query builder > joins", function () {
                                 .getOne()];
                     case 6:
                         loadedPost = _a.sent();
-                        chai_1.expect(loadedPost.categories).to.not.be.empty;
+                        chai_1.expect(loadedPost.categories).to.not.be.eql([]);
                         chai_1.expect(loadedPost.categories.length).to.be.equal(1);
                         chai_1.expect(loadedPost.categories[0].id).to.be.equal(1);
-                        chai_1.expect(loadedPost.categories[0].images).to.not.be.empty;
+                        chai_1.expect(loadedPost.categories[0].images).to.not.be.eql([]);
                         chai_1.expect(loadedPost.categories[0].images.length).to.be.equal(1);
                         chai_1.expect(loadedPost.categories[0].images[0].id).to.be.equal(2);
                         return [2 /*return*/];
                 }
             });
         }); })); });
-        it("should not return any result when related data does not exist", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
+        it("should not return any result when related data does not exist", function () { return Promise.all(connections.map(function (connection) { return tslib_1.__awaiter(_this, void 0, void 0, function () {
             var post, loadedPost;
-            return __generator(this, function (_a) {
+            return tslib_1.__generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         post = new Post_1.Post();
@@ -389,16 +361,16 @@ describe("query builder > joins", function () {
                                 .getOne()];
                     case 2:
                         loadedPost = _a.sent();
-                        chai_1.expect(loadedPost).to.be.empty;
+                        chai_1.expect(loadedPost).to.be.undefined;
                         return [2 /*return*/];
                 }
             });
         }); })); });
     });
     describe("leftJoinAndMap", function () {
-        it("should load and map selected data when entity used as join argument", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
+        it("should load and map selected data when entity used as join argument", function () { return Promise.all(connections.map(function (connection) { return tslib_1.__awaiter(_this, void 0, void 0, function () {
             var user, tag, image1, image2, category1, category2, post, loadedPost;
-            return __generator(this, function (_a) {
+            return tslib_1.__generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         user = new User_1.User();
@@ -449,22 +421,22 @@ describe("query builder > joins", function () {
                                 .getOne()];
                     case 8:
                         loadedPost = _a.sent();
-                        chai_1.expect(loadedPost.tag).to.not.be.empty;
+                        chai_1.expect(loadedPost.tag).to.not.be.undefined;
                         chai_1.expect(loadedPost.tag.id).to.be.equal(1);
-                        chai_1.expect(loadedPost.categories).to.not.be.empty;
+                        chai_1.expect(loadedPost.categories).to.not.be.eql([]);
                         chai_1.expect(loadedPost.categories.length).to.be.equal(2);
-                        chai_1.expect(loadedPost.categories[0].images).to.not.be.empty;
+                        chai_1.expect(loadedPost.categories[0].images).to.not.be.eql([]);
                         chai_1.expect(loadedPost.categories[0].images.length).to.be.equal(2);
                         chai_1.expect(loadedPost.categories[0].images.map(function (image) { return image.id; })).to.have.members([1, 2]);
-                        chai_1.expect(loadedPost.author).to.not.be.empty;
+                        chai_1.expect(loadedPost.author).to.not.be.undefined;
                         chai_1.expect(loadedPost.author.id).to.be.equal(1);
                         return [2 /*return*/];
                 }
             });
         }); })); });
-        it("should load and map selected data when table name used as join argument", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
+        it("should load and map selected data when table name used as join argument", function () { return Promise.all(connections.map(function (connection) { return tslib_1.__awaiter(_this, void 0, void 0, function () {
             var user, tag, image1, image2, category1, category2, post, loadedPost;
-            return __generator(this, function (_a) {
+            return tslib_1.__generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         user = new User_1.User();
@@ -515,22 +487,22 @@ describe("query builder > joins", function () {
                                 .getOne()];
                     case 8:
                         loadedPost = _a.sent();
-                        chai_1.expect(loadedPost.tag).to.not.be.empty;
+                        chai_1.expect(loadedPost.tag).to.not.be.undefined;
                         chai_1.expect(loadedPost.tag.id).to.be.equal(1);
-                        chai_1.expect(loadedPost.categories).to.not.be.empty;
+                        chai_1.expect(loadedPost.categories).to.not.be.eql([]);
                         chai_1.expect(loadedPost.categories.length).to.be.equal(2);
-                        chai_1.expect(loadedPost.categories[0].images).to.not.be.empty;
+                        chai_1.expect(loadedPost.categories[0].images).to.not.be.eql([]);
                         chai_1.expect(loadedPost.categories[0].images.length).to.be.equal(2);
                         chai_1.expect(loadedPost.categories[0].images.map(function (image) { return image.id; })).to.have.members([1, 2]);
-                        chai_1.expect(loadedPost.author).to.not.be.empty;
+                        chai_1.expect(loadedPost.author).to.not.be.undefined;
                         chai_1.expect(loadedPost.author.id).to.be.equal(1);
                         return [2 /*return*/];
                 }
             });
         }); })); });
-        it("should load and map selected data when data will given from same entity but with different conditions", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
+        it("should load and map selected data when data will given from same entity but with different conditions", function () { return Promise.all(connections.map(function (connection) { return tslib_1.__awaiter(_this, void 0, void 0, function () {
             var category1, category2, category3, post, loadedPost;
-            return __generator(this, function (_a) {
+            return tslib_1.__generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         category1 = new Category_1.Category();
@@ -562,17 +534,17 @@ describe("query builder > joins", function () {
                                 .getOne()];
                     case 5:
                         loadedPost = _a.sent();
-                        chai_1.expect(loadedPost.categories).to.not.be.empty;
+                        chai_1.expect(loadedPost.categories).to.not.be.eql([]);
                         chai_1.expect(loadedPost.categories.length).to.be.equal(2);
-                        chai_1.expect(loadedPost.subcategories).to.not.be.empty;
+                        chai_1.expect(loadedPost.subcategories).to.not.be.eql([]);
                         chai_1.expect(loadedPost.subcategories.length).to.be.equal(1);
                         return [2 /*return*/];
                 }
             });
         }); })); });
-        it("should load and map selected data when data will given from same property but with different conditions", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
+        it("should load and map selected data when data will given from same property but with different conditions", function () { return Promise.all(connections.map(function (connection) { return tslib_1.__awaiter(_this, void 0, void 0, function () {
             var image1, image2, image3, image4, category1, category2, category3, category4, post, post2, loadedPosts, loadedPost;
-            return __generator(this, function (_a) {
+            return tslib_1.__generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         image1 = new Image_1.Image();
@@ -645,24 +617,24 @@ describe("query builder > joins", function () {
                                 .getMany()];
                     case 11:
                         loadedPosts = _a.sent();
-                        chai_1.expect(loadedPosts[0].removedCategories).to.not.be.empty;
+                        chai_1.expect(loadedPosts[0].removedCategories).to.not.be.eql([]);
                         chai_1.expect(loadedPosts[0].removedCategories.length).to.be.equal(1);
                         chai_1.expect(loadedPosts[0].removedCategories[0].id).to.be.equal(3);
                         chai_1.expect(loadedPosts[0].removedCategories[0] instanceof Category_1.Category).to.be.true;
                         chai_1.expect(loadedPosts[0].removedCategories[0].removedImages.length).to.be.equal(1);
                         chai_1.expect(loadedPosts[0].removedCategories[0].removedImages[0] instanceof Image_1.Image).to.be.true;
                         chai_1.expect(loadedPosts[0].removedCategories[0].removedImages[0].id).to.be.equal(3);
-                        chai_1.expect(loadedPosts[0].subcategories).to.not.be.empty;
+                        chai_1.expect(loadedPosts[0].subcategories).to.not.be.eql([]);
                         chai_1.expect(loadedPosts[0].subcategories.length).to.be.equal(2);
                         chai_1.expect(loadedPosts[0].subcategories[0].titleImage.id).to.be.equal(1);
-                        chai_1.expect(loadedPosts[1].removedCategories).to.not.be.empty;
+                        chai_1.expect(loadedPosts[1].removedCategories).to.not.be.eql([]);
                         chai_1.expect(loadedPosts[1].removedCategories.length).to.be.equal(1);
                         chai_1.expect(loadedPosts[1].removedCategories[0].id).to.be.equal(4);
                         chai_1.expect(loadedPosts[1].removedCategories[0] instanceof Category_1.Category).to.be.true;
                         chai_1.expect(loadedPosts[1].removedCategories[0].removedImages.length).to.be.equal(1);
                         chai_1.expect(loadedPosts[1].removedCategories[0].removedImages[0] instanceof Image_1.Image).to.be.true;
                         chai_1.expect(loadedPosts[1].removedCategories[0].removedImages[0].id).to.be.equal(4);
-                        chai_1.expect(loadedPosts[1].subcategories).to.not.be.empty;
+                        chai_1.expect(loadedPosts[1].subcategories).to.not.be.eql([]);
                         chai_1.expect(loadedPosts[1].subcategories.length).to.be.equal(1);
                         chai_1.expect(loadedPosts[1].subcategories[0].titleImage.id).to.be.equal(1);
                         return [4 /*yield*/, connection.manager
@@ -676,14 +648,14 @@ describe("query builder > joins", function () {
                                 .getOne()];
                     case 12:
                         loadedPost = _a.sent();
-                        chai_1.expect(loadedPost.removedCategories).to.not.be.empty;
+                        chai_1.expect(loadedPost.removedCategories).to.not.be.eql([]);
                         chai_1.expect(loadedPost.removedCategories.length).to.be.equal(1);
                         chai_1.expect(loadedPost.removedCategories[0].id).to.be.equal(3);
                         chai_1.expect(loadedPost.removedCategories[0] instanceof Category_1.Category).to.be.true;
                         chai_1.expect(loadedPost.removedCategories[0].removedImages.length).to.be.equal(1);
                         chai_1.expect(loadedPost.removedCategories[0].removedImages[0] instanceof Image_1.Image).to.be.true;
                         chai_1.expect(loadedPost.removedCategories[0].removedImages[0].id).to.be.equal(3);
-                        chai_1.expect(loadedPost.subcategories).to.not.be.empty;
+                        chai_1.expect(loadedPost.subcategories).to.not.be.eql([]);
                         chai_1.expect(loadedPost.subcategories.length).to.be.equal(2);
                         chai_1.expect(loadedPost.subcategories[0].titleImage.id).to.be.equal(1);
                         return [2 /*return*/];
@@ -692,9 +664,9 @@ describe("query builder > joins", function () {
         }); })); });
     });
     describe("innerJoinAndMap", function () {
-        it("should load and map selected data when entity used as join argument", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
+        it("should load and map selected data when entity used as join argument", function () { return Promise.all(connections.map(function (connection) { return tslib_1.__awaiter(_this, void 0, void 0, function () {
             var user, tag, image1, image2, category1, category2, post, loadedPost;
-            return __generator(this, function (_a) {
+            return tslib_1.__generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         user = new User_1.User();
@@ -745,22 +717,22 @@ describe("query builder > joins", function () {
                                 .getOne()];
                     case 8:
                         loadedPost = _a.sent();
-                        chai_1.expect(loadedPost.tag).to.not.be.empty;
+                        chai_1.expect(loadedPost.tag).to.not.be.undefined;
                         chai_1.expect(loadedPost.tag.id).to.be.equal(1);
-                        chai_1.expect(loadedPost.categories).to.not.be.empty;
+                        chai_1.expect(loadedPost.categories).to.not.be.eql([]);
                         chai_1.expect(loadedPost.categories.length).to.be.equal(2);
-                        chai_1.expect(loadedPost.categories[0].images).to.not.be.empty;
+                        chai_1.expect(loadedPost.categories[0].images).to.not.be.eql([]);
                         chai_1.expect(loadedPost.categories[0].images.length).to.be.equal(2);
                         chai_1.expect(loadedPost.categories[0].images.map(function (image) { return image.id; })).to.have.members([1, 2]);
-                        chai_1.expect(loadedPost.author).to.not.be.empty;
+                        chai_1.expect(loadedPost.author).to.not.be.undefined;
                         chai_1.expect(loadedPost.author.id).to.be.equal(1);
                         return [2 /*return*/];
                 }
             });
         }); })); });
-        it("should load and map selected data when table name used as join argument", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
+        it("should load and map selected data when table name used as join argument", function () { return Promise.all(connections.map(function (connection) { return tslib_1.__awaiter(_this, void 0, void 0, function () {
             var user, tag, image1, image2, category1, category2, post, loadedPost;
-            return __generator(this, function (_a) {
+            return tslib_1.__generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         user = new User_1.User();
@@ -811,22 +783,22 @@ describe("query builder > joins", function () {
                                 .getOne()];
                     case 8:
                         loadedPost = _a.sent();
-                        chai_1.expect(loadedPost.tag).to.not.be.empty;
+                        chai_1.expect(loadedPost.tag).to.not.be.undefined;
                         chai_1.expect(loadedPost.tag.id).to.be.equal(1);
-                        chai_1.expect(loadedPost.categories).to.not.be.empty;
+                        chai_1.expect(loadedPost.categories).to.not.be.eql([]);
                         chai_1.expect(loadedPost.categories.length).to.be.equal(2);
-                        chai_1.expect(loadedPost.categories[0].images).to.not.be.empty;
+                        chai_1.expect(loadedPost.categories[0].images).to.not.be.eql([]);
                         chai_1.expect(loadedPost.categories[0].images.length).to.be.equal(2);
                         chai_1.expect(loadedPost.categories[0].images.map(function (image) { return image.id; })).to.have.members([1, 2]);
-                        chai_1.expect(loadedPost.author).to.not.be.empty;
+                        chai_1.expect(loadedPost.author).to.not.be.undefined;
                         chai_1.expect(loadedPost.author.id).to.be.equal(1);
                         return [2 /*return*/];
                 }
             });
         }); })); });
-        it("should load and map selected data when data will given from same entity but with different conditions", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
+        it("should load and map selected data when data will given from same entity but with different conditions", function () { return Promise.all(connections.map(function (connection) { return tslib_1.__awaiter(_this, void 0, void 0, function () {
             var category1, category2, category3, post, loadedPost;
-            return __generator(this, function (_a) {
+            return tslib_1.__generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         category1 = new Category_1.Category();
@@ -858,17 +830,17 @@ describe("query builder > joins", function () {
                                 .getOne()];
                     case 5:
                         loadedPost = _a.sent();
-                        chai_1.expect(loadedPost.categories).to.not.be.empty;
+                        chai_1.expect(loadedPost.categories).to.not.be.eql([]);
                         chai_1.expect(loadedPost.categories.length).to.be.equal(2);
-                        chai_1.expect(loadedPost.subcategories).to.not.be.empty;
+                        chai_1.expect(loadedPost.subcategories).to.not.be.eql([]);
                         chai_1.expect(loadedPost.subcategories.length).to.be.equal(1);
                         return [2 /*return*/];
                 }
             });
         }); })); });
-        it("should load and map selected data when data will given from same property but with different conditions", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
+        it("should load and map selected data when data will given from same property but with different conditions", function () { return Promise.all(connections.map(function (connection) { return tslib_1.__awaiter(_this, void 0, void 0, function () {
             var image1, image2, image3, image4, category1, category2, category3, category4, post, post2, loadedPosts, loadedPost;
-            return __generator(this, function (_a) {
+            return tslib_1.__generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         image1 = new Image_1.Image();
@@ -941,24 +913,24 @@ describe("query builder > joins", function () {
                                 .getMany()];
                     case 11:
                         loadedPosts = _a.sent();
-                        chai_1.expect(loadedPosts[0].removedCategories).to.not.be.empty;
+                        chai_1.expect(loadedPosts[0].removedCategories).to.not.be.eql([]);
                         chai_1.expect(loadedPosts[0].removedCategories.length).to.be.equal(1);
                         chai_1.expect(loadedPosts[0].removedCategories[0].id).to.be.equal(3);
                         chai_1.expect(loadedPosts[0].removedCategories[0] instanceof Category_1.Category).to.be.true;
                         chai_1.expect(loadedPosts[0].removedCategories[0].removedImages.length).to.be.equal(1);
                         chai_1.expect(loadedPosts[0].removedCategories[0].removedImages[0] instanceof Image_1.Image).to.be.true;
                         chai_1.expect(loadedPosts[0].removedCategories[0].removedImages[0].id).to.be.equal(3);
-                        chai_1.expect(loadedPosts[0].subcategories).to.not.be.empty;
+                        chai_1.expect(loadedPosts[0].subcategories).to.not.be.eql([]);
                         chai_1.expect(loadedPosts[0].subcategories.length).to.be.equal(2);
                         chai_1.expect(loadedPosts[0].subcategories[0].titleImage.id).to.be.equal(1);
-                        chai_1.expect(loadedPosts[1].removedCategories).to.not.be.empty;
+                        chai_1.expect(loadedPosts[1].removedCategories).to.not.be.eql([]);
                         chai_1.expect(loadedPosts[1].removedCategories.length).to.be.equal(1);
                         chai_1.expect(loadedPosts[1].removedCategories[0].id).to.be.equal(4);
                         chai_1.expect(loadedPosts[1].removedCategories[0] instanceof Category_1.Category).to.be.true;
                         chai_1.expect(loadedPosts[1].removedCategories[0].removedImages.length).to.be.equal(1);
                         chai_1.expect(loadedPosts[1].removedCategories[0].removedImages[0] instanceof Image_1.Image).to.be.true;
                         chai_1.expect(loadedPosts[1].removedCategories[0].removedImages[0].id).to.be.equal(4);
-                        chai_1.expect(loadedPosts[1].subcategories).to.not.be.empty;
+                        chai_1.expect(loadedPosts[1].subcategories).to.not.be.eql([]);
                         chai_1.expect(loadedPosts[1].subcategories.length).to.be.equal(1);
                         chai_1.expect(loadedPosts[1].subcategories[0].titleImage.id).to.be.equal(1);
                         return [4 /*yield*/, connection.manager
@@ -972,23 +944,23 @@ describe("query builder > joins", function () {
                                 .getOne()];
                     case 12:
                         loadedPost = _a.sent();
-                        chai_1.expect(loadedPost.removedCategories).to.not.be.empty;
+                        chai_1.expect(loadedPost.removedCategories).to.not.be.eql([]);
                         chai_1.expect(loadedPost.removedCategories.length).to.be.equal(1);
                         chai_1.expect(loadedPost.removedCategories[0].id).to.be.equal(3);
                         chai_1.expect(loadedPost.removedCategories[0] instanceof Category_1.Category).to.be.true;
                         chai_1.expect(loadedPost.removedCategories[0].removedImages.length).to.be.equal(1);
                         chai_1.expect(loadedPost.removedCategories[0].removedImages[0] instanceof Image_1.Image).to.be.true;
                         chai_1.expect(loadedPost.removedCategories[0].removedImages[0].id).to.be.equal(3);
-                        chai_1.expect(loadedPost.subcategories).to.not.be.empty;
+                        chai_1.expect(loadedPost.subcategories).to.not.be.eql([]);
                         chai_1.expect(loadedPost.subcategories.length).to.be.equal(2);
                         chai_1.expect(loadedPost.subcategories[0].titleImage.id).to.be.equal(1);
                         return [2 /*return*/];
                 }
             });
         }); })); });
-        it("should not return any result when related data does not exist", function () { return Promise.all(connections.map(function (connection) { return __awaiter(_this, void 0, void 0, function () {
+        it("should not return any result when related data does not exist", function () { return Promise.all(connections.map(function (connection) { return tslib_1.__awaiter(_this, void 0, void 0, function () {
             var post, loadedPost1, loadedPost2;
-            return __generator(this, function (_a) {
+            return tslib_1.__generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         post = new Post_1.Post();
@@ -1004,7 +976,7 @@ describe("query builder > joins", function () {
                                 .getOne()];
                     case 2:
                         loadedPost1 = _a.sent();
-                        chai_1.expect(loadedPost1).to.be.empty;
+                        chai_1.expect(loadedPost1).to.be.undefined;
                         return [4 /*yield*/, connection.manager
                                 .createQueryBuilder(Post_1.Post, "post")
                                 .innerJoinAndMapMany("post.categories", Category_1.Category, "categories", "categories.id = :categoryId")
@@ -1013,7 +985,7 @@ describe("query builder > joins", function () {
                                 .getOne()];
                     case 3:
                         loadedPost2 = _a.sent();
-                        chai_1.expect(loadedPost2).to.be.empty;
+                        chai_1.expect(loadedPost2).to.be.undefined;
                         return [2 /*return*/];
                 }
             });

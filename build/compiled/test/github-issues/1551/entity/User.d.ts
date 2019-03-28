@@ -9,7 +9,7 @@ export interface UserConstructor {
     phone?: string;
 }
 export declare class User {
-    constructor({username, password, name, picture, phone}?: UserConstructor);
+    constructor({ username, password, name, picture, phone }?: UserConstructor);
     id: number;
     username: string;
     password: string;

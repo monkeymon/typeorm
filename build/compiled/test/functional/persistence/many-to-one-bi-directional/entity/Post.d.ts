@@ -3,5 +3,5 @@ export declare class Post {
     id: number;
     title: string;
     categories: Category[];
-    constructor(title: string);
+    constructor(id: number, title: string);
 }

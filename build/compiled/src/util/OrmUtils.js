@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = require("tslib");
 var OrmUtils = /** @class */ (function () {
     function OrmUtils() {
     }
@@ -63,6 +64,7 @@ var OrmUtils = /** @class */ (function () {
         for (var _i = 1; _i < arguments.length; _i++) {
             sources[_i - 1] = arguments[_i];
         }
+        var _a, _b;
         if (!sources.length)
             return target;
         var source = sources.shift();
@@ -74,9 +76,13 @@ var OrmUtils = /** @class */ (function () {
                 // if (source[key] instanceof Promise) {
                 //     propertyKey = "__" + key + "__";
                 // }
-                if (this.isObject(source[propertyKey]) && !(source[propertyKey] instanceof Date) && !(source[propertyKey] instanceof Buffer)) {
+                if (this.isObject(source[propertyKey])
+                    && !(source[propertyKey] instanceof Map)
+                    && !(source[propertyKey] instanceof Set)
+                    && !(source[propertyKey] instanceof Date)
+                    && !(source[propertyKey] instanceof Buffer)) {
                     if (!target[key])
-                        Object.assign(target, (_a = {}, _a[key] = {}, _a));
+                        Object.assign(target, (_a = {}, _a[key] = Object.create(Object.getPrototypeOf(source[propertyKey])), _a));
                     this.mergeDeep(target[key], source[propertyKey]);
                 }
                 else {
@@ -84,8 +90,7 @@ var OrmUtils = /** @class */ (function () {
                 }
             }
         }
-        return this.mergeDeep.apply(this, [target].concat(sources));
-        var _a, _b;
+        return this.mergeDeep.apply(this, tslib_1.__spread([target], sources));
     };
     /**
      * Deep compare objects.
@@ -156,7 +161,13 @@ var OrmUtils = /** @class */ (function () {
         // Especially useful on the step where we compare prototypes
         if (x === y)
             return true;
-        if (x.equals instanceof Function && x.equals(y))
+        // Unequal, but either is null or undefined (use case: jsonb comparasion)
+        // PR #3776, todo: add tests
+        if (x === null || y === null || x === undefined || y === undefined)
+            return false;
+        // Fix the buffer compare bug.
+        // See: https://github.com/typeorm/typeorm/issues/3654
+        if ((typeof x.equals === "function" || x.equals instanceof Function) && x.equals(y))
             return true;
         // Works in case when functions are created in constructor.
         // Comparing dates is a common scenario. Another built-ins?

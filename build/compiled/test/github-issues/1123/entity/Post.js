@@ -13,7 +13,7 @@ exports.PostSchema = {
     columns: {
         id: {
             primary: true,
-            type: "int"
+            type: Number
         },
         title: {
             type: "varchar"

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = require("tslib");
 /**
  * Foreign key from the database stored in this class.
  */
@@ -32,8 +33,8 @@ var TableForeignKey = /** @class */ (function () {
     TableForeignKey.prototype.clone = function () {
         return new TableForeignKey({
             name: this.name,
-            columnNames: this.columnNames.slice(),
-            referencedColumnNames: this.referencedColumnNames.slice(),
+            columnNames: tslib_1.__spread(this.columnNames),
+            referencedColumnNames: tslib_1.__spread(this.referencedColumnNames),
             referencedTableName: this.referencedTableName,
             onDelete: this.onDelete,
             onUpdate: this.onUpdate

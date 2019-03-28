@@ -5,4 +5,5 @@ export declare class Counters {
     favorites: number;
     information: Information;
     data: Information;
+    dataWithoutPrefix: Information;
 }

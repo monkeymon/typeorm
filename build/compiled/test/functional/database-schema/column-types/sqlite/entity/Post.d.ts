@@ -1,4 +1,5 @@
 /// <reference types="node" />
+import { FruitEnum } from "../enum/FruitEnum";
 export declare class Post {
     id: number;
     name: string;
@@ -33,4 +34,6 @@ export declare class Post {
     simpleJson: {
         param: string;
     };
+    simpleEnum: string;
+    simpleClassEnum1: FruitEnum;
 }

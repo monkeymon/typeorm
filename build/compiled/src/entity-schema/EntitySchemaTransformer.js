@@ -85,6 +85,8 @@ var EntitySchemaTransformer = /** @class */ (function () {
                     };
                     metadataArgsStorage.generations.push(generationArgs);
                 }
+                if (column.unique)
+                    metadataArgsStorage.uniques.push({ target: options.target || options.name, columns: [columnName] });
             });
             // add relation metadata args from the schema
             if (options.relations) {
@@ -190,6 +192,17 @@ var EntitySchemaTransformer = /** @class */ (function () {
                         expression: check.expression
                     };
                     metadataArgsStorage.checks.push(checkAgrs);
+                });
+            }
+            // add exclusion metadata args from the schema
+            if (options.exclusions) {
+                options.exclusions.forEach(function (exclusion) {
+                    var exclusionArgs = {
+                        target: options.target || options.name,
+                        name: exclusion.name,
+                        expression: exclusion.expression
+                    };
+                    metadataArgsStorage.exclusions.push(exclusionArgs);
                 });
             }
         });

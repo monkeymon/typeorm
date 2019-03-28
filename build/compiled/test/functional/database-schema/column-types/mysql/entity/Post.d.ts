@@ -2,16 +2,29 @@
 import { FruitEnum } from "../enum/FruitEnum";
 export declare class Post {
     id: number;
+    bit: Buffer;
     int: number;
+    integer: number;
     tinyint: number;
     smallint: number;
     mediumint: number;
     bigint: string;
     float: number;
     double: number;
+    doublePrecision: number;
+    real: number;
+    dec: string;
     decimal: string;
+    numeric: string;
+    fixed: string;
+    boolean: boolean;
+    bool: boolean;
     char: string;
+    nChar: string;
+    nationalChar: string;
     varchar: string;
+    nVarchar: string;
+    nationalVarchar: string;
     text: string;
     tinytext: string;
     mediumtext: string;
@@ -42,4 +55,6 @@ export declare class Post {
     simpleJson: {
         param: string;
     };
+    simpleEnum: string;
+    simpleClassEnum1: FruitEnum;
 }

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = require("tslib");
 require("reflect-metadata");
 var index_1 = require("../../src/index");
 var Post_1 = require("./entity/Post");
@@ -41,7 +42,7 @@ index_1.createConnection(options).then(function (connection) {
     });
     return Promise.all([authorPromise, postPromise])
         .then(function (results) {
-        var author = results[0], post = results[1];
+        var _a = tslib_1.__read(results, 2), author = _a[0], post = _a[1];
         author.posts = [post];
         return authorRepository.save(author);
     })
